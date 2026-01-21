@@ -1,0 +1,4 @@
+dist/
+public/js/
+node_modules/
+pnpm-lock.yaml
