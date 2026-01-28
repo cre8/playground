@@ -628,3 +628,51 @@ header .badge {
 .hidden {
   display: none !important;
 }
+
+/* DC API Toggle */
+.dc-api-option {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.toggle-label input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.toggle-text {
+  user-select: none;
+}
+
+.toggle-label:hover .toggle-text {
+  color: var(--text);
+}
+
+/* Processing icon animation */
+.processing-icon {
+  font-size: 4rem;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(0.95);
+  }
+}

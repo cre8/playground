@@ -11,7 +11,10 @@ import {
   getSessionFromUrl,
   buildRedirectUrl,
   clearSessionFromUrl,
+  isDcApiAvailable,
+  verifyWithDcApi,
   type Session,
+  type DcApiResult,
 } from '../shared/utils';
 
 const USE_CASE = 'alcohol-shop';
@@ -35,12 +38,34 @@ let _currentSessionId: string | null = null;
 // Initialize
 function init(): void {
   checkoutBtn.addEventListener('click', handleCheckout);
+
+  // Setup DC API toggle if available
+  setupDcApiToggle();
   
   // Check if returning from wallet with session
   const sessionId = getSessionFromUrl();
   if (sessionId) {
     resumeSession(sessionId);
   }
+}
+
+// Setup DC API toggle checkbox
+function setupDcApiToggle(): void {
+  const dcApiToggle = document.getElementById('dcApiToggle') as HTMLInputElement | null;
+  const dcApiOption = document.getElementById('dcApiOption');
+
+  if (dcApiToggle && dcApiOption) {
+    // Show toggle only if DC API is available
+    if (isDcApiAvailable()) {
+      dcApiOption.classList.remove('hidden');
+    }
+  }
+}
+
+// Check if DC API mode is enabled
+function isDcApiEnabled(): boolean {
+  const dcApiToggle = document.getElementById('dcApiToggle') as HTMLInputElement | null;
+  return dcApiToggle?.checked ?? false;
 }
 
 // Resume an existing session (from redirect)
@@ -85,41 +110,73 @@ async function handleCheckout(): Promise<void> {
   checkoutBtn.textContent = 'Starting verification...';
 
   try {
-    // Build redirect URL with {sessionId} placeholder - backend will replace it
-    const redirectUrl = buildRedirectUrl('{sessionId}');
-    
-    // Create request with redirect URI containing placeholder
-    const result = await createVerificationRequest(USE_CASE, redirectUrl);
-    _currentSessionId = result.sessionId;
-
-    // Show verification section
-    checkoutSection.classList.add('hidden');
-    verificationSection.classList.remove('hidden');
-    infoSection.classList.add('hidden');
-
-    // Generate QR code and same-device link
-    await generateVerificationUI(qrPlaceholder, sameDeviceLink, result.uri);
-    updateStatus('waiting', 'Waiting for you to scan...');
-
-    // Wait for verification to complete
-    const session = await waitForSession(result.sessionId, {
-      onUpdate: (s) => {
-        if (s.status === 'pending') {
-          updateStatus('waiting', 'Waiting for wallet response...');
-        } else if (s.status === 'processing') {
-          updateStatus('processing', 'Processing verification...');
-        }
-      },
-    });
-
-    // Handle success
-    showSuccess(session);
+    // Check if DC API mode is enabled
+    if (isDcApiEnabled()) {
+      await handleDcApiVerification();
+    } else {
+      await handleQrCodeVerification();
+    }
   } catch (error) {
     handleError(error);
   } finally {
     checkoutBtn.disabled = false;
     checkoutBtn.textContent = 'Proceed to Checkout';
   }
+}
+
+// Handle verification via QR code flow
+async function handleQrCodeVerification(): Promise<void> {
+  // Build redirect URL with {sessionId} placeholder - backend will replace it
+  const redirectUrl = buildRedirectUrl('{sessionId}');
+  
+  // Create request with redirect URI containing placeholder
+  const result = await createVerificationRequest(USE_CASE, redirectUrl);
+  _currentSessionId = result.sessionId;
+
+  // Show verification section
+  checkoutSection.classList.add('hidden');
+  verificationSection.classList.remove('hidden');
+  infoSection.classList.add('hidden');
+
+  // Generate QR code and same-device link
+  await generateVerificationUI(qrPlaceholder, sameDeviceLink, result.uri);
+  updateStatus('waiting', 'Waiting for you to scan...');
+
+  // Wait for verification to complete
+  const session = await waitForSession(result.sessionId, {
+    onUpdate: (s) => {
+      if (s.status === 'pending') {
+        updateStatus('waiting', 'Waiting for wallet response...');
+      } else if (s.status === 'processing') {
+        updateStatus('processing', 'Processing verification...');
+      }
+    },
+  });
+
+  // Handle success
+  showSuccess(session);
+}
+
+// Handle verification via DC API (browser-native)
+async function handleDcApiVerification(): Promise<void> {
+  // Show verification section with processing state
+  checkoutSection.classList.add('hidden');
+  verificationSection.classList.remove('hidden');
+  infoSection.classList.add('hidden');
+
+  // Hide QR code and same-device link (DC API uses native browser UI)
+  qrPlaceholder.innerHTML = '<div class="processing-icon">🔐</div>';
+  qrPlaceholder.classList.remove('has-qr');
+  sameDeviceLink.classList.add('hidden');
+  updateStatus('processing', 'Opening wallet...');
+
+  // Run the DC API flow
+  const result = await verifyWithDcApi(USE_CASE, (status) => {
+    updateStatus('processing', status);
+  });
+
+  // Handle success - convert DC API result to session format
+  showSuccessFromDcApi(result);
 }
 
 // Handle errors
@@ -172,6 +229,41 @@ function showSuccess(session: Session): void {
       <div class="credential-item">
         <span class="label">Verified At</span>
         <span class="value">${new Date().toLocaleTimeString()}</span>
+      </div>
+    `;
+  }
+
+  // Show success section after a delay
+  setTimeout(() => {
+    verificationSection.classList.add('hidden');
+    successSection.classList.remove('hidden');
+  }, 1500);
+}
+
+// Show success state from DC API result
+function showSuccessFromDcApi(result: DcApiResult): void {
+  updateStatus('success', 'Age verified!');
+
+  // Show result panel
+  resultPanel.classList.remove('hidden');
+
+  // Display credential data
+  if (result.presentation) {
+    const p = result.presentation as Record<string, unknown>;
+    const isOver18 = p.age_over_18 === true || p.age_over_18 === 'true';
+
+    credentialDisplay.innerHTML = `
+      <div class="credential-item">
+        <span class="label">Age Over 18</span>
+        <span class="value ${isOver18 ? 'success' : 'error'}">${isOver18 ? '✓ Yes' : '✗ No'}</span>
+      </div>
+      <div class="credential-item">
+        <span class="label">Verified At</span>
+        <span class="value">${new Date().toLocaleTimeString()}</span>
+      </div>
+      <div class="credential-item">
+        <span class="label">Method</span>
+        <span class="value">DC API (Browser Native)</span>
       </div>
     `;
   }

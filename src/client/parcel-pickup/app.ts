@@ -12,7 +12,10 @@ import {
   getSessionFromUrl,
   buildRedirectUrl,
   clearSessionFromUrl,
+  isDcApiAvailable,
+  verifyWithDcApi,
   type Session,
+  type DcApiResult,
 } from '../shared/utils';
 
 const USE_CASE = 'parcel-pickup';
@@ -58,12 +61,33 @@ function init(): void {
   tryAgainBtn?.addEventListener('click', handleTryAgain);
   helpBtn?.addEventListener('click', handleHelp);
   codeLink?.addEventListener('click', handleCodeLink);
+
+  // Setup DC API toggle if available
+  setupDcApiToggle();
   
   // Check if returning from wallet with session
   const sessionId = getSessionFromUrl();
   if (sessionId) {
     resumeSession(sessionId);
   }
+}
+
+// Setup DC API toggle checkbox
+function setupDcApiToggle(): void {
+  const dcApiToggle = document.getElementById('dcApiToggle') as HTMLInputElement | null;
+  const dcApiOption = document.getElementById('dcApiOption');
+
+  if (dcApiToggle && dcApiOption) {
+    if (isDcApiAvailable()) {
+      dcApiOption.classList.remove('hidden');
+    }
+  }
+}
+
+// Check if DC API mode is enabled
+function isDcApiEnabled(): boolean {
+  const dcApiToggle = document.getElementById('dcApiToggle') as HTMLInputElement | null;
+  return dcApiToggle?.checked ?? false;
 }
 
 // Resume an existing session (from redirect)
@@ -99,36 +123,61 @@ async function handleVerify(): Promise<void> {
   verifyBtn.textContent = 'Starting verification...';
 
   try {
-    // Build redirect URL with {sessionId} placeholder
-    const redirectUrl = buildRedirectUrl('{sessionId}');
-    
-    // Create verification request
-    const result = await createVerificationRequest(USE_CASE, redirectUrl);
-
-    // Show verification section with QR code
-    showSection(verificationSection);
-    await generateVerificationUI(qrCodeDiv, sameDeviceLink, result.uri);
-    statusText.textContent = 'Scan the QR code with your EUDI Wallet';
-
-    // Wait for verification to complete
-    const session = await waitForSession(result.sessionId, {
-      onUpdate: (s) => {
-        if (s.status === 'pending') {
-          statusText.textContent = 'Waiting for wallet response...';
-        } else if (s.status === 'processing') {
-          statusText.textContent = 'Checking recipient name...';
-        }
-      },
-    });
-
-    // Handle result
-    handleVerificationResult(session);
+    if (isDcApiEnabled()) {
+      await handleDcApiVerification();
+    } else {
+      await handleQrCodeVerification();
+    }
   } catch (error) {
     handleError(error);
   } finally {
     verifyBtn.disabled = false;
     verifyBtn.textContent = '🪪 Verify & Open Locker';
   }
+}
+
+// Handle verification via QR code flow
+async function handleQrCodeVerification(): Promise<void> {
+  // Build redirect URL with {sessionId} placeholder
+  const redirectUrl = buildRedirectUrl('{sessionId}');
+  
+  // Create verification request
+  const result = await createVerificationRequest(USE_CASE, redirectUrl);
+
+  // Show verification section with QR code
+  showSection(verificationSection);
+  await generateVerificationUI(qrCodeDiv, sameDeviceLink, result.uri);
+  statusText.textContent = 'Scan the QR code with your EUDI Wallet';
+
+  // Wait for verification to complete
+  const session = await waitForSession(result.sessionId, {
+    onUpdate: (s) => {
+      if (s.status === 'pending') {
+        statusText.textContent = 'Waiting for wallet response...';
+      } else if (s.status === 'processing') {
+        statusText.textContent = 'Checking recipient name...';
+      }
+    },
+  });
+
+  // Handle result
+  handleVerificationResult(session);
+}
+
+// Handle verification via DC API (browser-native)
+async function handleDcApiVerification(): Promise<void> {
+  showSection(verificationSection);
+  qrCodeDiv.innerHTML = '<div class="processing-icon">🔐</div>';
+  qrCodeDiv.classList.remove('has-qr');
+  sameDeviceLink.classList.add('hidden');
+  statusText.textContent = 'Opening wallet...';
+
+  const result = await verifyWithDcApi(USE_CASE, (status) => {
+    statusText.textContent = status;
+  });
+
+  // Handle result - convert DC API result to session format
+  handleVerificationResultFromDcApi(result);
 }
 
 // Check if name matches expected recipient
@@ -146,6 +195,11 @@ function isRecipientMatch(_session: Session): boolean {
 // Get full name from session
 function getFullName(session: Session): string {
   const claims = extractClaims(session.presentation || {});
+  return getFullNameFromClaims(claims);
+}
+
+// Get full name from claims
+function getFullNameFromClaims(claims: Record<string, unknown>): string {
   const firstName = claims.given_name || claims.first_name || '';
   const lastName = claims.family_name || claims.last_name || '';
   return `${firstName} ${lastName}`.trim();
@@ -158,6 +212,12 @@ function handleVerificationResult(session: Session): void {
   } else {
     showMismatch(session);
   }
+}
+
+// Handle verification result from DC API
+function handleVerificationResultFromDcApi(result: DcApiResult): void {
+  // For demo purposes, always show success
+  showSuccessFromDcApi(result);
 }
 
 // Handle errors
@@ -183,13 +243,23 @@ function handleError(error: unknown): void {
 // Show success state
 function showSuccess(session: Session): void {
   showSection(successSection);
+  const claims = extractClaims(session.presentation || {});
+  displaySuccessContent(claims, false);
+}
 
-  // Display verified data
+// Show success state from DC API
+function showSuccessFromDcApi(result: DcApiResult): void {
+  showSection(successSection);
+  const claims = result.presentation ? extractClaims(result.presentation) : {};
+  displaySuccessContent(claims, true);
+}
+
+// Display success content
+function displaySuccessContent(claims: Record<string, unknown>, isDcApi: boolean): void {
   const verifiedDataEl = document.getElementById('verifiedData');
   if (verifiedDataEl) {
     verifiedDataEl.innerHTML = '';
     
-    const claims = extractClaims(session.presentation || {});
     const firstName = claims.given_name || claims.first_name;
     const lastName = claims.family_name || claims.last_name;
     
@@ -221,6 +291,17 @@ function showSuccess(session: Session): void {
       <span class="value">✓ Confirmed</span>
     `;
     verifiedDataEl.appendChild(status);
+
+    // Add DC API indicator if applicable
+    if (isDcApi) {
+      const method = document.createElement('div');
+      method.className = 'verified-item';
+      method.innerHTML = `
+        <span class="label">Method</span>
+        <span class="value">DC API (Browser Native)</span>
+      `;
+      verifiedDataEl.appendChild(method);
+    }
   }
 }
 

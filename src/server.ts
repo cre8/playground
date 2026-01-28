@@ -10,7 +10,11 @@ import express, { Request, Response, NextFunction } from 'express';
 import rateLimit from 'express-rate-limit';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { EudiploClient } from '@eudiplo/sdk-core';
+import {
+  EudiploClient,
+  createDcApiRequestForBrowser,
+  submitDcApiWalletResponse,
+} from '@eudiplo/sdk-core';
 import 'dotenv/config';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -83,7 +87,7 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
 });
 
 // Handle CORS preflight
-app.options('*', (_req: Request, res: Response) => {
+app.options('/{*any}', (_req: Request, res: Response) => {
   res.sendStatus(200);
 });
 
@@ -171,7 +175,7 @@ app.post('/api/issue', async (req: Request, res: Response) => {
 // GET /api/session/:id - Get session status
 app.get('/api/session/:id', async (req: Request, res: Response) => {
   try {
-    const { id: sessionId } = req.params;
+    const sessionId = String(req.params.id);
 
     const client = createClient();
     const session = await client.getSession(sessionId);
@@ -187,13 +191,70 @@ app.get('/api/session/:id', async (req: Request, res: Response) => {
   }
 });
 
+// DC API Routes (Digital Credentials API - browser-native verification)
+
+// POST /api/dc-api/start - Create a DC API presentation request
+app.post('/api/dc-api/start', async (req: Request, res: Response) => {
+  try {
+    const { useCase } = req.body as { useCase: string };
+    const useCaseConfig = USE_CASES[useCase];
+
+    if (!useCaseConfig) {
+      res.status(400).json({ error: `Unknown use case: ${useCase}` });
+      return;
+    }
+
+    // Create DC API request using SDK helper (credentials stay on server)
+    const requestData = await createDcApiRequestForBrowser({
+      baseUrl: config.eudiploUrl,
+      clientId: config.clientId,
+      clientSecret: config.clientSecret,
+      configId: useCaseConfig.presentationConfigId,
+    });
+
+    // Return safe data to browser (no credentials exposed)
+    res.json(requestData);
+  } catch (error: any) {
+    console.error('API Error (dc-api/start):', error);
+    res.status(500).json({ error: error.message || 'Internal Server Error' });
+  }
+});
+
+// POST /api/dc-api/complete - Complete DC API verification with wallet response
+app.post('/api/dc-api/complete', async (req: Request, res: Response) => {
+  try {
+    const { responseUri, walletResponse } = req.body as {
+      responseUri: string;
+      walletResponse: string;
+    };
+
+    if (!responseUri || !walletResponse) {
+      res.status(400).json({ error: 'Missing responseUri or walletResponse' });
+      return;
+    }
+
+    // Submit wallet response to EUDIPLO and get verified claims
+    // The walletResponse from the browser DC API is the response property
+    const result = await submitDcApiWalletResponse({
+      responseUri,
+      walletResponse: { response: walletResponse },
+      sendResponse: true, // Get verified claims back
+    });
+
+    res.json(result);
+  } catch (error: any) {
+    console.error('API Error (dc-api/complete):', error);
+    res.status(500).json({ error: error.message || 'Internal Server Error' });
+  }
+});
+
 // Serve static files from public directory
 const publicDir = path.resolve(__dirname, '..', 'public');
 
 app.use(express.static(publicDir));
 
 // Fallback to index.html for SPA-like behavior (serve index.html for directories)
-app.get('*', (req: Request, res: Response) => {
+app.get('/{*any}', (req: Request, res: Response) => {
   const requestPath = req.path;
 
   // Files with extensions are handled by express.static, return 404 for missing files

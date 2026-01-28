@@ -11,7 +11,10 @@ import {
   getSessionFromUrl,
   buildRedirectUrl,
   clearSessionFromUrl,
+  isDcApiAvailable,
+  verifyWithDcApi,
   type Session,
+  type DcApiResult,
 } from '../shared/utils';
 
 const USE_CASE = 'sim-activation';
@@ -37,12 +40,33 @@ function showSection(section: HTMLElement): void {
 function init(): void {
   activateBtn.addEventListener('click', handleActivate);
   doneBtn?.addEventListener('click', handleDone);
+
+  // Setup DC API toggle if available
+  setupDcApiToggle();
   
   // Check if returning from wallet with session
   const sessionId = getSessionFromUrl();
   if (sessionId) {
     resumeSession(sessionId);
   }
+}
+
+// Setup DC API toggle checkbox
+function setupDcApiToggle(): void {
+  const dcApiToggle = document.getElementById('dcApiToggle') as HTMLInputElement | null;
+  const dcApiOption = document.getElementById('dcApiOption');
+
+  if (dcApiToggle && dcApiOption) {
+    if (isDcApiAvailable()) {
+      dcApiOption.classList.remove('hidden');
+    }
+  }
+}
+
+// Check if DC API mode is enabled
+function isDcApiEnabled(): boolean {
+  const dcApiToggle = document.getElementById('dcApiToggle') as HTMLInputElement | null;
+  return dcApiToggle?.checked ?? false;
 }
 
 // Resume an existing session (from redirect)
@@ -78,36 +102,60 @@ async function handleActivate(): Promise<void> {
   activateBtn.textContent = 'Wird gestartet...';
 
   try {
-    // Build redirect URL with {sessionId} placeholder
-    const redirectUrl = buildRedirectUrl('{sessionId}');
-    
-    // Create verification request
-    const result = await createVerificationRequest(USE_CASE, redirectUrl);
-
-    // Show verification section with QR code
-    showSection(verificationSection);
-    await generateVerificationUI(qrCodeDiv, sameDeviceLink, result.uri);
-    statusText.textContent = 'Scan the QR code with your EUDI Wallet';
-
-    // Wait for verification to complete
-    const session = await waitForSession(result.sessionId, {
-      onUpdate: (s) => {
-        if (s.status === 'pending') {
-          statusText.textContent = 'Waiting for wallet response...';
-        } else if (s.status === 'processing') {
-          statusText.textContent = 'Verifying identity...';
-        }
-      },
-    });
-
-    // Handle success
-    showSuccess(session);
+    if (isDcApiEnabled()) {
+      await handleDcApiVerification();
+    } else {
+      await handleQrCodeVerification();
+    }
   } catch (error) {
     handleError(error);
   } finally {
     activateBtn.disabled = false;
     activateBtn.textContent = '🪪 Verify Identity Now';
   }
+}
+
+// Handle verification via QR code flow
+async function handleQrCodeVerification(): Promise<void> {
+  // Build redirect URL with {sessionId} placeholder
+  const redirectUrl = buildRedirectUrl('{sessionId}');
+  
+  // Create verification request
+  const result = await createVerificationRequest(USE_CASE, redirectUrl);
+
+  // Show verification section with QR code
+  showSection(verificationSection);
+  await generateVerificationUI(qrCodeDiv, sameDeviceLink, result.uri);
+  statusText.textContent = 'Scan the QR code with your EUDI Wallet';
+
+  // Wait for verification to complete
+  const session = await waitForSession(result.sessionId, {
+    onUpdate: (s) => {
+      if (s.status === 'pending') {
+        statusText.textContent = 'Waiting for wallet response...';
+      } else if (s.status === 'processing') {
+        statusText.textContent = 'Verifying identity...';
+      }
+    },
+  });
+
+  // Handle success
+  showSuccess(session);
+}
+
+// Handle verification via DC API (browser-native)
+async function handleDcApiVerification(): Promise<void> {
+  showSection(verificationSection);
+  qrCodeDiv.innerHTML = '<div class="processing-icon">🔐</div>';
+  qrCodeDiv.classList.remove('has-qr');
+  sameDeviceLink.classList.add('hidden');
+  statusText.textContent = 'Opening wallet...';
+
+  const result = await verifyWithDcApi(USE_CASE, (status) => {
+    statusText.textContent = status;
+  });
+
+  showSuccessFromDcApi(result);
 }
 
 // Handle errors
@@ -143,7 +191,17 @@ function generateActivationId(): string {
 // Show success state
 function showSuccess(session: Session): void {
   showSection(successSection);
+  displaySuccessContent(session.presentation, false);
+}
 
+// Show success state from DC API result
+function showSuccessFromDcApi(result: DcApiResult): void {
+  showSection(successSection);
+  displaySuccessContent(result.presentation, true);
+}
+
+// Display success content
+function displaySuccessContent(presentation: Record<string, unknown> | undefined, isDcApi: boolean): void {
   // Set activation ID
   const activationIdEl = document.getElementById('activationId');
   if (activationIdEl) {
@@ -152,7 +210,7 @@ function showSuccess(session: Session): void {
 
   // Display verified data
   const verifiedDataEl = document.getElementById('verifiedData');
-  if (verifiedDataEl && session.presentation) {
+  if (verifiedDataEl && presentation) {
     verifiedDataEl.innerHTML = '';
     
     // Map of claim keys to English labels
@@ -170,7 +228,7 @@ function showSuccess(session: Session): void {
     };
 
     // Try to extract claims from presentation
-    const claims = extractClaims(session.presentation);
+    const claims = extractClaims(presentation);
     
     for (const [key, value] of Object.entries(claims)) {
       const label = labelMap[key];
@@ -183,6 +241,17 @@ function showSuccess(session: Session): void {
         `;
         verifiedDataEl.appendChild(item);
       }
+    }
+
+    // Add DC API indicator if applicable
+    if (isDcApi) {
+      const item = document.createElement('div');
+      item.className = 'verified-item';
+      item.innerHTML = `
+        <span class="label">Method</span>
+        <span class="value">DC API (Browser Native)</span>
+      `;
+      verifiedDataEl.appendChild(item);
     }
 
     // If no claims found, show placeholder

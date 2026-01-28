@@ -11,7 +11,10 @@ import {
   getSessionFromUrl,
   buildRedirectUrl,
   clearSessionFromUrl,
+  isDcApiAvailable,
+  verifyWithDcApi,
   type Session,
+  type DcApiResult,
 } from '../shared/utils';
 
 const USE_CASE = 'museum-discount';
@@ -46,12 +49,33 @@ function init(): void {
   tryAgainBtn?.addEventListener('click', handleTryAgain);
   purchaseBtn?.addEventListener('click', handlePurchase);
   buyRegularBtn?.addEventListener('click', handleBuyRegular);
+
+  // Setup DC API toggle if available
+  setupDcApiToggle();
   
   // Check if returning from wallet with session
   const sessionId = getSessionFromUrl();
   if (sessionId) {
     resumeSession(sessionId);
   }
+}
+
+// Setup DC API toggle checkbox
+function setupDcApiToggle(): void {
+  const dcApiToggle = document.getElementById('dcApiToggle') as HTMLInputElement | null;
+  const dcApiOption = document.getElementById('dcApiOption');
+
+  if (dcApiToggle && dcApiOption) {
+    if (isDcApiAvailable()) {
+      dcApiOption.classList.remove('hidden');
+    }
+  }
+}
+
+// Check if DC API mode is enabled
+function isDcApiEnabled(): boolean {
+  const dcApiToggle = document.getElementById('dcApiToggle') as HTMLInputElement | null;
+  return dcApiToggle?.checked ?? false;
 }
 
 // Resume an existing session (from redirect)
@@ -87,30 +111,11 @@ async function handleVerify(): Promise<void> {
   verifyBtn.textContent = 'Starting verification...';
 
   try {
-    // Build redirect URL with {sessionId} placeholder
-    const redirectUrl = buildRedirectUrl('{sessionId}');
-    
-    // Create verification request
-    const result = await createVerificationRequest(USE_CASE, redirectUrl);
-
-    // Show verification section with QR code
-    showSection(verificationSection);
-    await generateVerificationUI(qrCodeDiv, sameDeviceLink, result.uri);
-    statusText.textContent = 'Scan the QR code with your EUDI Wallet';
-
-    // Wait for verification to complete
-    const session = await waitForSession(result.sessionId, {
-      onUpdate: (s) => {
-        if (s.status === 'pending') {
-          statusText.textContent = 'Waiting for wallet response...';
-        } else if (s.status === 'processing') {
-          statusText.textContent = 'Verifying residency...';
-        }
-      },
-    });
-
-    // Handle result
-    handleVerificationResult(session);
+    if (isDcApiEnabled()) {
+      await handleDcApiVerification();
+    } else {
+      await handleQrCodeVerification();
+    }
   } catch (error) {
     handleError(error);
   } finally {
@@ -119,10 +124,58 @@ async function handleVerify(): Promise<void> {
   }
 }
 
+// Handle verification via QR code flow
+async function handleQrCodeVerification(): Promise<void> {
+  // Build redirect URL with {sessionId} placeholder
+  const redirectUrl = buildRedirectUrl('{sessionId}');
+  
+  // Create verification request
+  const result = await createVerificationRequest(USE_CASE, redirectUrl);
+
+  // Show verification section with QR code
+  showSection(verificationSection);
+  await generateVerificationUI(qrCodeDiv, sameDeviceLink, result.uri);
+  statusText.textContent = 'Scan the QR code with your EUDI Wallet';
+
+  // Wait for verification to complete
+  const session = await waitForSession(result.sessionId, {
+    onUpdate: (s) => {
+      if (s.status === 'pending') {
+        statusText.textContent = 'Waiting for wallet response...';
+      } else if (s.status === 'processing') {
+        statusText.textContent = 'Verifying residency...';
+      }
+    },
+  });
+
+  // Handle result
+  handleVerificationResult(session);
+}
+
+// Handle verification via DC API (browser-native)
+async function handleDcApiVerification(): Promise<void> {
+  showSection(verificationSection);
+  qrCodeDiv.innerHTML = '<div class="processing-icon">🔐</div>';
+  qrCodeDiv.classList.remove('has-qr');
+  sameDeviceLink.classList.add('hidden');
+  statusText.textContent = 'Opening wallet...';
+
+  const result = await verifyWithDcApi(USE_CASE, (status) => {
+    statusText.textContent = status;
+  });
+
+  // Handle result - convert DC API result to session format for compatibility
+  handleVerificationResultFromDcApi(result);
+}
+
 // Check if user is from Berlin
 function isBerlinResident(session: Session): boolean {
   const claims = extractClaims(session);
-  
+  return isBerlinResidentFromClaims(claims);
+}
+
+// Check Berlin residency from claims
+function isBerlinResidentFromClaims(claims: Record<string, unknown>): boolean {
   // Check various possible city field names
   // PID credentials have city in address.locality
   const address = claims.address as Record<string, unknown> | undefined;
@@ -144,6 +197,16 @@ function handleVerificationResult(session: Session): void {
     showSuccess(session);
   } else {
     showNotBerlin(session);
+  }
+}
+
+// Handle verification result from DC API
+function handleVerificationResultFromDcApi(result: DcApiResult): void {
+  const claims = result.presentation ? extractClaimsFromPresentation(result.presentation) : {};
+  if (isBerlinResidentFromClaims(claims)) {
+    showSuccessFromDcApi(result);
+  } else {
+    showNotBerlinFromDcApi(result);
   }
 }
 
@@ -180,7 +243,19 @@ function generateTicketId(): string {
 // Show success state (Berlin resident)
 function showSuccess(session: Session): void {
   showSection(successSection);
+  const claims = extractClaims(session);
+  displaySuccessContent(claims, false);
+}
 
+// Show success state from DC API
+function showSuccessFromDcApi(result: DcApiResult): void {
+  showSection(successSection);
+  const claims = result.presentation ? extractClaimsFromPresentation(result.presentation) : {};
+  displaySuccessContent(claims, true);
+}
+
+// Display success content
+function displaySuccessContent(claims: Record<string, unknown>, isDcApi: boolean): void {
   // Set ticket ID
   const ticketIdEl = document.getElementById('ticketId');
   if (ticketIdEl) {
@@ -192,7 +267,6 @@ function showSuccess(session: Session): void {
   if (verifiedDataEl) {
     verifiedDataEl.innerHTML = '';
     
-    const claims = extractClaims(session);
     const address = claims.address as Record<string, unknown> | undefined;
     const city = address?.locality || claims.resident_city || claims.locality || claims.city || claims.place_of_residence;
     
@@ -213,15 +287,37 @@ function showSuccess(session: Session): void {
       <span class="value" style="color: #16a34a;">✓ Qualified</span>
     `;
     verifiedDataEl.appendChild(eligibility);
+
+    // Add DC API indicator if applicable
+    if (isDcApi) {
+      const method = document.createElement('div');
+      method.className = 'verified-item';
+      method.innerHTML = `
+        <span class="label">Method</span>
+        <span class="value">DC API (Browser Native)</span>
+      `;
+      verifiedDataEl.appendChild(method);
+    }
   }
 }
 
 // Show not Berlin state
 function showNotBerlin(session: Session): void {
+  const claims = extractClaims(session);
+  displayNotBerlinContent(claims);
+}
+
+// Show not Berlin state from DC API
+function showNotBerlinFromDcApi(result: DcApiResult): void {
+  const claims = result.presentation ? extractClaimsFromPresentation(result.presentation) : {};
+  displayNotBerlinContent(claims);
+}
+
+// Display not Berlin content
+function displayNotBerlinContent(claims: Record<string, unknown>): void {
   showSection(notBerlinSection);
   
   // Show the actual city that was presented
-  const claims = extractClaims(session);
   const address = claims.address as Record<string, unknown> | undefined;
   const city = address?.locality || claims.resident_city || claims.locality || claims.city || claims.place_of_residence;
   
@@ -249,9 +345,13 @@ function extractClaims(session: Session): Record<string, unknown> {
   
   // Fallback to presentation for backwards compatibility
   const presentation = session.presentation || {};
-  
+  return extractClaimsFromPresentation(presentation);
+}
+
+// Extract claims from presentation object (for DC API results)
+function extractClaimsFromPresentation(presentation: Record<string, unknown>): Record<string, unknown> {
   // Direct claims
-  if (presentation.resident_city || presentation.locality || presentation.city) {
+  if (presentation.resident_city || presentation.locality || presentation.city || presentation.address) {
     return presentation;
   }
   

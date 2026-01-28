@@ -12,6 +12,25 @@ declare function qrcode(typeNumber: number, errorCorrectionLevel: string): {
   createDataURL(cellSize?: number, margin?: number): string;
 };
 
+// DC API type declarations
+declare global {
+  interface CredentialRequestOptions {
+    digital?: DigitalCredentialRequestOptions;
+  }
+
+  interface DigitalCredentialRequestOptions {
+    requests: Array<{
+      protocol: string;
+      data: { request: string };
+    }>;
+  }
+
+  // Extend Credential to include digital credential response data
+  interface DigitalCredentialResponse extends Credential {
+    data: string;
+  }
+}
+
 export interface VerificationResult {
   sessionId: string;
   uri: string;
@@ -33,6 +52,18 @@ export interface WaitOptions {
   onUpdate?: (session: Session) => void;
   timeout?: number;
   interval?: number;
+}
+
+// DC API types
+export interface DcApiRequestData {
+  requestObject: string;
+  responseUri: string;
+  sessionId: string;
+}
+
+export interface DcApiResult {
+  credentials?: Array<Record<string, unknown>>;
+  presentation?: Record<string, unknown>;
 }
 
 /**
@@ -228,7 +259,7 @@ export function getElement<T extends HTMLElement>(id: string): T {
  * Get session ID from URL query parameter
  */
 export function getSessionFromUrl(): string | null {
-  const params = new URLSearchParams(window.location.search);
+  const params = new URLSearchParams(globalThis.location.search);
   return params.get('session');
 }
 
@@ -236,7 +267,7 @@ export function getSessionFromUrl(): string | null {
  * Build redirect URL with session parameter
  */
 export function buildRedirectUrl(sessionId: string): string {
-  const url = new URL(window.location.href);
+  const url = new URL(globalThis.location.href);
   url.search = ''; // Clear existing params
   url.searchParams.set('session', sessionId);
   return url.toString();
@@ -246,7 +277,130 @@ export function buildRedirectUrl(sessionId: string): string {
  * Clear session from URL (replace state without reload)
  */
 export function clearSessionFromUrl(): void {
-  const url = new URL(window.location.href);
+  const url = new URL(globalThis.location.href);
   url.search = '';
-  window.history.replaceState({}, '', url.toString());
+  globalThis.history.replaceState({}, '', url.toString());
+}
+
+// =============================================================================
+// DC API (Digital Credentials API) Functions
+// =============================================================================
+
+/**
+ * Check if the browser supports the Digital Credentials API
+ */
+export function isDcApiAvailable(): boolean {
+  try {
+    // Check if navigator.credentials exists and supports digital credentials
+    // We need to check if the 'digital' option is supported
+    if (!('credentials' in navigator)) {
+      return false;
+    }
+    // Check for the digital property support by testing typeof
+    // Note: This is a basic check; full support detection requires feature detection
+    return typeof (navigator as any).credentials?.get === 'function';
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Start a DC API verification request
+ * Returns the request data needed to call the browser's DC API
+ */
+export async function startDcApiVerification(useCase: string): Promise<DcApiRequestData> {
+  const response = await fetch('/api/dc-api/start', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ useCase }),
+  });
+
+  if (!response.ok) {
+    let errorBody: unknown;
+    try {
+      errorBody = await response.json();
+    } catch {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
+    throw new Error(extractErrorMessage(errorBody, 'Failed to start DC API verification'));
+  }
+
+  return response.json();
+}
+
+/**
+ * Call the browser's Digital Credentials API
+ * Returns the wallet's response (encrypted VP token)
+ */
+export async function callDcApi(requestObject: string): Promise<string> {
+  if (!isDcApiAvailable()) {
+    throw new Error('Digital Credentials API is not available in this browser');
+  }
+
+  const credential = await navigator.credentials.get({
+    digital: {
+      requests: [
+        {
+          protocol: 'openid4vp-v1-signed',
+          data: { request: requestObject },
+        },
+      ],
+    },
+  } as CredentialRequestOptions);
+
+  if (!credential || !('data' in credential)) {
+    throw new Error('No credential returned from wallet');
+  }
+
+  return (credential as DigitalCredentialResponse).data;
+}
+
+/**
+ * Complete the DC API verification by sending the wallet response to the server
+ */
+export async function completeDcApiVerification(
+  responseUri: string,
+  walletResponse: string
+): Promise<DcApiResult> {
+  const response = await fetch('/api/dc-api/complete', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ responseUri, walletResponse }),
+  });
+
+  if (!response.ok) {
+    let errorBody: unknown;
+    try {
+      errorBody = await response.json();
+    } catch {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
+    throw new Error(extractErrorMessage(errorBody, 'Failed to complete DC API verification'));
+  }
+
+  return response.json();
+}
+
+/**
+ * Full DC API verification flow (convenience function)
+ * Handles the entire flow: start -> call browser API -> complete
+ */
+export async function verifyWithDcApi(
+  useCase: string,
+  onStatus?: (status: string) => void
+): Promise<DcApiResult> {
+  onStatus?.('Starting verification...');
+
+  // 1. Get the request from the server
+  const requestData = await startDcApiVerification(useCase);
+  onStatus?.('Opening wallet...');
+
+  // 2. Call the browser's DC API (will prompt user to select wallet/credential)
+  const walletResponse = await callDcApi(requestData.requestObject);
+  onStatus?.('Processing verification...');
+
+  // 3. Send the wallet response back to server for verification
+  const result = await completeDcApiVerification(requestData.responseUri, walletResponse);
+
+  return result;
 }
