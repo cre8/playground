@@ -33,7 +33,10 @@ declare global {
 
 export interface VerificationResult {
   sessionId: string;
+  /** URI for same-device flow (deep link button) - has redirect after completion */
   uri: string;
+  /** URI for cross-device flow (QR code) - no redirect, use polling */
+  crossDeviceUri?: string;
 }
 
 export interface IssuanceResult {
@@ -187,19 +190,25 @@ export async function generateQRCode(element: HTMLElement, uri: string): Promise
 
 /**
  * Generate both QR code and same-device link button
+ * @param qrElement - Element to render the QR code into
+ * @param linkElement - Element to render the deep link button into
+ * @param qrUri - URI for the QR code (cross-device flow, no redirect)
+ * @param deepLinkUri - URI for the deep link button (same-device flow, has redirect). If not provided, uses qrUri.
  */
 export async function generateVerificationUI(
   qrElement: HTMLElement,
   linkElement: HTMLElement,
-  uri: string
+  qrUri: string,
+  deepLinkUri?: string
 ): Promise<void> {
-  // Generate QR code
-  await generateQRCode(qrElement, uri);
+  // Generate QR code with cross-device URI
+  await generateQRCode(qrElement, qrUri);
 
-  // Create same-device link button
+  // Create same-device link button with deep link URI (falls back to qrUri for backward compatibility)
+  const buttonUri = deepLinkUri ?? qrUri;
   linkElement.innerHTML = '';
   const link = document.createElement('a');
-  link.href = uri;
+  link.href = buttonUri;
   link.className = 'btn btn-primary same-device-btn';
   link.innerHTML = `
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

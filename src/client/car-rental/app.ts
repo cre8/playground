@@ -87,7 +87,13 @@ async function handleVerify(): Promise<void> {
 
     // Show verification section with QR code
     showSection(verificationSection);
-    await generateVerificationUI(qrCodeDiv, sameDeviceLink, result.uri);
+    // QR code uses crossDeviceUri (no redirect), button uses uri (with redirect)
+    await generateVerificationUI(
+      qrCodeDiv,
+      sameDeviceLink,
+      result.crossDeviceUri ?? result.uri,
+      result.uri
+    );
     statusText.textContent = 'Use your EUDI Wallet to verify';
 
     // Wait for verification to complete

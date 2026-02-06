@@ -138,8 +138,14 @@ async function handleQrCodeVerification(): Promise<void> {
   verificationSection.classList.remove('hidden');
   infoSection.classList.add('hidden');
 
-  // Generate QR code and same-device link
-  await generateVerificationUI(qrPlaceholder, sameDeviceLink, result.uri);
+  // Generate QR code (cross-device URI) and same-device link (deep link URI)
+  // QR code uses crossDeviceUri (no redirect), button uses uri (with redirect)
+  await generateVerificationUI(
+    qrPlaceholder,
+    sameDeviceLink,
+    result.crossDeviceUri ?? result.uri,
+    result.uri
+  );
   updateStatus('waiting', 'Waiting for you to scan...');
 
   // Wait for verification to complete

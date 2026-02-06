@@ -96,13 +96,18 @@ app.get('/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok' });
 });
 
-// Create EUDIPLO client helper
-function createClient(): EudiploClient {
-  return new EudiploClient({
-    baseUrl: config.eudiploUrl,
-    clientId: config.clientId,
-    clientSecret: config.clientSecret,
-  });
+// Singleton EUDIPLO client - reuses access token across requests
+let eudiploClient: EudiploClient | null = null;
+
+function getClient(): EudiploClient {
+  if (!eudiploClient) {
+    eudiploClient = new EudiploClient({
+      baseUrl: config.eudiploUrl,
+      clientId: config.clientId,
+      clientSecret: config.clientSecret,
+    });
+  }
+  return eudiploClient;
 }
 
 // API Routes
@@ -128,15 +133,18 @@ app.post('/api/verify', async (req: Request, res: Response) => {
       return;
     }
 
-    const client = createClient();
+    const client = getClient();
 
     // Create the presentation request
-    const { uri, sessionId } = await client.createPresentationRequest({
+    const { uri, crossDeviceUri, sessionId } = await client.createPresentationRequest({
       configId: useCaseConfig.presentationConfigId,
       redirectUri,
     });
 
-    res.json({ uri, sessionId });
+    // Return both URIs:
+    // - uri: for same-device flow (deep link button) with redirect after completion
+    // - crossDeviceUri: for cross-device flow (QR code) without redirect
+    res.json({ uri, crossDeviceUri, sessionId });
   } catch (error: any) {
     console.error('API Error (verify):', error);
     res.status(500).json({ error: error.message || 'Internal Server Error' });
@@ -157,7 +165,7 @@ app.post('/api/issue', async (req: Request, res: Response) => {
       return;
     }
 
-    const client = createClient();
+    const client = getClient();
 
     // Create the issuance offer
     const { uri, sessionId } = await client.createIssuanceOffer({
@@ -177,7 +185,7 @@ app.get('/api/session/:id', async (req: Request, res: Response) => {
   try {
     const sessionId = String(req.params.id);
 
-    const client = createClient();
+    const client = getClient();
     const session = await client.getSession(sessionId);
 
     // Only return safe data (no raw credentials)
