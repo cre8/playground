@@ -99,7 +99,7 @@ The playground exposes the following API endpoints:
 ### Issuance Use Cases (EAA)
 
 - **Get Demo PID** - Issue a test Personal ID credential
-- **Berlin Technical University** - Digital diploma issuance (Authorization Code Flow)
+- **European Technical University** - Digital diploma issuance (Authorization Code Flow)
 - **FitLife Health Club** - Loyalty card issuance (Pre-authorized Code Flow)
 
 ## Project Structure

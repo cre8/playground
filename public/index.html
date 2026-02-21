@@ -152,6 +152,12 @@
       .use-case-card.loyalty {
         --card-accent: #7c3aed;
       }
+      .use-case-card.job {
+        --card-accent: #1e40af;
+      }
+      .use-case-card.sports {
+        --card-accent: #7c3aed;
+      }
 
       .use-case-icon {
         font-size: 3rem;
@@ -303,7 +309,7 @@
       <section class="use-case-grid">
         <a href="/university-diploma/" class="use-case-card university">
           <div class="use-case-icon">🎓</div>
-          <h2>Berlin Technical University</h2>
+          <h2>European Technical University</h2>
           <p>
             Digital diploma issuance with authentication. Log in to the student 
             portal and receive your verifiable academic credential.
@@ -323,6 +329,35 @@
           </p>
           <div class="use-case-meta">
             <span class="use-case-badge">Pre-auth Code Flow</span>
+            <span class="use-case-arrow">→</span>
+          </div>
+        </a>
+      </section>
+
+      <h2 style="margin: 2rem 0 1rem 0; color: var(--text);">🎫 Verification Use Cases (EAA)</h2>
+      <section class="use-case-grid">
+        <a href="/job-portal/" class="use-case-card job">
+          <div class="use-case-icon">💼</div>
+          <h2>TechCorp Careers</h2>
+          <p>
+            Verify your identity and university diploma for job applications. 
+            Employers can instantly confirm who you are and your qualifications.
+          </p>
+          <div class="use-case-meta">
+            <span class="use-case-badge">PID + Diploma</span>
+            <span class="use-case-arrow">→</span>
+          </div>
+        </a>
+
+        <a href="/sports-shop/" class="use-case-card sports">
+          <div class="use-case-icon">🏃</div>
+          <h2>SportZone</h2>
+          <p>
+            Get 15% off by verifying your gym membership. Partner stores 
+            recognize your FitLife loyalty card.
+          </p>
+          <div class="use-case-meta">
+            <span class="use-case-badge">Loyalty Card</span>
             <span class="use-case-arrow">→</span>
           </div>
         </a>

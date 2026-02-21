@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>TechCorp Careers - Identity & Diploma Verification</title>
+    <link rel="stylesheet" href="/shared/styles.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"
+      integrity="sha384-lQXOAyZwHXE55JFyrOMB7nY2Wv+m5ZWNtJcHrd1rceRQXAYNLak8ukN5TjBTcIwz"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="demo-header">
+        <a href="/">←</a>
+        <h1>💼 TechCorp Careers</h1>
+      </div>
+
+      <div class="demo-container">
+        <!-- Left: Job Application Content -->
+        <div class="demo-left job-content">
+          <div class="job-card">
+            <div class="job-header">
+              <span class="job-type">Full-time</span>
+              <span class="job-location">📍 Berlin, Germany</span>
+            </div>
+            <h2>Senior Software Engineer</h2>
+            <p class="job-description">
+              Join our innovative team building the next generation of cloud infrastructure. 
+              We're looking for talented engineers with a strong academic background.
+            </p>
+            <div class="job-requirements">
+              <h4>Requirements:</h4>
+              <ul>
+                <li>Master's degree in Computer Science or related field</li>
+                <li>5+ years of professional experience</li>
+                <li>Strong problem-solving skills</li>
+              </ul>
+            </div>
+            <div class="job-salary">€85,000 - €120,000 / year</div>
+          </div>
+
+          <div class="application-progress">
+            <h3>Application Progress</h3>
+            <div class="progress-steps">
+              <div class="progress-step completed">
+                <span class="step-icon">✓</span>
+                <span class="step-label">Profile Created</span>
+              </div>
+              <div class="progress-step completed">
+                <span class="step-icon">✓</span>
+                <span class="step-label">Resume Uploaded</span>
+              </div>
+              <div class="progress-step active">
+                <span class="step-icon">3</span>
+                <span class="step-label">Verify Identity & Diploma</span>
+              </div>
+              <div class="progress-step">
+                <span class="step-icon">4</span>
+                <span class="step-label">Submit Application</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="verifySection">
+            <div class="verify-prompt">
+              <span class="prompt-icon">�</span>
+              <div class="prompt-text">
+                <strong>Identity & Academic Verification Required</strong>
+                <span>Please verify your identity and university diploma to proceed</span>
+              </div>
+            </div>
+            <button id="verifyBtn" class="btn btn-primary btn-block">
+              Verify Identity & Diploma
+            </button>
+            <p class="verify-note">
+              Both your PID and diploma will be verified using your EUDI Wallet
+            </p>
+            <div id="dcApiOption" class="dc-api-option hidden">
+              <label class="toggle-label">
+                <input type="checkbox" id="dcApiToggle" />
+                <span class="toggle-text">Use DC API (Browser Native)</span>
+              </label>
+            </div>
+          </div>
+
+          <div id="successSection" class="hidden">
+            <div class="message success">
+              ✅ Identity and diploma verified! Your application is ready to submit.
+            </div>
+            <button id="submitBtn" class="btn btn-primary btn-block">
+              Submit Application
+            </button>
+            <button
+              onclick="location.reload()"
+              class="btn btn-secondary btn-block"
+            >
+              Start New Application
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Verification -->
+        <div class="demo-right">
+          <div id="verificationSection" class="hidden">
+            <div class="qr-section">
+              <h2>Verify Identity & Diploma</h2>
+              <p class="qr-instruction">
+                Scan with your EUDI Wallet to share your PID and university diploma
+              </p>
+
+              <div id="qrPlaceholder" class="qr-placeholder">Loading...</div>
+
+              <div class="same-device-section">
+                <span class="divider-text">or on this device</span>
+                <div id="sameDeviceLink" class="hidden"></div>
+              </div>
+
+              <div id="statusBadge" class="status waiting">
+                <span class="status-dot"></span>
+                <span id="statusText">Waiting for verification...</span>
+              </div>
+            </div>
+
+            <div id="resultPanel" class="result-panel hidden">
+              <h3>Verification Details</h3>
+              <div id="credentialDisplay" class="credential-display"></div>
+            </div>
+          </div>
+
+          <div id="infoSection" class="info-section">
+            <h3>What we verify</h3>
+            <ul class="info-list">
+              <li>
+                <span class="info-icon">👤</span>
+                <div>
+                  <strong>Your Identity</strong>
+                  <span>Name from your Personal ID</span>
+                </div>
+              </li>
+              <li>
+                <span class="info-icon">🎓</span>
+                <div>
+                  <strong>Degree Type</strong>
+                  <span>Bachelor's, Master's, or PhD</span>
+                </div>
+              </li>
+              <li>
+                <span class="info-icon">📚</span>
+                <div>
+                  <strong>Field of Study</strong>
+                  <span>Your major or specialization</span>
+                </div>
+              </li>
+              <li>
+                <span class="info-icon">🏫</span>
+                <div>
+                  <strong>University</strong>
+                  <span>Issuing institution name</span>
+                </div>
+              </li>
+            </ul>
+            <div class="privacy-note">
+              <span class="shield-icon">🔒</span>
+              <span>Only name, diploma info, and graduation date are requested</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        Powered by
+        <a
+          href="https://github.com/openwallet-foundation-labs/eudiplo"
+          target="_blank"
+          >EUDIPLO</a
+        >
+        · <a href="../">Back to Playground</a>
+      </p>
+    </footer>
+
+    <script type="module" src="/js/job-portal/app.js"></script>
+  </body>
+</html>

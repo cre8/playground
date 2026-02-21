@@ -1,0 +1,286 @@
+/* Job Portal specific styles */
+
+/* Brand colors */
+:root {
+  --job-primary: #1e40af;
+  --job-accent: #3b82f6;
+  --job-bg: #eff6ff;
+  --job-success: #059669;
+}
+
+.job-card {
+  padding: 1.5rem;
+  background: var(--job-bg);
+  border-radius: var(--radius);
+  margin-bottom: 1.5rem;
+  border: 1px solid #bfdbfe;
+}
+
+@media (max-width: 480px) {
+  .job-card {
+    padding: 1.25rem;
+  }
+}
+
+.job-header {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.job-type {
+  background: var(--job-accent);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 2rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.job-location {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.job-card h2 {
+  margin-bottom: 0.75rem;
+  color: var(--job-primary);
+  font-size: 1.5rem;
+}
+
+@media (max-width: 480px) {
+  .job-card h2 {
+    font-size: 1.25rem;
+  }
+}
+
+.job-description {
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.job-requirements {
+  background: white;
+  padding: 1rem;
+  border-radius: calc(var(--radius) / 2);
+  margin-bottom: 1rem;
+}
+
+.job-requirements h4 {
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  color: var(--job-primary);
+}
+
+.job-requirements ul {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.job-requirements li {
+  margin-bottom: 0.25rem;
+}
+
+.job-salary {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: var(--job-success);
+}
+
+/* Application Progress */
+.application-progress {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border);
+}
+
+@media (max-width: 640px) {
+  .application-progress {
+    padding: 1rem;
+  }
+}
+
+.application-progress h3 {
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.progress-steps {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+}
+
+@media (max-width: 480px) {
+  .progress-steps {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
+
+.progress-steps::before {
+  content: '';
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  right: 1rem;
+  height: 2px;
+  background: var(--border);
+  z-index: 0;
+}
+
+@media (max-width: 480px) {
+  .progress-steps::before {
+    display: none;
+  }
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 480px) {
+  .progress-step {
+    flex-direction: row;
+    gap: 0.75rem;
+  }
+}
+
+.step-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.progress-step.completed .step-icon {
+  background: var(--job-success);
+  border-color: var(--job-success);
+  color: white;
+}
+
+.progress-step.active .step-icon {
+  background: var(--job-accent);
+  border-color: var(--job-accent);
+  color: white;
+}
+
+.step-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .step-label {
+    text-align: left;
+  }
+}
+
+.progress-step.completed .step-label,
+.progress-step.active .step-label {
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* Verify Prompt */
+.verify-prompt {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: #fef3c7;
+  border-radius: var(--radius);
+  margin-bottom: 1rem;
+  border: 1px solid #fcd34d;
+}
+
+.prompt-icon {
+  font-size: 2rem;
+}
+
+.prompt-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.prompt-text strong {
+  color: #92400e;
+}
+
+.prompt-text span {
+  font-size: 0.875rem;
+  color: #a16207;
+}
+
+.verify-note {
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-top: 0.75rem;
+}
+
+/* DC API Toggle */
+.dc-api-option {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: var(--bg);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.toggle-label input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+}
+
+.toggle-text {
+  color: var(--text-muted);
+}
+
+/* Credential sections for multi-credential display */
+.credential-section {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.credential-section:last-of-type {
+  margin-bottom: 0.5rem;
+}
+
+.credential-section h4 {
+  font-size: 0.875rem;
+  color: var(--job-primary);
+  margin-bottom: 0.5rem;
+}

@@ -50,6 +50,14 @@ const USE_CASES: Record<string, { presentationConfigId: string; name: string }> 
     presentationConfigId: 'name-only',
     name: 'Parcel Pickup - Recipient Verification',
   },
+  'job-portal': {
+    presentationConfigId: 'diploma-and-pid',
+    name: 'Job Portal - Diploma & Identity Verification',
+  },
+  'sports-shop': {
+    presentationConfigId: 'loyalty-card',
+    name: 'Sports Shop - Member Discount',
+  },
 };
 
 // Credential configurations for issuance

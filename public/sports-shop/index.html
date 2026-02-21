@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>SportZone - Member Discount</title>
+    <link rel="stylesheet" href="/shared/styles.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"
+      integrity="sha384-lQXOAyZwHXE55JFyrOMB7nY2Wv+m5ZWNtJcHrd1rceRQXAYNLak8ukN5TjBTcIwz"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="demo-header">
+        <a href="/">←</a>
+        <h1>🏃 SportZone</h1>
+      </div>
+
+      <div class="demo-container">
+        <!-- Left: Shop Content -->
+        <div class="demo-left shop-content">
+          <div class="promo-banner">
+            <span class="promo-icon">💪</span>
+            <div class="promo-content">
+              <strong>Gym Member Discount!</strong>
+              <span>Show your FitLife membership for 15% off all items</span>
+            </div>
+          </div>
+
+          <div class="product-card">
+            <div class="product-image">👟</div>
+            <div class="product-info">
+              <h2>ProRunner X500</h2>
+              <p class="product-description">
+                Premium running shoes with advanced cushioning technology
+              </p>
+              <div class="price-section">
+                <span class="product-price original">€149.99</span>
+                <span class="product-price discounted hidden">€127.49</span>
+                <span class="discount-badge hidden">-15%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="cart-summary">
+            <h3>Your Cart</h3>
+            <div class="cart-item">
+              <span>ProRunner X500 × 1</span>
+              <span class="item-price">€149.99</span>
+            </div>
+            <div id="discountRow" class="cart-discount hidden">
+              <span>FitLife Member Discount</span>
+              <span class="discount-amount">-€22.50</span>
+            </div>
+            <div class="cart-total">
+              <span>Total</span>
+              <span id="cartTotal">€149.99</span>
+            </div>
+          </div>
+
+          <div id="discountSection">
+            <button id="applyDiscountBtn" class="btn btn-secondary btn-block">
+              🎫 Apply Member Discount
+            </button>
+            <p class="discount-note">
+              Have a gym membership? Get 15% off your order!
+            </p>
+            <div id="dcApiOption" class="dc-api-option hidden">
+              <label class="toggle-label">
+                <input type="checkbox" id="dcApiToggle" />
+                <span class="toggle-text">Use DC API (Browser Native)</span>
+              </label>
+            </div>
+          </div>
+
+          <div id="checkoutSection" class="hidden">
+            <div class="discount-applied">
+              <span class="applied-icon">✓</span>
+              <div class="applied-text">
+                <strong id="membershipTier">Silver</strong> membership verified!
+                <span>15% discount applied</span>
+              </div>
+            </div>
+            <button id="checkoutBtn" class="btn btn-primary btn-block">
+              Proceed to Checkout - €127.49
+            </button>
+            <button
+              onclick="location.reload()"
+              class="btn btn-secondary btn-block"
+            >
+              Start New Order
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Verification -->
+        <div class="demo-right">
+          <div id="verificationSection" class="hidden">
+            <div class="qr-section">
+              <h2>Verify Membership</h2>
+              <p class="qr-instruction">
+                Scan with your EUDI Wallet to share your gym membership
+              </p>
+
+              <div id="qrPlaceholder" class="qr-placeholder">Loading...</div>
+
+              <div class="same-device-section">
+                <span class="divider-text">or on this device</span>
+                <div id="sameDeviceLink" class="hidden"></div>
+              </div>
+
+              <div id="statusBadge" class="status waiting">
+                <span class="status-dot"></span>
+                <span id="statusText">Waiting for verification...</span>
+              </div>
+            </div>
+
+            <div id="resultPanel" class="result-panel hidden">
+              <h3>Membership Details</h3>
+              <div id="credentialDisplay" class="credential-display"></div>
+            </div>
+          </div>
+
+          <div id="infoSection" class="info-section">
+            <h3>Partner Discount Program</h3>
+            <ul class="info-list">
+              <li>
+                <span class="info-icon">💪</span>
+                <div>
+                  <strong>FitLife Members</strong>
+                  <span>15% off all purchases</span>
+                </div>
+              </li>
+              <li>
+                <span class="info-icon">🥇</span>
+                <div>
+                  <strong>Gold Members</strong>
+                  <span>Free shipping on orders over €50</span>
+                </div>
+              </li>
+              <li>
+                <span class="info-icon">🎁</span>
+                <div>
+                  <strong>Birthday Bonus</strong>
+                  <span>Extra 10% during your birthday month</span>
+                </div>
+              </li>
+            </ul>
+            <div class="privacy-note">
+              <span class="shield-icon">🔒</span>
+              <span>Only membership tier and validity are shared</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        Powered by
+        <a
+          href="https://github.com/openwallet-foundation-labs/eudiplo"
+          target="_blank"
+          >EUDIPLO</a
+        >
+        · <a href="../">Back to Playground</a>
+      </p>
+    </footer>
+
+    <script type="module" src="/js/sports-shop/app.js"></script>
+  </body>
+</html>
