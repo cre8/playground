@@ -146,6 +146,12 @@
       .use-case-card.parcel {
         --card-accent: #ff6b00;
       }
+      .use-case-card.university {
+        --card-accent: #1e3a5f;
+      }
+      .use-case-card.loyalty {
+        --card-accent: #7c3aed;
+      }
 
       .use-case-icon {
         font-size: 3rem;
@@ -225,6 +231,7 @@
         <p>Test your EUDI Wallet with real-world verification scenarios</p>
       </header>
 
+      <h2 style="margin-bottom: 1rem; color: var(--text);">🔍 Verification Use Cases</h2>
       <section class="use-case-grid">
         <a href="/alcohol-shop/" class="use-case-card alcohol">
           <div class="use-case-icon">🍷</div>
@@ -292,6 +299,35 @@
         </a>
       </section>
 
+      <h2 style="margin: 2rem 0 1rem 0; color: var(--text);">📜 Issuance Use Cases (EAA)</h2>
+      <section class="use-case-grid">
+        <a href="/university-diploma/" class="use-case-card university">
+          <div class="use-case-icon">🎓</div>
+          <h2>Berlin Technical University</h2>
+          <p>
+            Digital diploma issuance with authentication. Log in to the student 
+            portal and receive your verifiable academic credential.
+          </p>
+          <div class="use-case-meta">
+            <span class="use-case-badge">Auth Code Flow</span>
+            <span class="use-case-arrow">→</span>
+          </div>
+        </a>
+
+        <a href="/loyalty-card/" class="use-case-card loyalty">
+          <div class="use-case-icon">💪</div>
+          <h2>FitLife Health Club</h2>
+          <p>
+            Instant membership card issuance. Sign up and receive your digital 
+            loyalty card immediately – no additional authentication needed.
+          </p>
+          <div class="use-case-meta">
+            <span class="use-case-badge">Pre-auth Code Flow</span>
+            <span class="use-case-arrow">→</span>
+          </div>
+        </a>
+      </section>
+
       <footer>
         <p style="margin-bottom: 1rem">
           Powered by
@@ -303,6 +339,10 @@
         </p>
         <div class="footer-links">
           <a href="/get-pid/">Get a Demo PID</a>
+          <span>•</span>
+          <a href="/university-diploma/">Get a Diploma</a>
+          <span>•</span>
+          <a href="/loyalty-card/">Get a Loyalty Card</a>
           <span>•</span>
           <a
             href="https://github.com/openwallet-foundation-labs/eudiplo"

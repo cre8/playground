@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>Berlin Technical University | EUDI Wallet Playground</title>
+    <link rel="stylesheet" href="/shared/styles.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"
+      integrity="sha384-lQXOAyZwHXE55JFyrOMB7nY2Wv+m5ZWNtJcHrd1rceRQXAYNLak8ukN5TjBTcIwz"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <header>
+      <a href="../" class="logo">
+        <span class="logo-icon">🎓</span>
+        Berlin Technical University
+      </a>
+      <span class="badge">Student Portal</span>
+    </header>
+
+    <main class="container">
+      <!-- Step 1: Info & Start -->
+      <section id="startSection" class="card">
+        <h1>Digital Diploma Issuance</h1>
+
+        <div class="info-section">
+          <h3>📋 Digital Academic Credentials</h3>
+          <p>
+            As a graduate of Berlin Technical University, you can now receive your 
+            <strong>digital diploma</strong> directly to your EUDI Wallet. This 
+            verifiable credential can be used with employers, other universities, 
+            and professional organizations.
+          </p>
+        </div>
+
+        <div class="diploma-preview">
+          <div class="diploma-header">
+            <div class="diploma-logo">🎓</div>
+            <div class="diploma-title">
+              <h4>Berlin Technical University</h4>
+              <span>Digital Diploma Certificate</span>
+            </div>
+          </div>
+          <div class="diploma-body">
+            <div class="diploma-grid">
+              <div class="diploma-item">
+                <span class="diploma-label">Degree Type</span>
+                <span class="diploma-value">Bachelor of Science</span>
+              </div>
+              <div class="diploma-item">
+                <span class="diploma-label">Field of Study</span>
+                <span class="diploma-value">Computer Science</span>
+              </div>
+              <div class="diploma-item">
+                <span class="diploma-label">Graduation Date</span>
+                <span class="diploma-value">2024-07-15</span>
+              </div>
+              <div class="diploma-item">
+                <span class="diploma-label">Final Grade</span>
+                <span class="diploma-value">1.7 (Good)</span>
+              </div>
+            </div>
+          </div>
+          <div class="diploma-footer">
+            <span class="eu-badge">
+              <span class="eu-flag">🇪🇺</span>
+              EU Digital Identity Credential
+            </span>
+          </div>
+        </div>
+
+        <div class="credential-info">
+          <h4>✨ What you'll receive</h4>
+          <ul>
+            <li>A cryptographically signed diploma credential</li>
+            <li>Verifiable by any employer or institution</li>
+            <li>Stored securely in your EUDI Wallet</li>
+            <li>Valid indefinitely as proof of graduation</li>
+          </ul>
+        </div>
+
+        <div class="auth-hint">
+          <h4>🔐 Authorization Code Flow</h4>
+          <p>
+            When your wallet scans the QR code, it will redirect to an authentication page 
+            (Keycloak) where you need to log in. Use these demo credentials:
+          </p>
+          <div class="credentials-box">
+            <div class="credential-row">
+              <span class="credential-label">Username:</span>
+              <code>Erika</code>
+            </div>
+            <div class="credential-row">
+              <span class="credential-label">Password:</span>
+              <code>Erika</code>
+            </div>
+          </div>
+        </div>
+
+        <button id="getCredentialBtn" class="btn btn-primary btn-large">
+          🎓 Get Digital Diploma
+        </button>
+      </section>
+
+      <!-- Step 2: QR Code / Wallet Connect -->
+      <section id="issuanceSection" class="card hidden">
+        <h2>🎓 Receive Your Diploma</h2>
+        <p class="verification-subtitle">
+          Scan the QR code with your EUDI Wallet. You will be redirected to authenticate 
+          before receiving your credential.
+        </p>
+
+        <div class="auth-reminder">
+          <strong>🔐 Remember:</strong> When prompted by Keycloak, use Username: <code>Erika</code> / Password: <code>Erika</code>
+        </div>
+
+        <div class="eudi-badge">
+          <span class="eu-flag">🇪🇺</span>
+          EUDI Wallet Credential Offer
+        </div>
+
+        <div class="qr-container">
+          <div id="qrCode" class="qr-code"></div>
+          <div class="same-device-section">
+            <span class="divider-text">or on this device</span>
+            <div id="sameDeviceLink" class="hidden"></div>
+          </div>
+          <p id="statusText" class="status-text">
+            Waiting for wallet to accept...
+          </p>
+        </div>
+      </section>
+
+      <!-- Step 3: Success -->
+      <section id="successSection" class="card hidden">
+        <div class="success-header">
+          <div class="success-icon">🎓</div>
+          <h2>Diploma Issued!</h2>
+          <p class="success-subtitle">
+            Your digital diploma has been successfully issued to your EUDI Wallet.
+          </p>
+        </div>
+
+        <div class="success-info">
+          <h3>📜 Your Credential</h3>
+          <p>
+            You now have a verifiable digital diploma that you can present to:
+          </p>
+          <ul>
+            <li><strong>Employers</strong> – Prove your qualifications instantly</li>
+            <li><strong>Other Universities</strong> – Apply for graduate programs</li>
+            <li><strong>Professional Organizations</strong> – Join industry bodies</li>
+            <li><strong>Government Agencies</strong> – Support visa applications</li>
+          </ul>
+        </div>
+
+        <div class="next-steps">
+          <h3>🚀 What's Next?</h3>
+          <div class="step-list">
+            <a href="/loyalty-card/" class="step-item">
+              <span class="step-icon">💳</span>
+              <div class="step-text">
+                <strong>Get a Loyalty Card</strong>
+                <span>Try another credential issuance demo</span>
+              </div>
+            </a>
+            <a href="/bank-onboarding/" class="step-item">
+              <span class="step-icon">🏦</span>
+              <div class="step-text">
+                <strong>Open a Bank Account</strong>
+                <span>Use your PID for KYC verification</span>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 1.5rem">
+          <button id="getAnotherBtn" class="btn btn-secondary">
+            Get Another Diploma
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        Powered by
+        <a
+          href="https://github.com/openwallet-foundation-labs/eudiplo"
+          target="_blank"
+          >EUDIPLO</a
+        >
+        · <a href="../">Back to Playground</a>
+      </p>
+    </footer>
+
+    <script type="module" src="/js/university-diploma/app.js"></script>
+  </body>
+</html>

@@ -53,10 +53,22 @@ const USE_CASES: Record<string, { presentationConfigId: string; name: string }> 
 };
 
 // Credential configurations for issuance
-const CREDENTIALS: Record<string, { credentialConfigId: string; name: string }> = {
+type FlowType = 'authorization_code' | 'pre_authorized_code';
+const CREDENTIALS: Record<string, { credentialConfigId: string; name: string; flow: FlowType }> = {
   pid: {
     credentialConfigId: 'pid',
     name: 'Personal ID (PID)',
+    flow: 'pre_authorized_code',
+  },
+  'university-diploma': {
+    credentialConfigId: 'university-diploma',
+    name: 'University Diploma',
+    flow: 'authorization_code',
+  },
+  'loyalty-card': {
+    credentialConfigId: 'loyalty-card',
+    name: 'Loyalty/Membership Card',
+    flow: 'pre_authorized_code',
   },
 };
 
@@ -100,13 +112,11 @@ app.get('/health', (_req: Request, res: Response) => {
 let eudiploClient: EudiploClient | null = null;
 
 function getClient(): EudiploClient {
-  if (!eudiploClient) {
-    eudiploClient = new EudiploClient({
+  eudiploClient ??= new EudiploClient({
       baseUrl: config.eudiploUrl,
       clientId: config.clientId,
       clientSecret: config.clientSecret,
     });
-  }
   return eudiploClient;
 }
 
@@ -171,6 +181,7 @@ app.post('/api/issue', async (req: Request, res: Response) => {
     const { uri, sessionId } = await client.createIssuanceOffer({
       credentialConfigurationIds: [credential.credentialConfigId],
       claims: claims ? { [credential.credentialConfigId]: claims } : undefined,
+      flow: credential.flow,
     });
 
     res.json({ uri, sessionId });

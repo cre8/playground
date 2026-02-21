@@ -87,13 +87,20 @@ The playground exposes the following API endpoints:
 
 ## Available Demo Use Cases
 
+### Verification Use Cases
+
 - **Vineyard Select** - Age verification (18+)
 - **Nordic Digital Bank** - Full KYC/identity verification
 - **TechMarkt SIM Activation** - Identity verification per TKG §172
 - **Berlin History Museum** - Residency verification for discounts
 - **Alpine Grand Hotel** - Guest registration check-in
 - **SwiftBox Parcel Locker** - Minimal name-only verification
+
+### Issuance Use Cases (EAA)
+
 - **Get Demo PID** - Issue a test Personal ID credential
+- **Berlin Technical University** - Digital diploma issuance (Authorization Code Flow)
+- **FitLife Health Club** - Loyalty card issuance (Pre-authorized Code Flow)
 
 ## Project Structure
 
@@ -105,6 +112,8 @@ playground/
 │       ├── shared/      # Shared utilities
 │       ├── alcohol-shop/
 │       ├── bank-onboarding/
+│       ├── university-diploma/  # EAA - Auth Code Flow
+│       ├── loyalty-card/        # EAA - Pre-auth Code Flow
 │       └── ...
 ├── public/              # Static files (HTML, CSS)
 │   ├── index.html

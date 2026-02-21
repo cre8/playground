@@ -96,6 +96,8 @@ function extractErrorMessage(error: unknown, fallback: string): string {
 
 /**
  * Create a credential issuance offer
+ * @param credentialId - The credential ID to issue
+ * @param claims - Optional claims for the credential (used in pre-authorized flow)
  */
 export async function createIssuanceOffer(
   credentialId: string,

@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>FitLife Health Club | EUDI Wallet Playground</title>
+    <link rel="stylesheet" href="/shared/styles.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"
+      integrity="sha384-lQXOAyZwHXE55JFyrOMB7nY2Wv+m5ZWNtJcHrd1rceRQXAYNLak8ukN5TjBTcIwz"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <header>
+      <a href="../" class="logo">
+        <span class="logo-icon">💪</span>
+        FitLife Health Club
+      </a>
+      <span class="badge">Membership Portal</span>
+    </header>
+
+    <main class="container">
+      <!-- Step 1: Registration -->
+      <section id="registrationSection" class="card">
+        <h1>Join FitLife Health Club</h1>
+
+        <div class="promo-banner">
+          <span class="promo-icon">🎉</span>
+          <div class="promo-content">
+            <strong>New Year Special!</strong>
+            <span>Get your digital membership card instantly in your EUDI Wallet</span>
+          </div>
+        </div>
+
+        <div class="info-section">
+          <h3>💳 Digital Membership Card</h3>
+          <p>
+            Sign up today and receive your <strong>digital membership card</strong> 
+            directly to your EUDI Wallet. Use it for contactless check-in at any 
+            FitLife location, access member discounts, and prove your membership status.
+          </p>
+        </div>
+
+        <div class="membership-tiers">
+          <h3>🏆 Choose Your Membership</h3>
+          <div class="tier-grid">
+            <label class="tier-card" for="tierBronze">
+              <input type="radio" name="tier" id="tierBronze" value="bronze" />
+              <div class="tier-content">
+                <span class="tier-icon">🥉</span>
+                <strong>Bronze</strong>
+                <span class="tier-price">€29/month</span>
+                <span class="tier-desc">Gym access during off-peak hours</span>
+              </div>
+            </label>
+            <label class="tier-card" for="tierSilver">
+              <input type="radio" name="tier" id="tierSilver" value="silver" checked />
+              <div class="tier-content">
+                <span class="tier-icon">🥈</span>
+                <strong>Silver</strong>
+                <span class="tier-price">€49/month</span>
+                <span class="tier-desc">Full gym access + 2 classes/week</span>
+              </div>
+            </label>
+            <label class="tier-card" for="tierGold">
+              <input type="radio" name="tier" id="tierGold" value="gold" />
+              <div class="tier-content">
+                <span class="tier-icon">🥇</span>
+                <strong>Gold</strong>
+                <span class="tier-price">€79/month</span>
+                <span class="tier-desc">All access + unlimited classes + spa</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="demo-hint">
+          <strong>💡 Pre-authorized Code Flow:</strong> Since you're providing your details 
+          during registration, no additional authentication is needed. Your membership card 
+          will be issued immediately using a pre-authorized credential offer.
+        </div>
+
+        <button id="registerBtn" class="btn btn-primary btn-large">
+          💳 Complete Registration & Get Card
+        </button>
+      </section>
+
+      <!-- Step 2: QR Code / Wallet Connect -->
+      <section id="issuanceSection" class="card hidden">
+        <div class="confirmation-banner">
+          <span class="check-icon">✓</span>
+          <div>
+            <strong>Registration Complete!</strong>
+            <span>Member ID: <span id="memberId">FL-2024-001234</span></span>
+          </div>
+        </div>
+
+        <h2>💳 Get Your Membership Card</h2>
+        <p class="verification-subtitle">
+          Scan the QR code with your EUDI Wallet to add your digital membership card.
+        </p>
+
+        <div class="card-preview">
+          <div class="card-front">
+            <div class="card-header-section">
+              <span class="card-logo">💪</span>
+              <div class="card-brand">
+                <strong>FitLife</strong>
+                <span>Health Club</span>
+              </div>
+              <span class="card-tier" id="cardTier">🥈 Silver</span>
+            </div>
+            <div class="card-body-section">
+              <div class="card-details">
+                <div>
+                  <span class="card-label">Member Since</span>
+                  <span class="card-value" id="cardJoinDate">Feb 2026</span>
+                </div>
+                <div>
+                  <span class="card-label">Valid Until</span>
+                  <span class="card-value" id="cardValidUntil">Feb 2027</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="eudi-badge">
+          <span class="eu-flag">🇪🇺</span>
+          EUDI Wallet Credential Offer
+        </div>
+
+        <div class="qr-container">
+          <div id="qrCode" class="qr-code"></div>
+          <div class="same-device-section">
+            <span class="divider-text">or on this device</span>
+            <div id="sameDeviceLink" class="hidden"></div>
+          </div>
+          <p id="statusText" class="status-text">
+            Waiting for wallet to accept...
+          </p>
+        </div>
+      </section>
+
+      <!-- Step 3: Success -->
+      <section id="successSection" class="card hidden">
+        <div class="success-header">
+          <div class="success-icon">💪</div>
+          <h2>Welcome to FitLife!</h2>
+          <p class="success-subtitle">
+            Your digital membership card has been added to your EUDI Wallet.
+          </p>
+        </div>
+
+        <div class="membership-benefits">
+          <h3>🎁 Your Member Benefits</h3>
+          <ul class="benefits-list">
+            <li>
+              <span class="benefit-icon">🏋️</span>
+              <div>
+                <strong>Gym Access</strong>
+                <span>Contactless check-in with your digital card</span>
+              </div>
+            </li>
+            <li>
+              <span class="benefit-icon">🧘</span>
+              <div>
+                <strong>Fitness Classes</strong>
+                <span>Book classes via the FitLife app</span>
+              </div>
+            </li>
+            <li>
+              <span class="benefit-icon">🛍️</span>
+              <div>
+                <strong>Partner Discounts</strong>
+                <span>Show your card at partner stores for 10-20% off</span>
+              </div>
+            </li>
+            <li>
+              <span class="benefit-icon">👥</span>
+              <div>
+                <strong>Guest Passes</strong>
+                <span>Bring a friend twice per month</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="next-steps">
+          <h3>🚀 Try More Demos</h3>
+          <div class="step-list">
+            <a href="/university-diploma/" class="step-item">
+              <span class="step-icon">🎓</span>
+              <div class="step-text">
+                <strong>Get a University Diploma</strong>
+                <span>Try the auth-code flow issuance</span>
+              </div>
+            </a>
+            <a href="/alcohol-shop/" class="step-item">
+              <span class="step-icon">🍷</span>
+              <div class="step-text">
+                <strong>Age Verification</strong>
+                <span>Prove you're 18+ with your PID</span>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 1.5rem">
+          <button id="registerAnotherBtn" class="btn btn-secondary">
+            ← Register Another Member
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        Powered by
+        <a
+          href="https://github.com/openwallet-foundation-labs/eudiplo"
+          target="_blank"
+          >EUDIPLO</a
+        >
+        · <a href="../">Back to Playground</a>
+      </p>
+    </footer>
+
+    <script type="module" src="/js/loyalty-card/app.js"></script>
+  </body>
+</html>
