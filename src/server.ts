@@ -169,12 +169,18 @@ app.post('/api/verify', async (req: Request, res: Response) => {
   }
 });
 
+// Generate a random transaction code (numeric, 4-6 digits)
+function generateTxCode(): string {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
 // POST /api/issue - Create a credential issuance offer
 app.post('/api/issue', async (req: Request, res: Response) => {
   try {
-    const { credentialId, claims } = req.body as {
+    const { credentialId, claims, useTxCode } = req.body as {
       credentialId: string;
       claims?: Record<string, unknown>;
+      useTxCode?: boolean;
     };
     const credential = CREDENTIALS[credentialId];
 
@@ -185,14 +191,18 @@ app.post('/api/issue', async (req: Request, res: Response) => {
 
     const client = getClient();
 
+    // Generate transaction code if requested
+    const txCode = useTxCode ? generateTxCode() : undefined;
+
     // Create the issuance offer
     const { uri, sessionId } = await client.createIssuanceOffer({
       credentialConfigurationIds: [credential.credentialConfigId],
       claims: claims ? { [credential.credentialConfigId]: claims } : undefined,
       flow: credential.flow,
+      txCode,
     });
 
-    res.json({ uri, sessionId });
+    res.json({ uri, sessionId, txCode });
   } catch (error: any) {
     console.error('API Error (issue):', error);
     res.status(500).json({ error: error.message || 'Internal Server Error' });

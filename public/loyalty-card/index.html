@@ -83,9 +83,18 @@
           will be issued immediately using a pre-authorized credential offer.
         </div>
 
-        <button id="registerBtn" class="btn btn-primary btn-large">
-          💳 Complete Registration & Get Card
-        </button>
+        <div class="button-group">
+          <button id="registerBtn" class="btn btn-primary btn-large">
+            💳 Complete Registration & Get Card
+          </button>
+          <button id="registerSecureBtn" class="btn btn-secondary btn-large">
+            🔒 Secure Registration (with PIN)
+          </button>
+        </div>
+
+        <p class="secure-hint">
+          <em>The secure option requires entering a PIN in your wallet for extra protection.</em>
+        </p>
       </section>
 
       <!-- Step 2: QR Code / Wallet Connect -->
@@ -131,6 +140,18 @@
         <div class="eudi-badge">
           <span class="eu-flag">🇪🇺</span>
           EUDI Wallet Credential Offer
+        </div>
+
+        <div id="txCodeSection" class="tx-code-section hidden">
+          <div class="tx-code-header">
+            <span class="tx-code-icon">🔒</span>
+            <strong>Transaction Code Required</strong>
+          </div>
+          <p class="tx-code-hint">Enter this code in your wallet when prompted:</p>
+          <div class="tx-code-display">
+            <span id="txCodeValue" class="tx-code-value">------</span>
+            <button id="copyTxCodeBtn" class="btn btn-small" title="Copy to clipboard">📋</button>
+          </div>
         </div>
 
         <div class="qr-container">

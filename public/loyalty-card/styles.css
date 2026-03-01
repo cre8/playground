@@ -520,6 +520,93 @@ footer a:hover {
   text-decoration: underline;
 }
 
+/* Button Group */
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+@media (min-width: 480px) {
+  .button-group {
+    flex-direction: row;
+  }
+  
+  .button-group .btn {
+    flex: 1;
+  }
+}
+
+.secure-hint {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Transaction Code Section */
+.tx-code-section {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 2px solid #f59e0b;
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.tx-code-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  color: #92400e;
+}
+
+.tx-code-icon {
+  font-size: 1.25rem;
+}
+
+.tx-code-hint {
+  font-size: 0.875rem;
+  color: #a16207;
+  margin-bottom: 0.75rem;
+}
+
+.tx-code-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.tx-code-value {
+  font-family: 'Courier New', monospace;
+  font-size: 2rem;
+  font-weight: bold;
+  letter-spacing: 0.3em;
+  color: #92400e;
+  background: white;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: 2px dashed #f59e0b;
+}
+
+.btn-small {
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  background: white;
+  border: 1px solid #f59e0b;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-small:hover {
+  background: #fef3c7;
+}
+
 .hidden {
   display: none !important;
 }

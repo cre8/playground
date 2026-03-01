@@ -42,6 +42,7 @@ export interface VerificationResult {
 export interface IssuanceResult {
   sessionId: string;
   uri: string;
+  txCode?: string;
 }
 
 export interface Session {
@@ -94,19 +95,33 @@ function extractErrorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 
+export interface IssuanceOptions {
+  claims?: Record<string, unknown>;
+  useTxCode?: boolean;
+}
+
 /**
  * Create a credential issuance offer
  * @param credentialId - The credential ID to issue
- * @param claims - Optional claims for the credential (used in pre-authorized flow)
+ * @param options - Optional issuance options (claims, useTxCode)
  */
 export async function createIssuanceOffer(
   credentialId: string,
-  claims?: Record<string, unknown>
+  options?: IssuanceOptions | Record<string, unknown>
 ): Promise<IssuanceResult> {
+  // Support both old signature (claims object) and new signature (options object)
+  const issuanceOptions: IssuanceOptions = options && 'useTxCode' in options
+    ? options as IssuanceOptions
+    : { claims: options as Record<string, unknown> | undefined };
+
   const response = await fetch('/api/issue', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ credentialId, claims }),
+    body: JSON.stringify({
+      credentialId,
+      claims: issuanceOptions.claims,
+      useTxCode: issuanceOptions.useTxCode,
+    }),
   });
 
   if (!response.ok) {

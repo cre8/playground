@@ -46,7 +46,13 @@ const qrCodeDiv = getElement<HTMLDivElement>('qrCode');
 const sameDeviceLink = getElement<HTMLDivElement>('sameDeviceLink');
 const statusText = getElement<HTMLParagraphElement>('statusText');
 const registerBtn = getElement<HTMLButtonElement>('registerBtn');
+const registerSecureBtn = getElement<HTMLButtonElement>('registerSecureBtn');
 const registerAnotherBtn = document.getElementById('registerAnotherBtn') as HTMLButtonElement | null;
+
+// Transaction code elements
+const txCodeSection = getElement<HTMLElement>('txCodeSection');
+const txCodeValue = getElement<HTMLElement>('txCodeValue');
+const copyTxCodeBtn = getElement<HTMLButtonElement>('copyTxCodeBtn');
 
 // Card preview elements
 const memberIdSpan = getElement<HTMLElement>('memberId');
@@ -90,14 +96,35 @@ function formatDateISO(date: Date): string {
 
 // Initialize
 function init(): void {
-  registerBtn.addEventListener('click', handleRegister);
+  registerBtn.addEventListener('click', () => handleRegister(false));
+  registerSecureBtn.addEventListener('click', () => handleRegister(true));
   registerAnotherBtn?.addEventListener('click', handleRegisterAnother);
+  copyTxCodeBtn.addEventListener('click', handleCopyTxCode);
+}
+
+// Copy transaction code to clipboard
+async function handleCopyTxCode(): Promise<void> {
+  const code = txCodeValue.textContent || '';
+  try {
+    await navigator.clipboard.writeText(code);
+    const originalText = copyTxCodeBtn.textContent;
+    copyTxCodeBtn.textContent = '✓';
+    setTimeout(() => {
+      copyTxCodeBtn.textContent = originalText;
+    }, 1500);
+  } catch (error) {
+    console.error('Failed to copy:', error);
+  }
 }
 
 // Handle register button click
-async function handleRegister(): Promise<void> {
-  registerBtn.disabled = true;
-  registerBtn.textContent = 'Processing registration...';
+async function handleRegister(useSecure: boolean): Promise<void> {
+  const activeBtn = useSecure ? registerSecureBtn : registerBtn;
+  const otherBtn = useSecure ? registerBtn : registerSecureBtn;
+
+  activeBtn.disabled = true;
+  otherBtn.disabled = true;
+  activeBtn.textContent = 'Processing registration...';
 
   try {
     // Generate membership data
@@ -125,12 +152,24 @@ async function handleRegister(): Promise<void> {
     };
 
     // Create issuance offer (pre-authorized code flow - no additional auth needed)
-    const result = await createIssuanceOffer(CREDENTIAL_ID, claims);
+    const result = await createIssuanceOffer(CREDENTIAL_ID, {
+      claims,
+      useTxCode: useSecure,
+    });
 
     // Show issuance section with QR code
     showSection(issuanceSection);
     await generateVerificationUI(qrCodeDiv, sameDeviceLink, result.uri);
-    statusText.textContent = 'Scan the QR code with your EUDI Wallet';
+
+    // Show transaction code if using secure flow
+    if (useSecure && result.txCode) {
+      txCodeValue.textContent = result.txCode;
+      txCodeSection.classList.remove('hidden');
+      statusText.textContent = 'Scan QR code and enter the PIN in your wallet';
+    } else {
+      txCodeSection.classList.add('hidden');
+      statusText.textContent = 'Scan the QR code with your EUDI Wallet';
+    }
 
     // Wait for issuance to complete
     await waitForSession(result.sessionId, {
@@ -154,9 +193,13 @@ function handleRegisterAnother(): void {
   // Reset state
   registerBtn.disabled = false;
   registerBtn.textContent = '💳 Complete Registration & Get Card';
+  registerSecureBtn.disabled = false;
+  registerSecureBtn.textContent = '🔒 Secure Registration (with PIN)';
   qrCodeDiv.innerHTML = '';
   qrCodeDiv.classList.remove('has-qr');
   sameDeviceLink.classList.add('hidden');
+  txCodeSection.classList.add('hidden');
+  txCodeValue.textContent = '------';
   statusText.textContent = 'Waiting for wallet to accept...';
   statusText.style.color = '';
 
@@ -177,9 +220,11 @@ function handleError(error: unknown): void {
   statusText.textContent = `Error: ${message}`;
   statusText.style.color = '#dc2626';
 
-  // Reset button
+  // Reset buttons
   registerBtn.disabled = false;
   registerBtn.textContent = '💳 Complete Registration & Get Card';
+  registerSecureBtn.disabled = false;
+  registerSecureBtn.textContent = '🔒 Secure Registration (with PIN)';
 }
 
 // Start the app
