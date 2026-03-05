@@ -58,6 +58,10 @@ const USE_CASES: Record<string, { presentationConfigId: string; name: string }> 
     presentationConfigId: 'loyalty-card',
     name: 'Sports Shop - Member Discount',
   },
+  'drive-orange': {
+    presentationConfigId: 'driving-license',
+    name: 'DriveOrange - Mobile Driving License Verification',
+  },
 };
 
 // Credential configurations for issuance

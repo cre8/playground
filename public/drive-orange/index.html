@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>DriveOrange - Rent Bold. Drive Free.</title>
+    <link rel="stylesheet" href="/shared/styles.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"
+      integrity="sha384-lQXOAyZwHXE55JFyrOMB7nY2Wv+m5ZWNtJcHrd1rceRQXAYNLak8ukN5TjBTcIwz"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <header>
+      <a href="../" class="logo"> 🍊 DriveOrange </a>
+      <span class="tagline">Life's too short for boring cars.</span>
+    </header>
+
+    <main class="container">
+      <!-- Step 1: Car Selection -->
+      <section id="carSection" class="card">
+        <div class="hero-banner">
+          <h1>Your ride awaits.</h1>
+          <p class="hero-subtitle">Almost there. Just prove you can actually drive.</p>
+        </div>
+
+        <div class="car-card">
+          <div class="car-image">🏎️</div>
+          <div class="car-info">
+            <span class="car-badge">Hot Pick</span>
+            <h2>BMW M4 Competition</h2>
+            <p class="car-category">Sports Coupé • 510 HP • Rear-Wheel Drive</p>
+            <div class="car-features">
+              <span>👥 4 seats</span>
+              <span>⚡ 3.9s 0-100</span>
+              <span>🎵 Harman Kardon</span>
+            </div>
+            <p class="car-joke">Because life's too short for economy mode.</p>
+          </div>
+        </div>
+
+        <div class="booking-summary">
+          <h3>Booking Details</h3>
+          <div class="booking-item">
+            <span>📍 Pick-up</span>
+            <span>Munich Airport (MUC) • Terminal 2</span>
+          </div>
+          <div class="booking-item">
+            <span>📅 Duration</span>
+            <span>Mar 15 - Mar 22, 2026 • 7 days</span>
+          </div>
+          <div class="booking-item">
+            <span>🛡️ Protection</span>
+            <span>Full Coverage (recommended for this beast)</span>
+          </div>
+          <div class="booking-item extras">
+            <span>✨ Extras</span>
+            <span>Additional driver, GPS, Child seat</span>
+          </div>
+          <div class="booking-total">
+            <span>Total</span>
+            <span class="price">€1,249.00</span>
+          </div>
+        </div>
+
+        <div class="license-requirement">
+          <span class="requirement-icon">🪪</span>
+          <div>
+            <strong>Mobile Driving License Required</strong>
+            <p>
+              No paper shuffling. No ID photocopies. Just scan the QR code with your 
+              EUDI Wallet and you're good to go. We verify, you drive. Simple.
+            </p>
+          </div>
+        </div>
+
+        <button id="verifyBtn" class="btn btn-primary btn-large">
+          Verify License & Book This Beauty
+        </button>
+
+        <p class="trust-note">
+          🔒 Your data stays yours. We only check you're allowed to drive, not your life story.
+        </p>
+      </section>
+
+      <!-- Step 2: License Verification -->
+      <section id="verificationSection" class="card" style="display: none">
+        <h2>🪪 Show us what you got</h2>
+        <p class="verification-subtitle">
+          Scan with your EUDI Wallet. No apps to download. No forms to fill. Revolutionary, right?
+        </p>
+
+        <div class="license-info">
+          <h3>We'll just peek at:</h3>
+          <ul class="data-list">
+            <li><span class="data-icon">👤</span> Your name (so we know who to blame)</li>
+            <li><span class="data-icon">📅</span> Date of birth (age check, not horoscope)</li>
+            <li><span class="data-icon">🪪</span> Document number</li>
+            <li>
+              <span class="data-icon">📋</span> Driving privileges (hoping you have at least B)
+            </li>
+            <li><span class="data-icon">⏰</span> Expiry date (we want it back in one piece)</li>
+            <li><span class="data-icon">🌍</span> Issuing authority</li>
+          </ul>
+        </div>
+
+        <div id="qrContainer" class="qr-container">
+          <div id="qrCode" class="qr-code"></div>
+          <div class="same-device-section">
+            <span class="divider-text">or on this device</span>
+            <div id="sameDeviceLink" class="hidden"></div>
+          </div>
+          <p id="statusText" class="status-text">
+            Waiting for you to make a move...
+          </p>
+        </div>
+
+        <div class="privacy-note">
+          <strong>🛡️ Your Privacy, Our Promise</strong>
+          <p>
+            We verify. We don't store. Your license data is checked and forgotten faster
+            than you'll forget to refuel. (Please remember to refuel.)
+          </p>
+        </div>
+      </section>
+
+      <!-- Step 3: Success -->
+      <section id="successSection" class="card" style="display: none">
+        <div class="success-header">
+          <span class="success-icon">🎉</span>
+          <h2>You're in!</h2>
+          <p>
+            License verified. Car reserved. Now comes the fun part.
+          </p>
+        </div>
+
+        <div class="booking-confirmation">
+          <div class="confirmation-number">
+            <span>Booking #</span>
+            <strong id="confirmationNumber">DRV-2026-XXXXX</strong>
+          </div>
+          <p class="confirmation-joke">Screenshot it. Tattoo it. Whatever works.</p>
+        </div>
+
+        <div class="verified-license">
+          <h3>Verified Driver Details</h3>
+          <div id="verificationResults" class="results-grid">
+            <!-- Will be populated by JS -->
+          </div>
+        </div>
+
+        <div class="pickup-info">
+          <h3>Pick-up Instructions</h3>
+          <div class="info-item">
+            <span class="info-icon">📍</span>
+            <div>
+              <strong>Location</strong>
+              <p>
+                Munich Airport (MUC), Terminal 2, Ground Floor, 
+                DriveOrange Counter (the orange one, obviously)
+              </p>
+            </div>
+          </div>
+          <div class="info-item">
+            <span class="info-icon">⏰</span>
+            <div>
+              <strong>Time</strong>
+              <p>March 15, 2026 • 09:00 AM - 11:00 PM</p>
+              <small>Show up fashionably on time. The M4 doesn't like to wait.</small>
+            </div>
+          </div>
+          <div class="info-item">
+            <span class="info-icon">📱</span>
+            <div>
+              <strong>What to bring</strong>
+              <p>Your EUDI Wallet (for pick-up verification)</p>
+              <small>Pro tip: Also bring the ability to resist flooring it.</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="success-cta">
+          <button id="doneBtn" class="btn btn-secondary btn-large">Back to Playground</button>
+        </div>
+
+        <p class="final-joke">
+          🍊 Drive Orange. Life's too short to blend in.
+        </p>
+      </section>
+
+      <!-- Error State -->
+      <section id="errorSection" class="card error-card" style="display: none">
+        <div class="error-content">
+          <span class="error-icon">😬</span>
+          <h2>Well, that didn't work.</h2>
+          <p id="errorMessage">
+            We couldn't verify your driving license. Maybe try again? Or take the bus?
+          </p>
+          <button id="retryBtn" class="btn btn-primary">Try Again</button>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        DriveOrange Demo - Part of
+        <a href="https://github.com/openwallet-foundation-labs/eudiplo">EUDIPLO</a>
+      </p>
+      <p class="footer-note">
+        This is a demonstration. No real cars. No real bookings. Just real fun.
+      </p>
+    </footer>
+
+    <script src="/js/drive-orange/app.js"></script>
+  </body>
+</html>
