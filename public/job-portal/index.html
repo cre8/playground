@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="data:," />
-    <title>TechCorp Careers - Identity & Diploma Verification</title>
+    <title>TechCorp Careers - Diploma Verification</title>
     <link rel="stylesheet" href="/shared/styles.css" />
     <link rel="stylesheet" href="styles.css" />
     <script
@@ -57,7 +57,7 @@
               </div>
               <div class="progress-step active">
                 <span class="step-icon">3</span>
-                <span class="step-label">Verify Identity & Diploma</span>
+                <span class="step-label">Verify Diploma</span>
               </div>
               <div class="progress-step">
                 <span class="step-icon">4</span>
@@ -68,17 +68,17 @@
 
           <div id="verifySection">
             <div class="verify-prompt">
-              <span class="prompt-icon">�</span>
+              <span class="prompt-icon">🎓</span>
               <div class="prompt-text">
-                <strong>Identity & Academic Verification Required</strong>
-                <span>Please verify your identity and university diploma to proceed</span>
+                <strong>Academic Verification Required</strong>
+                <span>Please verify your university diploma to proceed</span>
               </div>
             </div>
             <button id="verifyBtn" class="btn btn-primary btn-block">
-              Verify Identity & Diploma
+              Verify Diploma
             </button>
             <p class="verify-note">
-              Both your PID and diploma will be verified using your EUDI Wallet
+              Your diploma will be verified using your EUDI Wallet
             </p>
             <div id="dcApiOption" class="dc-api-option hidden">
               <label class="toggle-label">
@@ -90,7 +90,7 @@
 
           <div id="successSection" class="hidden">
             <div class="message success">
-              ✅ Identity and diploma verified! Your application is ready to submit.
+              ✅ Diploma verified! Your application is ready to submit.
             </div>
             <button id="submitBtn" class="btn btn-primary btn-block">
               Submit Application
@@ -108,9 +108,9 @@
         <div class="demo-right">
           <div id="verificationSection" class="hidden">
             <div class="qr-section">
-              <h2>Verify Identity & Diploma</h2>
+              <h2>Verify Diploma</h2>
               <p class="qr-instruction">
-                Scan with your EUDI Wallet to share your PID and university diploma
+                Scan with your EUDI Wallet to share your university diploma
               </p>
 
               <div id="qrPlaceholder" class="qr-placeholder">Loading...</div>
@@ -136,13 +136,6 @@
             <h3>What we verify</h3>
             <ul class="info-list">
               <li>
-                <span class="info-icon">👤</span>
-                <div>
-                  <strong>Your Identity</strong>
-                  <span>Name from your Personal ID</span>
-                </div>
-              </li>
-              <li>
                 <span class="info-icon">🎓</span>
                 <div>
                   <strong>Degree Type</strong>
@@ -166,7 +159,7 @@
             </ul>
             <div class="privacy-note">
               <span class="shield-icon">🔒</span>
-              <span>Only name, diploma info, and graduation date are requested</span>
+              <span>Only diploma info and graduation date are requested</span>
             </div>
           </div>
         </div>

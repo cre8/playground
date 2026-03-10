@@ -116,7 +116,7 @@ async function handleVerify(): Promise<void> {
     handleError(error);
   } finally {
     verifyBtn.disabled = false;
-    verifyBtn.textContent = 'Verify My Diploma';
+    verifyBtn.textContent = 'Verify Diploma';
   }
 }
 
@@ -234,12 +234,8 @@ function showSuccessFromDcApi(result: DcApiResult): void {
   }, 1500);
 }
 
-// Display verification data (PID + Diploma) in the credential display
+// Display verification data (Diploma) in the credential display
 function displayVerificationData(data: Record<string, unknown>, isDcApi = false): void {
-  // PID fields
-  const givenName = data.given_name ?? 'N/A';
-  const familyName = data.family_name ?? 'N/A';
-  
   // Diploma fields
   const degreeType = data.degree_type ?? 'N/A';
   const degreeName = data.degree_name ?? 'N/A';
@@ -247,13 +243,6 @@ function displayVerificationData(data: Record<string, unknown>, isDcApi = false)
   const graduationDate = data.graduation_date ?? 'N/A';
 
   let html = `
-    <div class="credential-section">
-      <h4>👤 Identity (PID)</h4>
-      <div class="credential-item">
-        <span class="label">Name</span>
-        <span class="value">${givenName} ${familyName}</span>
-      </div>
-    </div>
     <div class="credential-section">
       <h4>🎓 Diploma</h4>
       <div class="credential-item">

@@ -51,8 +51,8 @@ const USE_CASES: Record<string, { presentationConfigId: string; name: string }> 
     name: 'Parcel Pickup - Recipient Verification',
   },
   'job-portal': {
-    presentationConfigId: 'diploma-and-pid',
-    name: 'Job Portal - Diploma & Identity Verification',
+    presentationConfigId: 'diploma',
+    name: 'Job Portal - Diploma Verification',
   },
   'sports-shop': {
     presentationConfigId: 'loyalty-card',
