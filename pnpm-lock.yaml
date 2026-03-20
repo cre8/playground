@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@eudiplo/sdk-core':
-        specifier: main
-        version: 3.1.2
+        specifier: 1.14.0-main.1a484a4
+        version: 1.14.0-main.1a484a4
       dotenv:
         specifier: ^17.3.1
         version: 17.3.1
@@ -252,8 +252,8 @@ packages:
     resolution: {integrity: sha512-iH1B076HoAshH1mLpHMgwdGeTs0CYwL0SPMkGuSebZrwBp16v415e9NZXg2jtrqPVQjf6IANe2Vtlr5KswtcZQ==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
 
-  '@eudiplo/sdk-core@3.1.2':
-    resolution: {integrity: sha512-uEzz6KvSHLTMc3Mg7yahELEBQVi9Y6ise1IepPweEKwdUTkzUixUH39nSEg6IM4B/QFuxtl58i8mFZwUZz7JxA==}
+  '@eudiplo/sdk-core@1.14.0-main.1a484a4':
+    resolution: {integrity: sha512-YQDWBCCQ6U4agqwFuNJVKbGBc3qUket43QmV20Hht8+PARIY/d+N4JEkZjY4yIOCYUstx1ZNQZQxo5eTmD0sVA==}
     engines: {node: '>=20.0.0'}
 
   '@humanfs/core@0.19.1':
@@ -1132,7 +1132,7 @@ snapshots:
       '@eslint/core': 1.1.1
       levn: 0.4.1
 
-  '@eudiplo/sdk-core@3.1.2': {}
+  '@eudiplo/sdk-core@1.14.0-main.1a484a4': {}
 
   '@humanfs/core@0.19.1': {}
 

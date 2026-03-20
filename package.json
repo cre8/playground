@@ -18,7 +18,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@eudiplo/sdk-core": "main",
+    "@eudiplo/sdk-core": "1.14.0-main.1a484a4",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "express-rate-limit": "^8.3.1"
