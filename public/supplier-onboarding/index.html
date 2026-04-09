@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>ProProcure - Supplier Onboarding</title>
+    <link rel="stylesheet" href="/shared/styles.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"
+      integrity="sha384-lQXOAyZwHXE55JFyrOMB7nY2Wv+m5ZWNtJcHrd1rceRQXAYNLak8ukN5TjBTcIwz"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <header>
+      <a href="../" class="logo">🏢 ProProcure</a>
+    </header>
+
+    <main class="container">
+      <!-- Step 1: Welcome -->
+      <section id="welcomeSection" class="card">
+        <div class="hero">
+          <h1>Become a Verified Supplier</h1>
+          <p>
+            Join our B2B marketplace in minutes. Verify your company credentials
+            and employee authorization instantly with your DATEV Organizational Wallet.
+          </p>
+        </div>
+
+        <div class="features">
+          <div class="feature">
+            <span class="feature-icon">🏛️</span>
+            <div>
+              <strong>Company Verification</strong>
+              <p>Instantly verify your company's legal identity and VAT ID</p>
+            </div>
+          </div>
+          <div class="feature">
+            <span class="feature-icon">👤</span>
+            <div>
+              <strong>Employee Authorization</strong>
+              <p>Prove your signing authority and spending limits</p>
+            </div>
+          </div>
+          <div class="feature">
+            <span class="feature-icon">📄</span>
+            <div>
+              <strong>E-Invoice Ready</strong>
+              <p>Auto-configure PEPPOL/TraffiqX for seamless invoicing</p>
+            </div>
+          </div>
+        </div>
+
+        <button id="startBtn" class="btn btn-primary btn-large">
+          Register as Supplier
+        </button>
+        <div id="dcApiOption" class="dc-api-option hidden">
+          <label class="toggle-label">
+            <input type="checkbox" id="dcApiToggle" />
+            <span class="toggle-text">Use DC API (Browser Native)</span>
+          </label>
+        </div>
+      </section>
+
+      <!-- Step 2: Credential Verification -->
+      <section id="verificationSection" class="card" style="display: none">
+        <h2>🔐 Company & Authorization Verification</h2>
+        <p class="verification-subtitle">
+          Present your DATEV Company Credential to verify your organization
+          and your authorization to act on its behalf.
+        </p>
+
+        <div class="verification-info">
+          <h3>What we'll verify:</h3>
+          <ul class="data-list">
+            <li><span class="data-icon">🏢</span> Company Name & Identity</li>
+            <li><span class="data-icon">🔢</span> VAT Registration Number</li>
+            <li><span class="data-icon">👤</span> Your Authorization Role</li>
+            <li><span class="data-icon">💰</span> Spending/Contract Limit</li>
+            <li><span class="data-icon">📬</span> E-Invoice Routing</li>
+          </ul>
+        </div>
+
+        <div id="qrContainer" class="qr-container">
+          <div id="qrCode" class="qr-code"></div>
+          <div class="same-device-section">
+            <span class="divider-text">or on this device</span>
+            <div id="sameDeviceLink" class="hidden"></div>
+          </div>
+          <p id="statusText" class="status-text">
+            Present your DATEV credential to verify
+          </p>
+        </div>
+
+        <div class="privacy-note">
+          <strong>🛡️ Minimal Data Disclosure</strong>
+          <p>
+            We only request the data needed for supplier verification.
+            Your full credential details remain private in your wallet.
+          </p>
+        </div>
+      </section>
+
+      <!-- Step 3: Success -->
+      <section id="successSection" class="card" style="display: none">
+        <div class="success-header">
+          <div class="success-icon">✅</div>
+          <h2>Supplier Registration Complete!</h2>
+          <p>Your company and authorization have been verified.</p>
+        </div>
+
+        <div class="verification-summary">
+          <h3>Company Details</h3>
+          <div id="companyResults" class="results-grid"></div>
+        </div>
+
+        <div class="verification-summary">
+          <h3>Your Authorization</h3>
+          <div id="authorizationResults" class="results-grid"></div>
+        </div>
+
+        <div class="verification-summary">
+          <h3>E-Invoice Configuration</h3>
+          <div id="invoiceResults" class="results-grid"></div>
+        </div>
+
+        <div class="next-steps">
+          <h3>🎉 You're Ready to Go!</h3>
+          <p>As a verified supplier, you can now:</p>
+          <ul>
+            <li>Browse and respond to procurement requests</li>
+            <li>Submit quotes up to your authorized limit</li>
+            <li>Receive purchase orders and payments automatically</li>
+            <li>Send e-invoices via your configured channel</li>
+          </ul>
+        </div>
+
+        <button id="continueBtn" class="btn btn-primary btn-large">
+          Browse Opportunities
+        </button>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        This is a demo showcasing DATEV Company Credential verification
+        for B2B supplier onboarding.
+      </p>
+    </footer>
+
+    <script type="module" src="/js/supplier-onboarding/app.js"></script>
+  </body>
+</html>

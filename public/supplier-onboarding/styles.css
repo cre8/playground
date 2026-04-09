@@ -1,0 +1,370 @@
+/* Supplier Onboarding specific styles */
+
+/* Brand colors - Professional teal/green B2B procurement theme */
+:root {
+  --supplier-primary: #0d9488;
+  --supplier-accent: #14b8a6;
+  --supplier-bg: #f0fdfa;
+  --supplier-success: #059669;
+  --supplier-dark: #134e4a;
+}
+
+.hero {
+  text-align: center;
+  padding: 2rem 0;
+  background: linear-gradient(135deg, var(--supplier-bg) 0%, #ccfbf1 100%);
+  margin: -2rem -2rem 2rem -2rem;
+  padding: 3rem 2rem;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+@media (max-width: 640px) {
+  .hero {
+    margin: -1.25rem -1.25rem 1.5rem -1.25rem;
+    padding: 2rem 1rem;
+    border-radius: 8px 8px 0 0;
+  }
+}
+
+.hero h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: var(--supplier-dark);
+}
+
+@media (max-width: 640px) {
+  .hero h1 {
+    font-size: 1.5rem;
+  }
+}
+
+.hero p {
+  color: var(--text-muted);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+@media (max-width: 640px) {
+  .features {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}
+
+.feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--bg);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.feature:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.feature-icon {
+  font-size: 1.5rem;
+  background: var(--supplier-bg);
+  padding: 0.5rem;
+  border-radius: 8px;
+}
+
+.feature strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--supplier-dark);
+}
+
+.feature p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.btn-large {
+  width: 100%;
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+  background: var(--supplier-accent);
+}
+
+.btn-large:hover {
+  background: var(--supplier-primary);
+}
+
+.verification-subtitle {
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.verification-info {
+  background: var(--supplier-bg);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #99f6e4;
+}
+
+@media (max-width: 640px) {
+  .verification-info {
+    padding: 1rem;
+  }
+}
+
+.verification-info h3 {
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--supplier-primary);
+}
+
+.data-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+}
+
+@media (max-width: 480px) {
+  .data-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+.data-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 6px;
+}
+
+.data-icon {
+  width: 24px;
+  text-align: center;
+}
+
+.success-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.success-icon {
+  font-size: 4rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.success-header h2 {
+  color: var(--supplier-success);
+}
+
+.verification-summary {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border);
+}
+
+@media (max-width: 640px) {
+  .verification-summary {
+    padding: 1rem;
+  }
+}
+
+.verification-summary h3 {
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--supplier-primary);
+}
+
+.results-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.result-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.result-item:last-child {
+  border-bottom: none;
+}
+
+.result-label {
+  color: var(--text-muted);
+}
+
+.result-value {
+  font-weight: 500;
+  text-align: right;
+  max-width: 60%;
+}
+
+.next-steps {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.next-steps h3 {
+  margin-bottom: 0.5rem;
+  color: var(--supplier-success);
+}
+
+.next-steps p {
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.next-steps ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.next-steps li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  color: var(--supplier-dark);
+}
+
+.next-steps li::before {
+  content: "✓";
+  color: var(--supplier-success);
+  font-weight: bold;
+}
+
+/* Supplier branded privacy note */
+.privacy-note {
+  background: var(--supplier-bg);
+  border: 1px solid #99f6e4;
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-top: 1.5rem;
+}
+
+.privacy-note strong {
+  color: var(--supplier-primary);
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.privacy-note p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+/* Supplier branded header */
+header {
+  background: linear-gradient(135deg, var(--supplier-dark) 0%, var(--supplier-primary) 100%);
+  border-bottom: none;
+  padding: 1rem 2rem;
+}
+
+header .logo {
+  color: white;
+  text-decoration: none;
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+/* DC API toggle styling */
+.dc-api-option {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.toggle-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--supplier-accent);
+}
+
+/* QR code container */
+.qr-container {
+  text-align: center;
+  padding: 2rem;
+}
+
+.qr-code {
+  display: inline-block;
+  padding: 1rem;
+  background: white;
+  border-radius: var(--radius);
+  margin-bottom: 1rem;
+}
+
+.qr-code.has-qr {
+  box-shadow: var(--shadow);
+}
+
+.same-device-section {
+  margin-top: 1rem;
+}
+
+.divider-text {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.status-text {
+  color: var(--text-muted);
+  margin-top: 1rem;
+}
+
+.status-text.error {
+  color: var(--error);
+}
+
+.processing-icon,
+.error-icon {
+  font-size: 3rem;
+  padding: 1rem;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
