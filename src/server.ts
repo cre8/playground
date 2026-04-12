@@ -63,8 +63,8 @@ const USE_CASES: Record<string, { presentationConfigId: string; name: string }> 
     name: 'DriveOrange - Mobile Driving License Verification',
   },
   'supplier-onboarding': {
-    presentationConfigId: 'datev',
-    name: 'Supplier Onboarding - DATEV Company Credential',
+    presentationConfigId: 'datev-pid',
+    name: 'Supplier Onboarding - DATEV Company + PID',
   },
 };
 

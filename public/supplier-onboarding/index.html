@@ -31,6 +31,13 @@
 
         <div class="features">
           <div class="feature">
+            <span class="feature-icon">🪪</span>
+            <div>
+              <strong>Personal Identity</strong>
+              <p>Verify who is submitting this registration request</p>
+            </div>
+          </div>
+          <div class="feature">
             <span class="feature-icon">🏛️</span>
             <div>
               <strong>Company Verification</strong>
@@ -66,15 +73,16 @@
 
       <!-- Step 2: Credential Verification -->
       <section id="verificationSection" class="card" style="display: none">
-        <h2>🔐 Company & Authorization Verification</h2>
+        <h2>🔐 Identity & Company Verification</h2>
         <p class="verification-subtitle">
-          Present your DATEV Company Credential to verify your organization
-          and your authorization to act on its behalf.
+          Present your PID and DATEV Company Credential to verify your identity,
+          your organization, and your authorization to act on its behalf.
         </p>
 
         <div class="verification-info">
           <h3>What we'll verify:</h3>
           <ul class="data-list">
+            <li><span class="data-icon">🪪</span> Your Personal Identity (PID)</li>
             <li><span class="data-icon">🏢</span> Company Name & Identity</li>
             <li><span class="data-icon">🔢</span> VAT Registration Number</li>
             <li><span class="data-icon">👤</span> Your Authorization Role</li>
@@ -108,7 +116,12 @@
         <div class="success-header">
           <div class="success-icon">✅</div>
           <h2>Supplier Registration Complete!</h2>
-          <p>Your company and authorization have been verified.</p>
+          <p>Your identity, company, and authorization have been verified.</p>
+        </div>
+
+        <div class="verification-summary">
+          <h3>Submitted By</h3>
+          <div id="submitterResults" class="results-grid"></div>
         </div>
 
         <div class="verification-summary">
@@ -145,7 +158,7 @@
 
     <footer>
       <p>
-        This is a demo showcasing DATEV Company Credential verification
+        This is a demo showcasing PID + DATEV Company Credential verification
         for B2B supplier onboarding.
       </p>
     </footer>

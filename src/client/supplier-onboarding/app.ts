@@ -185,14 +185,13 @@ function showSuccess(session: Session): void {
   // Extract credential data from the response structure
   // Structure: credentials[].values[] where values contains the actual claims
   const credentials = session.credentials as Array<{ id: string; values: Array<Record<string, unknown>> }> | undefined;
-  const credentialData = credentials?.[0]?.values?.[0];
   
-  if (credentialData) {
-    displayVerificationResults(credentialData);
+  if (credentials && credentials.length > 0) {
+    displayVerificationResults(credentials);
   } else if (session.presentation) {
-    // Fallback to presentation if available
+    // Fallback to presentation if available (single credential format)
     const p = session.presentation as Record<string, unknown>;
-    displayVerificationResults(p);
+    displayVerificationResults([{ id: 'unknown', values: [p] }]);
   }
 }
 
@@ -202,29 +201,68 @@ function showSuccessFromDcApi(result: DcApiResult): void {
 
   // Try credentials array first, then fall back to presentation
   const credentials = result.credentials as Array<{ id: string; values: Array<Record<string, unknown>> }> | undefined;
-  const credentialData = credentials?.[0]?.values?.[0];
   
-  if (credentialData) {
-    displayVerificationResults(credentialData, true);
+  if (credentials && credentials.length > 0) {
+    displayVerificationResults(credentials, true);
   } else if (result.presentation) {
     const p = result.presentation as Record<string, unknown>;
-    displayVerificationResults(p, true);
+    displayVerificationResults([{ id: 'unknown', values: [p] }], true);
   }
 }
 
+// Find credential data by ID pattern
+function findCredentialData(
+  credentials: Array<{ id: string; values: Array<Record<string, unknown>> }>,
+  idPattern: string
+): Record<string, unknown> | undefined {
+  const credential = credentials.find((c) => 
+    c.id.toLowerCase().includes(idPattern.toLowerCase())
+  );
+  return credential?.values?.[0];
+}
+
 // Display verification results organized by category
-function displayVerificationResults(p: Record<string, unknown>, isDcApi = false): void {
+function displayVerificationResults(
+  credentials: Array<{ id: string; values: Array<Record<string, unknown>> }>,
+  isDcApi = false
+): void {
+  const submitterResults = document.getElementById('submitterResults');
   const companyResults = document.getElementById('companyResults');
   const authorizationResults = document.getElementById('authorizationResults');
   const invoiceResults = document.getElementById('invoiceResults');
 
-  // Company details
+  // Find PID and DATEV credentials
+  const pidData = findCredentialData(credentials, 'pid') ?? {};
+  const datevData = findCredentialData(credentials, 'datev') ?? findCredentialData(credentials, 'company') ?? {};
+  
+  // If only one credential, it might contain everything
+  if (credentials.length === 1) {
+    const singleData = credentials[0].values[0] ?? {};
+    Object.assign(pidData, singleData);
+    Object.assign(datevData, singleData);
+  }
+
+  // Submitter (PID) details
+  const submitterFields = [
+    { label: 'Full Name', value: formatName(pidData) },
+    { label: 'Date of Birth', value: formatDate(pidData.birth_date || pidData.birthdate) },
+    { label: 'Nationality', value: pidData.nationality || pidData.issuing_country },
+    { label: 'Address', value: formatPersonalAddress(pidData) },
+  ].filter((f) => f.value);
+
+  if (submitterResults) {
+    submitterResults.innerHTML = submitterFields.length > 0
+      ? submitterFields.map(renderResultItem).join('')
+      : '<p class="no-data">No personal identity data provided</p>';
+  }
+
+  // Company details (from DATEV)
   const companyFields = [
-    { label: 'Company Name', value: p.buyer_org_official_name || p.Handelsname_des_Käufers },
-    { label: 'VAT ID', value: p.buyer_tax_vat_id },
-    { label: 'Company ID', value: p.buyer_org_unique_id || p.buyer_org_euid },
-    { label: 'Address', value: formatCompanyAddress(p) },
-    { label: 'Contact Email', value: p.buyer_contact_email },
+    { label: 'Company Name', value: datevData.buyer_org_official_name || datevData.Handelsname_des_Käufers },
+    { label: 'VAT ID', value: datevData.buyer_tax_vat_id },
+    { label: 'Company ID', value: datevData.buyer_org_unique_id || datevData.buyer_org_euid },
+    { label: 'Address', value: formatCompanyAddress(datevData) },
+    { label: 'Contact Email', value: datevData.buyer_contact_email },
   ].filter((f) => f.value);
 
   if (companyResults) {
@@ -233,13 +271,13 @@ function displayVerificationResults(p: Record<string, unknown>, isDcApi = false)
       : '<p class="no-data">No company data provided</p>';
   }
 
-  // Authorization details
+  // Authorization details (from DATEV)
   const authFields = [
-    { label: 'Employee ID', value: p.employee_person_id },
-    { label: 'Authorization Role', value: formatRole(p.employee_authorization_role as string) },
-    { label: 'Spending Limit', value: formatAmount(p.employee_authorization_limit_amount) },
-    { label: 'Valid Until', value: formatDate(p.employee_authorization_validity) },
-    { label: 'Acts for Organization', value: p.employee_acts_for_org_unique },
+    { label: 'Employee ID', value: datevData.employee_person_id },
+    { label: 'Authorization Role', value: formatRole(datevData.employee_authorization_role as string) },
+    { label: 'Spending Limit', value: formatAmount(datevData.employee_authorization_limit_amount) },
+    { label: 'Valid Until', value: formatDate(datevData.employee_authorization_validity) },
+    { label: 'Acts for Organization', value: datevData.employee_acts_for_org_unique },
   ].filter((f) => f.value);
 
   if (authorizationResults) {
@@ -248,16 +286,16 @@ function displayVerificationResults(p: Record<string, unknown>, isDcApi = false)
       : '<p class="no-data">No authorization data provided</p>';
   }
 
-  // E-Invoice routing details
+  // E-Invoice routing details (from DATEV)
   const invoiceFields = [
-    { label: 'PEPPOL ID', value: p.buyer_routing_peppol_id },
-    { label: 'TraffiqX ID', value: p.buyer_routing_traffiqx_id },
-    { label: 'Preferred Channel', value: p.buyer_routing_preferred_channel },
-    { label: 'Invoice Email', value: p.buyer_routing_email },
-    { label: 'Preferred Format', value: p.Empfängerwunschformat },
-    { label: 'DATEV Mailbox', value: p.MyDATEVPostfach },
-    { label: 'Advisor Number', value: p.Beraternummer },
-    { label: 'Client Number', value: p.Mandantennummer },
+    { label: 'PEPPOL ID', value: datevData.buyer_routing_peppol_id },
+    { label: 'TraffiqX ID', value: datevData.buyer_routing_traffiqx_id },
+    { label: 'Preferred Channel', value: datevData.buyer_routing_preferred_channel },
+    { label: 'Invoice Email', value: datevData.buyer_routing_email },
+    { label: 'Preferred Format', value: datevData.Empfängerwunschformat },
+    { label: 'DATEV Mailbox', value: datevData.MyDATEVPostfach },
+    { label: 'Advisor Number', value: datevData.Beraternummer },
+    { label: 'Client Number', value: datevData.Mandantennummer },
   ].filter((f) => f.value);
 
   if (isDcApi) {
@@ -269,6 +307,25 @@ function displayVerificationResults(p: Record<string, unknown>, isDcApi = false)
       ? invoiceFields.map(renderResultItem).join('')
       : '<p class="no-data">No invoice routing configured</p>';
   }
+}
+
+// Format full name from PID fields
+function formatName(p: Record<string, unknown>): string | null {
+  const parts = [p.given_name, p.family_name].filter(Boolean);
+  return parts.length > 0 ? parts.join(' ') : null;
+}
+
+// Format personal address from PID
+function formatPersonalAddress(p: Record<string, unknown>): string | null {
+  const address = p.address as Record<string, unknown> | undefined;
+  const parts = [
+    p.street_address || address?.street_address,
+    p.locality || address?.locality,
+    p.postal_code || address?.postal_code,
+    p.country || address?.country,
+  ].filter(Boolean) as string[];
+
+  return parts.length > 0 ? parts.join(', ') : null;
 }
 
 // Render a single result item
