@@ -17,7 +17,8 @@ import {
   type DcApiResult,
 } from '../shared/utils';
 
-const USE_CASE = 'job-portal';
+const USE_CASE_DIPLOMA = 'job-portal';
+const USE_CASE_FULL = 'job-portal-full';
 
 // DOM Elements
 const verifySection = getElement<HTMLDivElement>('verifySection');
@@ -30,14 +31,17 @@ const statusText = getElement<HTMLSpanElement>('statusText');
 const statusBadge = getElement<HTMLDivElement>('statusBadge');
 const credentialDisplay = getElement<HTMLDivElement>('credentialDisplay');
 const resultPanel = getElement<HTMLDivElement>('resultPanel');
-const verifyBtn = getElement<HTMLButtonElement>('verifyBtn');
+const verifyDiplomaBtn = getElement<HTMLButtonElement>('verifyDiplomaBtn');
+const verifyFullBtn = getElement<HTMLButtonElement>('verifyFullBtn');
 
 // State
 let _currentSessionId: string | null = null;
+let _currentUseCase: string = USE_CASE_DIPLOMA;
 
 // Initialize
 function init(): void {
-  verifyBtn.addEventListener('click', handleVerify);
+  verifyDiplomaBtn.addEventListener('click', () => handleVerify(USE_CASE_DIPLOMA));
+  verifyFullBtn.addEventListener('click', () => handleVerify(USE_CASE_FULL));
 
   // Setup DC API toggle if available
   setupDcApiToggle();
@@ -102,28 +106,35 @@ async function resumeSession(sessionId: string): Promise<void> {
 }
 
 // Handle verify button click
-async function handleVerify(): Promise<void> {
-  verifyBtn.disabled = true;
-  verifyBtn.textContent = 'Starting verification...';
+async function handleVerify(useCase: string): Promise<void> {
+  _currentUseCase = useCase;
+  const activeBtn = useCase === USE_CASE_DIPLOMA ? verifyDiplomaBtn : verifyFullBtn;
+  const otherBtn = useCase === USE_CASE_DIPLOMA ? verifyFullBtn : verifyDiplomaBtn;
+  
+  activeBtn.disabled = true;
+  otherBtn.disabled = true;
+  activeBtn.textContent = 'Starting verification...';
 
   try {
     if (isDcApiEnabled()) {
-      await handleDcApiVerification();
+      await handleDcApiVerification(useCase);
     } else {
-      await handleQrCodeVerification();
+      await handleQrCodeVerification(useCase);
     }
   } catch (error) {
     handleError(error);
   } finally {
-    verifyBtn.disabled = false;
-    verifyBtn.textContent = 'Verify Diploma';
+    activeBtn.disabled = false;
+    otherBtn.disabled = false;
+    verifyDiplomaBtn.textContent = 'Verify Diploma Only';
+    verifyFullBtn.textContent = 'Verify Diploma + Identity';
   }
 }
 
 // Handle verification via QR code flow
-async function handleQrCodeVerification(): Promise<void> {
+async function handleQrCodeVerification(useCase: string): Promise<void> {
   const redirectUrl = buildRedirectUrl('{sessionId}');
-  const result = await createVerificationRequest(USE_CASE, redirectUrl);
+  const result = await createVerificationRequest(useCase, redirectUrl);
   _currentSessionId = result.sessionId;
 
   // Show verification section
@@ -155,7 +166,7 @@ async function handleQrCodeVerification(): Promise<void> {
 }
 
 // Handle verification via DC API (browser-native)
-async function handleDcApiVerification(): Promise<void> {
+async function handleDcApiVerification(useCase: string): Promise<void> {
   verifySection.classList.add('hidden');
   verificationSection.classList.remove('hidden');
   infoSection.classList.add('hidden');
@@ -165,7 +176,7 @@ async function handleDcApiVerification(): Promise<void> {
   sameDeviceLink.classList.add('hidden');
   updateStatus('processing', 'Opening wallet...');
 
-  const result = await verifyWithDcApi(USE_CASE, (status) => {
+  const result = await verifyWithDcApi(useCase, (status) => {
     updateStatus('processing', status);
   });
 
@@ -234,13 +245,18 @@ function showSuccessFromDcApi(result: DcApiResult): void {
   }, 1500);
 }
 
-// Display verification data (Diploma) in the credential display
+// Display verification data (Diploma and optionally PID) in the credential display
 function displayVerificationData(data: Record<string, unknown>, isDcApi = false): void {
   // Diploma fields
   const degreeType = data.degree_type ?? 'N/A';
   const degreeName = data.degree_name ?? 'N/A';
   const university = data.issuing_authority ?? 'N/A';
   const graduationDate = data.graduation_date ?? 'N/A';
+
+  // PID fields (may be present for full verification)
+  const givenName = data.given_name;
+  const familyName = data.family_name;
+  const birthDate = data.birth_date;
 
   let html = `
     <div class="credential-section">
@@ -262,6 +278,30 @@ function displayVerificationData(data: Record<string, unknown>, isDcApi = false)
         <span class="value">${graduationDate}</span>
       </div>
     </div>
+  `;
+
+  // Add PID section if present
+  if (givenName || familyName || birthDate) {
+    html += `
+    <div class="credential-section">
+      <h4>🪪 Personal Identity</h4>
+      ${givenName ? `<div class="credential-item">
+        <span class="label">Given Name</span>
+        <span class="value">${givenName}</span>
+      </div>` : ''}
+      ${familyName ? `<div class="credential-item">
+        <span class="label">Family Name</span>
+        <span class="value">${familyName}</span>
+      </div>` : ''}
+      ${birthDate ? `<div class="credential-item">
+        <span class="label">Birth Date</span>
+        <span class="value">${birthDate}</span>
+      </div>` : ''}
+    </div>
+    `;
+  }
+
+  html += `
     <div class="credential-item">
       <span class="label">Verified At</span>
       <span class="value">${new Date().toLocaleTimeString()}</span>

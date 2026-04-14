@@ -284,3 +284,20 @@
   color: var(--job-primary);
   margin-bottom: 0.5rem;
 }
+
+/* Button group for multiple verification options */
+.button-group {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.button-group .btn {
+  flex: 1;
+}
+
+@media (max-width: 480px) {
+  .button-group {
+    flex-direction: column;
+  }
+}

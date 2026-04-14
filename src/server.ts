@@ -54,6 +54,10 @@ const USE_CASES: Record<string, { presentationConfigId: string; name: string }> 
     presentationConfigId: 'diploma',
     name: 'Job Portal - Diploma Verification',
   },
+  'job-portal-full': {
+    presentationConfigId: 'diploma-pid',
+    name: 'Job Portal - Diploma and Identity Verification',
+  },
   'sports-shop': {
     presentationConfigId: 'loyalty-card',
     name: 'Sports Shop - Member Discount',
