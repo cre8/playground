@@ -134,6 +134,10 @@ async function handleQrCodeVerification(): Promise<void> {
 
   // Show verification section with QR code
   showSection(verificationSection);
+
+  // Display session ID immediately
+  displaySessionIdInQrSection(result.sessionId);
+
   // QR code uses crossDeviceUri (no redirect), button uses uri (with redirect)
   await generateVerificationUI(
     qrCodeDiv,
@@ -166,12 +170,32 @@ async function handleDcApiVerification(): Promise<void> {
   sameDeviceLink.classList.add('hidden');
   statusText.textContent = 'Opening wallet...';
 
+  // Clear session ID display for DC API (will be shown after completion)
+  const qrSessionIdEl = document.getElementById('qrSessionId');
+  if (qrSessionIdEl) {
+    qrSessionIdEl.innerHTML = '';
+  }
+
   const result = await verifyWithDcApi(USE_CASE, (status) => {
     statusText.textContent = status;
   });
 
+  // Display session ID when we get the result
+  displaySessionIdInQrSection(result.sessionId);
+
   // Handle result - convert DC API result to session format for compatibility
   handleVerificationResultFromDcApi(result);
+}
+
+// Display session ID in QR section
+function displaySessionIdInQrSection(sessionId: string): void {
+  const qrSessionIdEl = document.getElementById('qrSessionId');
+  if (qrSessionIdEl) {
+    qrSessionIdEl.innerHTML = `
+      <span class="label">Session ID</span>
+      <span class="value">${sessionId}</span>
+    `;
+  }
 }
 
 // Check if user is from Berlin
@@ -250,18 +274,18 @@ function generateTicketId(): string {
 function showSuccess(session: Session): void {
   showSection(successSection);
   const claims = extractClaims(session);
-  displaySuccessContent(claims, false);
+  displaySuccessContent(claims, false, session.sessionId);
 }
 
 // Show success state from DC API
 function showSuccessFromDcApi(result: DcApiResult): void {
   showSection(successSection);
   const claims = result.presentation ? extractClaimsFromPresentation(result.presentation) : {};
-  displaySuccessContent(claims, true);
+  displaySuccessContent(claims, true, result.sessionId);
 }
 
 // Display success content
-function displaySuccessContent(claims: Record<string, unknown>, isDcApi: boolean): void {
+function displaySuccessContent(claims: Record<string, unknown>, isDcApi: boolean, sessionId?: string): void {
   // Set ticket ID
   const ticketIdEl = document.getElementById('ticketId');
   if (ticketIdEl) {
@@ -303,6 +327,17 @@ function displaySuccessContent(claims: Record<string, unknown>, isDcApi: boolean
         <span class="value">DC API (Browser Native)</span>
       `;
       verifiedDataEl.appendChild(method);
+    }
+
+    // Add session ID for debugging
+    if (sessionId) {
+      const sessionItem = document.createElement('div');
+      sessionItem.className = 'verified-item';
+      sessionItem.innerHTML = `
+        <span class="label">Session ID</span>
+        <span class="value" style="font-family: monospace; font-size: 0.75rem;">${sessionId}</span>
+      `;
+      verifiedDataEl.appendChild(sessionItem);
     }
   }
 }

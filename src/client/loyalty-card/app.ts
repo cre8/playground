@@ -159,6 +159,10 @@ async function handleRegister(useSecure: boolean): Promise<void> {
 
     // Show issuance section with QR code
     showSection(issuanceSection);
+
+    // Display session ID immediately
+    displaySessionIdInQrSection(result.sessionId);
+
     await generateVerificationUI(qrCodeDiv, sameDeviceLink, result.uri);
 
     // Show transaction code if using secure flow
@@ -198,6 +202,12 @@ function handleRegisterAnother(): void {
   qrCodeDiv.innerHTML = '';
   qrCodeDiv.classList.remove('has-qr');
   sameDeviceLink.classList.add('hidden');
+
+  // Clear session ID
+  const qrSessionIdEl = document.getElementById('qrSessionId');
+  if (qrSessionIdEl) {
+    qrSessionIdEl.innerHTML = '';
+  }
   txCodeSection.classList.add('hidden');
   txCodeValue.textContent = '------';
   statusText.textContent = 'Waiting for wallet to accept...';
@@ -210,6 +220,17 @@ function handleRegisterAnother(): void {
 // Show success section
 function showSuccess(): void {
   showSection(successSection);
+}
+
+// Display session ID in QR section
+function displaySessionIdInQrSection(sessionId: string): void {
+  const qrSessionIdEl = document.getElementById('qrSessionId');
+  if (qrSessionIdEl) {
+    qrSessionIdEl.innerHTML = `
+      <span class="label">Session ID</span>
+      <span class="value">${sessionId}</span>
+    `;
+  }
 }
 
 // Handle errors

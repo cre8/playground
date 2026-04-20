@@ -58,6 +58,10 @@ const USE_CASES: Record<string, { presentationConfigId: string; name: string }> 
     presentationConfigId: 'diploma-pid',
     name: 'Job Portal - Diploma and Identity Verification',
   },
+  'masters-application': {
+    presentationConfigId: 'diploma-pid',
+    name: 'Masters Application - Diploma and Identity Verification',
+  },
   'sports-shop': {
     presentationConfigId: 'loyalty-card',
     name: 'Sports Shop - Member Discount',
@@ -231,6 +235,7 @@ app.get('/api/session/:id', async (req: Request, res: Response) => {
 
     // Only return safe data (no raw credentials)
     res.json({
+      sessionId,
       status: session.status,
       credentials: session.credentials,
     });

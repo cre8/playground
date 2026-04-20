@@ -87,6 +87,10 @@ async function handleVerify(): Promise<void> {
 
     // Show verification section with QR code
     showSection(verificationSection);
+
+    // Display session ID immediately
+    displaySessionIdInQrSection(result.sessionId);
+
     // QR code uses crossDeviceUri (no redirect), button uses uri (with redirect)
     await generateVerificationUI(
       qrCodeDiv,
@@ -117,6 +121,27 @@ async function handleVerify(): Promise<void> {
   }
 }
 
+// Generate confirmation number
+function generateConfirmationNumber(): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = 'DRV-2026-';
+  for (let i = 0; i < 5; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
+// Display session ID in QR section
+function displaySessionIdInQrSection(sessionId: string): void {
+  const qrSessionIdEl = document.getElementById('qrSessionId');
+  if (qrSessionIdEl) {
+    qrSessionIdEl.innerHTML = `
+      <span class="label">Session ID</span>
+      <span class="value">${sessionId}</span>
+    `;
+  }
+}
+
 // Handle errors
 function handleError(error: unknown): void {
   console.error('Verification error:', error);
@@ -136,16 +161,6 @@ function handleError(error: unknown): void {
   sameDeviceLink.classList.add('hidden');
   statusText.textContent = `Oops: ${message}`;
   statusText.classList.add('error');
-}
-
-// Generate confirmation number
-function generateConfirmationNumber(): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = 'DRV-2026-';
-  for (let i = 0; i < 5; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
 }
 
 // Show success state
@@ -180,6 +195,7 @@ function showSuccess(session: Session): void {
       { label: 'Expiry Date', value: formatDate(p.expiry_date) },
       { label: 'Issuing Authority', value: p.issuing_authority },
       { label: 'Country', value: p.un_distinguishing_sign },
+      { label: 'Session ID', value: `<span style="font-family: monospace; font-size: 0.75rem;">${session.sessionId}</span>` },
     ].filter((f) => f.value);
 
     resultsDiv.innerHTML = fields

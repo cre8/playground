@@ -142,6 +142,9 @@ async function handleQrCodeVerification(useCase: string): Promise<void> {
   verificationSection.classList.remove('hidden');
   infoSection.classList.add('hidden');
 
+  // Display session ID immediately
+  displaySessionIdInQrSection(result.sessionId);
+
   // Generate QR code and same-device link
   await generateVerificationUI(
     qrPlaceholder,
@@ -173,14 +176,31 @@ async function handleDcApiVerification(useCase: string): Promise<void> {
 
   qrPlaceholder.innerHTML = '<div class="processing-icon">🔐</div>';
   qrPlaceholder.classList.remove('has-qr');
-  sameDeviceLink.classList.add('hidden');
-  updateStatus('processing', 'Opening wallet...');
+  // Clear session ID display for DC API (will be shown after completion)
+  const qrSessionIdEl = document.getElementById('qrSessionId');
+  if (qrSessionIdEl) {
+    qrSessionIdEl.innerHTML = '';
+  }
 
   const result = await verifyWithDcApi(useCase, (status) => {
     updateStatus('processing', status);
   });
 
+  // Display session ID when we get the result
+  displaySessionIdInQrSection(result.sessionId);
+
   showSuccessFromDcApi(result);
+}
+
+// Display session ID in QR section
+function displaySessionIdInQrSection(sessionId: string): void {
+  const qrSessionIdEl = document.getElementById('qrSessionId');
+  if (qrSessionIdEl) {
+    qrSessionIdEl.innerHTML = `
+      <span class="label">Session ID</span>
+      <span class="value">${sessionId}</span>
+    `;
+  }
 }
 
 // Handle errors
@@ -219,7 +239,7 @@ function showSuccess(session: Session): void {
 
   if (session.presentation) {
     const p = session.presentation as Record<string, unknown>;
-    displayVerificationData(p);
+    displayVerificationData(p, false, session.sessionId);
   }
 
   setTimeout(() => {
@@ -236,7 +256,7 @@ function showSuccessFromDcApi(result: DcApiResult): void {
 
   if (result.presentation) {
     const p = result.presentation as Record<string, unknown>;
-    displayVerificationData(p, true);
+    displayVerificationData(p, true, result.sessionId);
   }
 
   setTimeout(() => {
@@ -246,7 +266,7 @@ function showSuccessFromDcApi(result: DcApiResult): void {
 }
 
 // Display verification data (Diploma and optionally PID) in the credential display
-function displayVerificationData(data: Record<string, unknown>, isDcApi = false): void {
+function displayVerificationData(data: Record<string, unknown>, isDcApi = false, sessionId?: string): void {
   // Diploma fields
   const degreeType = data.degree_type ?? 'N/A';
   const degreeName = data.degree_name ?? 'N/A';
@@ -313,6 +333,15 @@ function displayVerificationData(data: Record<string, unknown>, isDcApi = false)
       <div class="credential-item">
         <span class="label">Method</span>
         <span class="value">DC API (Browser Native)</span>
+      </div>
+    `;
+  }
+
+  if (sessionId) {
+    html += `
+      <div class="credential-item">
+        <span class="label">Session ID</span>
+        <span class="value" style="font-family: monospace; font-size: 0.75rem;">${sessionId}</span>
       </div>
     `;
   }

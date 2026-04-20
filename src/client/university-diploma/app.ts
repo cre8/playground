@@ -52,6 +52,10 @@ async function handleGetCredential(): Promise<void> {
 
     // Show issuance section with QR code
     showSection(issuanceSection);
+
+    // Display session ID immediately
+    displaySessionIdInQrSection(result.sessionId);
+
     await generateVerificationUI(qrCodeDiv, sameDeviceLink, result.uri);
     statusText.textContent = 'Scan the QR code with your EUDI Wallet';
 
@@ -83,6 +87,12 @@ function handleGetAnother(): void {
   statusText.textContent = 'Waiting for wallet to accept...';
   statusText.style.color = '';
 
+  // Clear session ID
+  const qrSessionIdEl = document.getElementById('qrSessionId');
+  if (qrSessionIdEl) {
+    qrSessionIdEl.innerHTML = '';
+  }
+
   // Show start section
   showSection(startSection);
 }
@@ -90,6 +100,17 @@ function handleGetAnother(): void {
 // Show success section
 function showSuccess(): void {
   showSection(successSection);
+}
+
+// Display session ID in QR section
+function displaySessionIdInQrSection(sessionId: string): void {
+  const qrSessionIdEl = document.getElementById('qrSessionId');
+  if (qrSessionIdEl) {
+    qrSessionIdEl.innerHTML = `
+      <span class="label">Session ID</span>
+      <span class="value">${sessionId}</span>
+    `;
+  }
 }
 
 // Handle errors

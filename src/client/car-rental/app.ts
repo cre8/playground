@@ -87,6 +87,10 @@ async function handleVerify(): Promise<void> {
 
     // Show verification section with QR code
     showSection(verificationSection);
+
+    // Display session ID immediately
+    displaySessionIdInQrSection(result.sessionId);
+
     // QR code uses crossDeviceUri (no redirect), button uses uri (with redirect)
     await generateVerificationUI(
       qrCodeDiv,
@@ -114,6 +118,17 @@ async function handleVerify(): Promise<void> {
   } finally {
     verifyBtn.disabled = false;
     verifyBtn.textContent = 'Verify License & Complete Booking';
+  }
+}
+
+// Display session ID in QR section
+function displaySessionIdInQrSection(sessionId: string): void {
+  const qrSessionIdEl = document.getElementById('qrSessionId');
+  if (qrSessionIdEl) {
+    qrSessionIdEl.innerHTML = `
+      <span class="label">Session ID</span>
+      <span class="value">${sessionId}</span>
+    `;
   }
 }
 
@@ -179,6 +194,7 @@ function showSuccess(session: Session): void {
       },
       { label: 'Valid Until', value: formatDate(p.expiry_date || p.valid_until) },
       { label: 'Issuing Country', value: p.issuing_country || p.issuing_authority },
+      { label: 'Session ID', value: `<span style="font-family: monospace; font-size: 0.75rem;">${session.sessionId}</span>` },
     ].filter((f) => f.value);
 
     resultsDiv.innerHTML = fields

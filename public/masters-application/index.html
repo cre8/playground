@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>University Graduate School - Master's Application</title>
+    <link rel="stylesheet" href="/shared/styles.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"
+      integrity="sha384-lQXOAyZwHXE55JFyrOMB7nY2Wv+m5ZWNtJcHrd1rceRQXAYNLak8ukN5TjBTcIwz"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="demo-header">
+        <a href="/">←</a>
+        <h1>🎓 Graduate School Portal</h1>
+      </div>
+
+      <div class="demo-container">
+        <!-- Left: Application Content -->
+        <div class="demo-left program-content">
+          <div class="program-card">
+            <div class="program-header">
+              <span class="program-badge">M.Sc.</span>
+              <span class="program-deadline">📅 Application Deadline: May 31</span>
+            </div>
+            <h2>Master's in Computer Science</h2>
+            <p class="program-description">
+              Take your career to the next level with our internationally recognized
+              Master's program. Specializations in AI, Cybersecurity, and Data Science.
+            </p>
+            <div class="program-details">
+              <div class="detail-item">
+                <span class="detail-label">Duration</span>
+                <span class="detail-value">2 years (4 semesters)</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Credits</span>
+                <span class="detail-value">120 ECTS</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Language</span>
+                <span class="detail-value">English</span>
+              </div>
+            </div>
+            <div class="program-requirements">
+              <h4>Admission Requirements:</h4>
+              <ul>
+                <li>Bachelor's degree in CS or related field (min. 180 ECTS)</li>
+                <li>Minimum GPA: 2.5 (German scale) or equivalent</li>
+                <li>English proficiency (C1 level)</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="application-progress">
+            <h3>Application Progress</h3>
+            <div class="progress-steps">
+              <div class="progress-step completed">
+                <span class="step-icon">✓</span>
+                <span class="step-label">Create Account</span>
+              </div>
+              <div class="progress-step completed">
+                <span class="step-icon">✓</span>
+                <span class="step-label">Personal Data</span>
+              </div>
+              <div class="progress-step active">
+                <span class="step-icon">3</span>
+                <span class="step-label">Verify Credentials</span>
+              </div>
+              <div class="progress-step">
+                <span class="step-icon">4</span>
+                <span class="step-label">Submit Application</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="verifySection">
+            <div class="verify-prompt">
+              <span class="prompt-icon">📋</span>
+              <div class="prompt-text">
+                <strong>Credential Verification Required</strong>
+                <span>Verify your Bachelor's degree and identity to proceed</span>
+              </div>
+            </div>
+            <button id="verifyBtn" class="btn btn-primary btn-block">
+              Verify Diploma & Identity
+            </button>
+            <p class="verify-note">
+              Securely share your credentials via your EUDI Wallet
+            </p>
+            <div id="dcApiOption" class="dc-api-option hidden">
+              <label class="toggle-label">
+                <input type="checkbox" id="dcApiToggle" />
+                <span class="toggle-text">Use DC API (Browser Native)</span>
+              </label>
+            </div>
+          </div>
+
+          <div id="successSection" class="hidden">
+            <div class="message success">
+              <div class="congrats-header">
+                🎉 Congratulations, <span id="applicantName"></span>!
+              </div>
+              <p>Your credentials have been successfully verified. Your application is ready for submission.</p>
+            </div>
+            
+            <div class="verified-summary">
+              <h4>Verified Credentials</h4>
+              <div class="summary-grid">
+                <div class="summary-item">
+                  <span class="summary-icon">🎓</span>
+                  <div class="summary-content">
+                    <span class="summary-label">Degree</span>
+                    <span id="summaryDegree" class="summary-value"></span>
+                  </div>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-icon">📚</span>
+                  <div class="summary-content">
+                    <span class="summary-label">Field of Study</span>
+                    <span id="summaryField" class="summary-value"></span>
+                  </div>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-icon">�</span>
+                  <div class="summary-content">
+                    <span class="summary-label">Honors</span>
+                    <span id="summaryHonors" class="summary-value"></span>
+                  </div>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-icon">🏛️</span>
+                  <div class="summary-content">
+                    <span class="summary-label">University</span>
+                    <span id="summaryUniversity" class="summary-value"></span>
+                  </div>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-icon">📅</span>
+                  <div class="summary-content">
+                    <span class="summary-label">Graduated</span>
+                    <span id="summaryGraduation" class="summary-value"></span>
+                  </div>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-icon">🆔</span>
+                  <div class="summary-content">
+                    <span class="summary-label">Student ID</span>
+                    <span id="summaryStudentId" class="summary-value"></span>
+                  </div>
+                </div>
+              </div>
+              <div id="sessionIdDisplay" class="session-id-display"></div>
+            </div>
+
+            <button id="submitBtn" class="btn btn-primary btn-block">
+              Submit Application
+            </button>
+            <button
+              onclick="location.reload()"
+              class="btn btn-secondary btn-block"
+            >
+              Start New Application
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Verification -->
+        <div class="demo-right">
+          <div id="verificationSection" class="hidden">
+            <div class="qr-section">
+              <h2>Verify Credentials</h2>
+              <p class="qr-instruction">
+                Scan with your EUDI Wallet to share your diploma and identity
+              </p>
+
+              <div id="qrPlaceholder" class="qr-placeholder">Loading...</div>
+
+              <div class="same-device-section">
+                <span class="divider-text">or on this device</span>
+                <div id="sameDeviceLink" class="hidden"></div>
+              </div>
+
+              <div id="statusBadge" class="status waiting">
+                <span class="status-dot"></span>
+                <span id="statusText">Waiting for verification...</span>
+              </div>
+
+              <div id="qrSessionId" class="qr-session-id"></div>
+            </div>
+
+            <div id="resultPanel" class="result-panel hidden">
+              <h3>Verification Details</h3>
+              <div id="credentialDisplay" class="credential-display"></div>
+            </div>
+          </div>
+
+          <div id="infoSection" class="info-section">
+            <h3>What we verify</h3>
+            <ul class="info-list">
+              <li>
+                <span class="info-icon">🎓</span>
+                <div>
+                  <strong>Diploma Details</strong>
+                  <span>Degree type, field of study, and honors</span>
+                </div>
+              </li>
+              <li>
+                <span class="info-icon">🏛️</span>
+                <div>
+                  <strong>Institution</strong>
+                  <span>University name and country</span>
+                </div>
+              </li>
+              <li>
+                <span class="info-icon">📅</span>
+                <div>
+                  <strong>Graduation</strong>
+                  <span>Date and student ID</span>
+                </div>
+              </li>
+              <li>
+                <span class="info-icon">🪪</span>
+                <div>
+                  <strong>Identity</strong>
+                  <span>Your name from the diploma</span>
+                </div>
+              </li>
+            </ul>
+            <div class="privacy-note">
+              <span class="shield-icon">🔒</span>
+              <span>Your data is verified directly from your credentials</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        Powered by
+        <a
+          href="https://github.com/openwallet-foundation-labs/eudiplo"
+          target="_blank"
+          >EUDIPLO</a
+        >
+        · <a href="../">Back to Playground</a>
+      </p>
+    </footer>
+
+    <script type="module" src="/js/masters-application/app.js"></script>
+  </body>
+</html>

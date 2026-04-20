@@ -66,6 +66,7 @@ export interface DcApiRequestData {
 }
 
 export interface DcApiResult {
+  sessionId: string;
   credentials?: Array<Record<string, unknown>>;
   presentation?: Record<string, unknown>;
 }
@@ -428,5 +429,6 @@ export async function verifyWithDcApi(
   // 3. Send the wallet response back to server for verification
   const result = await completeDcApiVerification(requestData.responseUri, walletResponse);
 
-  return result;
+  // Include sessionId in the result for debugging/logging
+  return { ...result, sessionId: requestData.sessionId };
 }

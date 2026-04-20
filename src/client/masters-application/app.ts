@@ -1,6 +1,6 @@
 /**
- * Sports Shop Member Discount Demo
- * Uses EUDIPLO to verify gym membership for discounts
+ * Master's Application Demo
+ * Uses EUDIPLO to verify university diploma and personal identity for Master's program applications
  */
 
 import {
@@ -17,17 +17,12 @@ import {
   type DcApiResult,
 } from '../shared/utils';
 
-const USE_CASE = 'sports-shop';
-
-// Pricing
-const ORIGINAL_PRICE = 149.99;
-const DISCOUNT_PERCENT = 15;
-const DISCOUNTED_PRICE = ORIGINAL_PRICE * (1 - DISCOUNT_PERCENT / 100);
+const USE_CASE = 'masters-application';
 
 // DOM Elements
-const discountSection = getElement<HTMLDivElement>('discountSection');
+const verifySection = getElement<HTMLDivElement>('verifySection');
 const verificationSection = getElement<HTMLDivElement>('verificationSection');
-const checkoutSection = getElement<HTMLDivElement>('checkoutSection');
+const successSection = getElement<HTMLDivElement>('successSection');
 const infoSection = getElement<HTMLDivElement>('infoSection');
 const qrPlaceholder = getElement<HTMLDivElement>('qrPlaceholder');
 const sameDeviceLink = getElement<HTMLDivElement>('sameDeviceLink');
@@ -35,22 +30,14 @@ const statusText = getElement<HTMLSpanElement>('statusText');
 const statusBadge = getElement<HTMLDivElement>('statusBadge');
 const credentialDisplay = getElement<HTMLDivElement>('credentialDisplay');
 const resultPanel = getElement<HTMLDivElement>('resultPanel');
-const applyDiscountBtn = getElement<HTMLButtonElement>('applyDiscountBtn');
-
-// Price display elements
-const originalPriceEl = document.querySelector('.product-price.original') as HTMLElement | null;
-const discountedPriceEl = document.querySelector('.product-price.discounted') as HTMLElement | null;
-const discountBadgeEl = document.querySelector('.discount-badge') as HTMLElement | null;
-const discountRowEl = document.getElementById('discountRow');
-const cartTotalEl = document.getElementById('cartTotal');
-const membershipTierEl = document.getElementById('membershipTier');
+const verifyBtn = getElement<HTMLButtonElement>('verifyBtn');
 
 // State
 let _currentSessionId: string | null = null;
 
 // Initialize
 function init(): void {
-  applyDiscountBtn.addEventListener('click', handleApplyDiscount);
+  verifyBtn.addEventListener('click', handleVerify);
 
   // Setup DC API toggle if available
   setupDcApiToggle();
@@ -85,10 +72,11 @@ async function resumeSession(sessionId: string): Promise<void> {
   _currentSessionId = sessionId;
 
   // Show verification section in processing state
-  discountSection.classList.add('hidden');
+  verifySection.classList.add('hidden');
   verificationSection.classList.remove('hidden');
   infoSection.classList.add('hidden');
 
+  // Hide QR code and same-device link (we're returning from wallet)
   qrPlaceholder.innerHTML = '<div class="processing-icon">🔄</div>';
   qrPlaceholder.classList.remove('has-qr');
   sameDeviceLink.classList.add('hidden');
@@ -113,10 +101,10 @@ async function resumeSession(sessionId: string): Promise<void> {
   }
 }
 
-// Handle apply discount button click
-async function handleApplyDiscount(): Promise<void> {
-  applyDiscountBtn.disabled = true;
-  applyDiscountBtn.textContent = 'Verifying membership...';
+// Handle verify button click
+async function handleVerify(): Promise<void> {
+  verifyBtn.disabled = true;
+  verifyBtn.textContent = 'Starting verification...';
 
   try {
     if (isDcApiEnabled()) {
@@ -127,8 +115,8 @@ async function handleApplyDiscount(): Promise<void> {
   } catch (error) {
     handleError(error);
   } finally {
-    applyDiscountBtn.disabled = false;
-    applyDiscountBtn.textContent = '🎫 Apply Member Discount';
+    verifyBtn.disabled = false;
+    verifyBtn.textContent = 'Verify Diploma & Identity';
   }
 }
 
@@ -139,7 +127,7 @@ async function handleQrCodeVerification(): Promise<void> {
   _currentSessionId = result.sessionId;
 
   // Show verification section
-  discountSection.classList.add('hidden');
+  verifySection.classList.add('hidden');
   verificationSection.classList.remove('hidden');
   infoSection.classList.add('hidden');
 
@@ -171,7 +159,7 @@ async function handleQrCodeVerification(): Promise<void> {
 
 // Handle verification via DC API (browser-native)
 async function handleDcApiVerification(): Promise<void> {
-  discountSection.classList.add('hidden');
+  verifySection.classList.add('hidden');
   verificationSection.classList.remove('hidden');
   infoSection.classList.add('hidden');
 
@@ -219,7 +207,7 @@ function handleError(error: unknown): void {
     message = String((error as { message: unknown }).message);
   }
 
-  discountSection.classList.add('hidden');
+  verifySection.classList.add('hidden');
   verificationSection.classList.remove('hidden');
   infoSection.classList.add('hidden');
 
@@ -235,95 +223,190 @@ function updateStatus(status: string, message: string): void {
   statusText.textContent = message;
 }
 
-// Apply discount to UI
-function applyDiscountToUI(tier: string): void {
-  // Update product price display
-  if (originalPriceEl) {
-    originalPriceEl.classList.add('has-discount');
+// Extract all claims from credentials array into a flat object
+function extractCredentialData(credentials?: Array<Record<string, unknown>>): Record<string, unknown> {
+  const data: Record<string, unknown> = {};
+  if (!credentials) return data;
+  
+  for (const credential of credentials) {
+    const values = credential.values as Array<Record<string, unknown>> | undefined;
+    if (values && values.length > 0) {
+      // Merge all values from all credentials into one object
+      for (const valueSet of values) {
+        Object.assign(data, valueSet);
+      }
+    }
   }
-  if (discountedPriceEl) {
-    discountedPriceEl.classList.remove('hidden');
-  }
-  if (discountBadgeEl) {
-    discountBadgeEl.classList.remove('hidden');
-  }
-
-  // Update cart
-  if (discountRowEl) {
-    discountRowEl.classList.remove('hidden');
-  }
-  if (cartTotalEl) {
-    cartTotalEl.textContent = `€${DISCOUNTED_PRICE.toFixed(2)}`;
-  }
-
-  // Update membership tier display
-  if (membershipTierEl) {
-    membershipTierEl.textContent = tier;
-  }
+  return data;
 }
 
 // Show success state
 function showSuccess(session: Session): void {
-  updateStatus('success', 'Membership verified!');
+  updateStatus('success', 'Verification complete!');
 
   resultPanel.classList.remove('hidden');
 
-  let tier = 'Member';
-  if (session.presentation) {
-    const p = session.presentation as Record<string, unknown>;
-    tier = (p.membership_tier as string) ?? 'Member';
-    displayMembershipData(p, false, session.sessionId);
+  // Extract data from credentials array
+  const data = extractCredentialData(session.credentials);
+  if (Object.keys(data).length > 0) {
+    displayVerificationData(data, false, session.sessionId);
+    populateSuccessSummary(data, session.sessionId);
   }
 
   setTimeout(() => {
-    applyDiscountToUI(tier);
     verificationSection.classList.add('hidden');
-    checkoutSection.classList.remove('hidden');
+    successSection.classList.remove('hidden');
   }, 1500);
 }
 
 // Show success state from DC API result
 function showSuccessFromDcApi(result: DcApiResult): void {
-  updateStatus('success', 'Membership verified!');
+  updateStatus('success', 'Verification complete!');
 
   resultPanel.classList.remove('hidden');
 
-  let tier = 'Member';
-  if (result.presentation) {
-    const p = result.presentation as Record<string, unknown>;
-    tier = (p.membership_tier as string) ?? 'Member';
-    displayMembershipData(p, true, result.sessionId);
+  // Extract data from credentials array
+  const data = extractCredentialData(result.credentials);
+  if (Object.keys(data).length > 0) {
+    displayVerificationData(data, true, result.sessionId);
+    populateSuccessSummary(data, result.sessionId);
   }
 
   setTimeout(() => {
-    applyDiscountToUI(tier);
     verificationSection.classList.add('hidden');
-    checkoutSection.classList.remove('hidden');
+    successSection.classList.remove('hidden');
   }, 1500);
 }
 
-// Display membership data in the credential display
-function displayMembershipData(data: Record<string, unknown>, isDcApi = false, sessionId?: string): void {
-  const tier = data.membership_tier ?? 'N/A';
-  const organization = data.organization_name ?? 'N/A';
-  const validUntil = data.valid_until ?? 'N/A';
+// Populate the success summary with verified data
+function populateSuccessSummary(data: Record<string, unknown>, sessionId?: string): void {
+  // Set applicant name
+  const applicantNameEl = document.getElementById('applicantName');
+  if (applicantNameEl) {
+    const givenName = data.given_name ?? '';
+    const familyName = data.family_name ?? '';
+    applicantNameEl.textContent = `${givenName} ${familyName}`.trim() || 'Applicant';
+  }
+
+  // Set degree
+  const summaryDegreeEl = document.getElementById('summaryDegree');
+  if (summaryDegreeEl) {
+    summaryDegreeEl.textContent = (data.degree_type as string) ?? 'Bachelor\'s Degree';
+  }
+
+  // Set field of study
+  const summaryFieldEl = document.getElementById('summaryField');
+  if (summaryFieldEl) {
+    summaryFieldEl.textContent = (data.degree_name as string) ?? 'N/A';
+  }
+
+  // Set university
+  const summaryUniversityEl = document.getElementById('summaryUniversity');
+  if (summaryUniversityEl) {
+    summaryUniversityEl.textContent = (data.issuing_authority as string) ?? 'N/A';
+  }
+
+  // Set graduation date
+  const summaryGraduationEl = document.getElementById('summaryGraduation');
+  if (summaryGraduationEl) {
+    const gradDate = data.graduation_date;
+    if (gradDate && typeof gradDate === 'string') {
+      try {
+        summaryGraduationEl.textContent = new Date(gradDate).toLocaleDateString('en-EU', {
+          year: 'numeric',
+          month: 'long',
+        });
+      } catch {
+        summaryGraduationEl.textContent = gradDate;
+      }
+    } else {
+      summaryGraduationEl.textContent = 'N/A';
+    }
+  }
+
+  // Set honors
+  const summaryHonorsEl = document.getElementById('summaryHonors');
+  if (summaryHonorsEl) {
+    summaryHonorsEl.textContent = (data.honors as string) ?? 'N/A';
+  }
+
+  // Set student ID
+  const summaryStudentIdEl = document.getElementById('summaryStudentId');
+  if (summaryStudentIdEl) {
+    summaryStudentIdEl.textContent = (data.student_id as string) ?? 'N/A';
+  }
+
+  // Set session ID for debugging
+  const sessionIdDisplayEl = document.getElementById('sessionIdDisplay');
+  if (sessionIdDisplayEl && sessionId) {
+    sessionIdDisplayEl.innerHTML = `
+      <span class="label">Session ID</span>
+      <span class="value">${sessionId}</span>
+    `;
+  }
+}
+
+// Display verification data (Diploma) in the credential display
+function displayVerificationData(data: Record<string, unknown>, isDcApi = false, sessionId?: string): void {
+  // Diploma fields
+  const degreeType = data.degree_type ?? 'N/A';
+  const degreeName = data.degree_name ?? 'N/A';
+  const honors = data.honors ?? 'N/A';
+  const university = data.issuing_authority ?? 'N/A';
+  const issuingCountry = data.issuing_country ?? 'N/A';
+  const graduationDate = data.graduation_date ?? 'N/A';
+  const studentId = data.student_id ?? 'N/A';
+  const givenName = data.given_name ?? 'N/A';
+  const familyName = data.family_name ?? 'N/A';
 
   let html = `
-    <div class="credential-item">
-      <span class="label">Membership Tier</span>
-      <span class="value">${tier}</span>
+    <div class="credential-section">
+      <h4>🎓 Diploma Details</h4>
+      <div class="credential-item">
+        <span class="label">Degree Type</span>
+        <span class="value">${degreeType}</span>
+      </div>
+      <div class="credential-item">
+        <span class="label">Field of Study</span>
+        <span class="value">${degreeName}</span>
+      </div>
+      <div class="credential-item">
+        <span class="label">Honors</span>
+        <span class="value">${honors}</span>
+      </div>
     </div>
-    <div class="credential-item">
-      <span class="label">Organization</span>
-      <span class="value">${organization}</span>
+    <div class="credential-section">
+      <h4>🏛️ Institution</h4>
+      <div class="credential-item">
+        <span class="label">University</span>
+        <span class="value">${university}</span>
+      </div>
+      <div class="credential-item">
+        <span class="label">Country</span>
+        <span class="value">${issuingCountry}</span>
+      </div>
     </div>
-    <div class="credential-item">
-      <span class="label">Valid Until</span>
-      <span class="value">${validUntil}</span>
+    <div class="credential-section">
+      <h4>📅 Graduation</h4>
+      <div class="credential-item">
+        <span class="label">Graduation Date</span>
+        <span class="value">${graduationDate}</span>
+      </div>
+      <div class="credential-item">
+        <span class="label">Student ID</span>
+        <span class="value">${studentId}</span>
+      </div>
     </div>
-    <div class="credential-item">
-      <span class="label">Discount Applied</span>
-      <span class="value success">${DISCOUNT_PERCENT}% off</span>
+    <div class="credential-section">
+      <h4>🪪 Identity</h4>
+      <div class="credential-item">
+        <span class="label">Given Name</span>
+        <span class="value">${givenName}</span>
+      </div>
+      <div class="credential-item">
+        <span class="label">Family Name</span>
+        <span class="value">${familyName}</span>
+      </div>
     </div>
     <div class="credential-item">
       <span class="label">Verified At</span>

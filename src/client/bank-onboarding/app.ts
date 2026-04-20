@@ -126,6 +126,10 @@ async function handleQrCodeVerification(): Promise<void> {
 
   // Show verification section with QR code
   showSection(verificationSection);
+
+  // Display session ID immediately
+  displaySessionIdInQrSection(result.sessionId);
+
   // QR code uses crossDeviceUri (no redirect), button uses uri (with redirect)
   await generateVerificationUI(
     qrCodeDiv,
@@ -158,11 +162,31 @@ async function handleDcApiVerification(): Promise<void> {
   sameDeviceLink.classList.add('hidden');
   statusText.textContent = 'Opening wallet...';
 
+  // Clear session ID display for DC API (will be shown after completion)
+  const qrSessionIdEl = document.getElementById('qrSessionId');
+  if (qrSessionIdEl) {
+    qrSessionIdEl.innerHTML = '';
+  }
+
   const result = await verifyWithDcApi(USE_CASE, (status) => {
     statusText.textContent = status;
   });
 
+  // Display session ID when we get the result
+  displaySessionIdInQrSection(result.sessionId);
+
   showSuccessFromDcApi(result);
+}
+
+// Display session ID in QR section
+function displaySessionIdInQrSection(sessionId: string): void {
+  const qrSessionIdEl = document.getElementById('qrSessionId');
+  if (qrSessionIdEl) {
+    qrSessionIdEl.innerHTML = `
+      <span class="label">Session ID</span>
+      <span class="value">${sessionId}</span>
+    `;
+  }
 }
 
 // Handle errors
@@ -194,7 +218,7 @@ function showSuccess(session: Session): void {
   const resultsDiv = document.getElementById('verificationResults');
   if (resultsDiv && session.presentation) {
     const p = session.presentation as Record<string, unknown>;
-    displayVerificationResults(resultsDiv, p);
+    displayVerificationResults(resultsDiv, p, false, session.sessionId);
   }
 }
 
@@ -205,12 +229,12 @@ function showSuccessFromDcApi(result: DcApiResult): void {
   const resultsDiv = document.getElementById('verificationResults');
   if (resultsDiv && result.presentation) {
     const p = result.presentation as Record<string, unknown>;
-    displayVerificationResults(resultsDiv, p, true);
+    displayVerificationResults(resultsDiv, p, true, result.sessionId);
   }
 }
 
 // Display verification results in the results div
-function displayVerificationResults(resultsDiv: HTMLElement, p: Record<string, unknown>, isDcApi = false): void {
+function displayVerificationResults(resultsDiv: HTMLElement, p: Record<string, unknown>, isDcApi = false, sessionId?: string): void {
   const fields = [
     {
       label: 'Full Name',
@@ -227,6 +251,10 @@ function displayVerificationResults(resultsDiv: HTMLElement, p: Record<string, u
 
   if (isDcApi) {
     fields.push({ label: 'Method', value: 'DC API (Browser Native)' });
+  }
+
+  if (sessionId) {
+    fields.push({ label: 'Session ID', value: `<span style="font-family: monospace; font-size: 0.75rem;">${sessionId}</span>` });
   }
 
   resultsDiv.innerHTML = fields

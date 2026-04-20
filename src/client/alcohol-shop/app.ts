@@ -138,6 +138,9 @@ async function handleQrCodeVerification(): Promise<void> {
   verificationSection.classList.remove('hidden');
   infoSection.classList.add('hidden');
 
+  // Display session ID immediately
+  displaySessionIdInQrSection(result.sessionId);
+
   // Generate QR code (cross-device URI) and same-device link (deep link URI)
   // QR code uses crossDeviceUri (no redirect), button uses uri (with redirect)
   await generateVerificationUI(
@@ -176,13 +179,33 @@ async function handleDcApiVerification(): Promise<void> {
   sameDeviceLink.classList.add('hidden');
   updateStatus('processing', 'Opening wallet...');
 
+  // Clear session ID display for DC API (will be shown after completion)
+  const qrSessionIdEl = document.getElementById('qrSessionId');
+  if (qrSessionIdEl) {
+    qrSessionIdEl.innerHTML = '';
+  }
+
   // Run the DC API flow
   const result = await verifyWithDcApi(USE_CASE, (status) => {
     updateStatus('processing', status);
   });
 
+  // Display session ID when we get the result
+  displaySessionIdInQrSection(result.sessionId);
+
   // Handle success - convert DC API result to session format
   showSuccessFromDcApi(result);
+}
+
+// Display session ID in QR section
+function displaySessionIdInQrSection(sessionId: string): void {
+  const qrSessionIdEl = document.getElementById('qrSessionId');
+  if (qrSessionIdEl) {
+    qrSessionIdEl.innerHTML = `
+      <span class="label">Session ID</span>
+      <span class="value">${sessionId}</span>
+    `;
+  }
 }
 
 // Handle errors
@@ -236,6 +259,10 @@ function showSuccess(session: Session): void {
         <span class="label">Verified At</span>
         <span class="value">${new Date().toLocaleTimeString()}</span>
       </div>
+      <div class="credential-item">
+        <span class="label">Session ID</span>
+        <span class="value" style="font-family: monospace; font-size: 0.75rem;">${_currentSessionId ?? 'N/A'}</span>
+      </div>
     `;
   }
 
@@ -270,6 +297,10 @@ function showSuccessFromDcApi(result: DcApiResult): void {
       <div class="credential-item">
         <span class="label">Method</span>
         <span class="value">DC API (Browser Native)</span>
+      </div>
+      <div class="credential-item">
+        <span class="label">Session ID</span>
+        <span class="value" style="font-family: monospace; font-size: 0.75rem;">${result.sessionId}</span>
       </div>
     `;
   }

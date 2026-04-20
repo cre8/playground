@@ -122,6 +122,10 @@ async function handleQrCodeVerification(): Promise<void> {
   const result = await createVerificationRequest(USE_CASE, redirectUrl);
 
   showSection(verificationSection);
+
+  // Display session ID immediately
+  displaySessionIdInQrSection(result.sessionId);
+
   await generateVerificationUI(
     qrCodeDiv,
     sameDeviceLink,
@@ -151,11 +155,31 @@ async function handleDcApiVerification(): Promise<void> {
   sameDeviceLink.classList.add('hidden');
   statusText.textContent = 'Opening wallet...';
 
+  // Clear session ID display for DC API (will be shown after completion)
+  const qrSessionIdEl = document.getElementById('qrSessionId');
+  if (qrSessionIdEl) {
+    qrSessionIdEl.innerHTML = '';
+  }
+
   const result = await verifyWithDcApi(USE_CASE, (status) => {
     statusText.textContent = status;
   });
 
+  // Display session ID when we get the result
+  displaySessionIdInQrSection(result.sessionId);
+
   showSuccessFromDcApi(result);
+}
+
+// Display session ID in QR section
+function displaySessionIdInQrSection(sessionId: string): void {
+  const qrSessionIdEl = document.getElementById('qrSessionId');
+  if (qrSessionIdEl) {
+    qrSessionIdEl.innerHTML = `
+      <span class="label">Session ID</span>
+      <span class="value">${sessionId}</span>
+    `;
+  }
 }
 
 // Handle errors
@@ -187,11 +211,11 @@ function showSuccess(session: Session): void {
   const credentials = session.credentials as Array<{ id: string; values: Array<Record<string, unknown>> }> | undefined;
   
   if (credentials && credentials.length > 0) {
-    displayVerificationResults(credentials);
+    displayVerificationResults(credentials, false, session.sessionId);
   } else if (session.presentation) {
     // Fallback to presentation if available (single credential format)
     const p = session.presentation as Record<string, unknown>;
-    displayVerificationResults([{ id: 'unknown', values: [p] }]);
+    displayVerificationResults([{ id: 'unknown', values: [p] }], false, session.sessionId);
   }
 }
 
@@ -203,10 +227,10 @@ function showSuccessFromDcApi(result: DcApiResult): void {
   const credentials = result.credentials as Array<{ id: string; values: Array<Record<string, unknown>> }> | undefined;
   
   if (credentials && credentials.length > 0) {
-    displayVerificationResults(credentials, true);
+    displayVerificationResults(credentials, true, result.sessionId);
   } else if (result.presentation) {
     const p = result.presentation as Record<string, unknown>;
-    displayVerificationResults([{ id: 'unknown', values: [p] }], true);
+    displayVerificationResults([{ id: 'unknown', values: [p] }], true, result.sessionId);
   }
 }
 
@@ -224,7 +248,8 @@ function findCredentialData(
 // Display verification results organized by category
 function displayVerificationResults(
   credentials: Array<{ id: string; values: Array<Record<string, unknown>> }>,
-  isDcApi = false
+  isDcApi = false,
+  sessionId?: string
 ): void {
   const submitterResults = document.getElementById('submitterResults');
   const companyResults = document.getElementById('companyResults');
@@ -300,6 +325,10 @@ function displayVerificationResults(
 
   if (isDcApi) {
     invoiceFields.push({ label: 'Verification Method', value: 'DC API (Browser Native)' });
+  }
+
+  if (sessionId) {
+    invoiceFields.push({ label: 'Session ID', value: `<span style="font-family: monospace; font-size: 0.75rem;">${sessionId}</span>` });
   }
 
   if (invoiceResults) {
