@@ -74,6 +74,23 @@ function isDcApiEnabled(): boolean {
   return dcApiToggle?.checked ?? false;
 }
 
+// Extract all claims from credentials array into a flat object
+function extractCredentialData(credentials?: Array<Record<string, unknown>>): Record<string, unknown> {
+  const data: Record<string, unknown> = {};
+  if (!credentials) return data;
+  
+  for (const credential of credentials) {
+    const values = credential.values as Array<Record<string, unknown>> | undefined;
+    if (values && values.length > 0) {
+      // Merge all values from all credentials into one object
+      for (const valueSet of values) {
+        Object.assign(data, valueSet);
+      }
+    }
+  }
+  return data;
+}
+
 // Resume an existing session (from same-device redirect)
 async function resumeSession(sessionId: string, responseCode: string | null = null): Promise<void> {
   // Show verification section in processing state
@@ -221,9 +238,11 @@ function showSuccess(session: Session, flowType: FlowType = 'cross-device', resp
 
   // Display verified data
   const resultsDiv = document.getElementById('verificationResults');
-  if (resultsDiv && session.presentation) {
-    const p = session.presentation as Record<string, unknown>;
-    displayVerificationResults(resultsDiv, p, flowType, session.sessionId, responseCode);
+  if (resultsDiv) {
+    const data = extractCredentialData(session.credentials);
+    if (Object.keys(data).length > 0) {
+      displayVerificationResults(resultsDiv, data, flowType, session.sessionId, responseCode);
+    }
   }
 }
 
@@ -232,21 +251,26 @@ function showSuccessFromDcApi(result: DcApiResult): void {
   showSection(successSection);
 
   const resultsDiv = document.getElementById('verificationResults');
-  if (resultsDiv && result.presentation) {
-    const p = result.presentation as Record<string, unknown>;
-    displayVerificationResults(resultsDiv, p, 'dc-api', result.sessionId);
+  if (resultsDiv) {
+    const data = extractCredentialData(result.credentials);
+    if (Object.keys(data).length > 0) {
+      displayVerificationResults(resultsDiv, data, 'dc-api', result.sessionId);
+    }
   }
 }
 
 // Display verification results in the results div
 function displayVerificationResults(resultsDiv: HTMLElement, p: Record<string, unknown>, flowType: FlowType = 'cross-device', sessionId?: string, responseCode?: string | null): void {
+  // Handle nationality which can be an array (mDOC) or string (SD-JWT VC)
+  const nationality = Array.isArray(p.nationality) ? p.nationality.join(', ') : p.nationality;
+  
   const fields = [
     {
       label: 'Full Name',
       value: [p.given_name, p.family_name].filter(Boolean).join(' '),
     },
     { label: 'Date of Birth', value: formatDate(p.birth_date || p.birthdate) },
-    { label: 'Nationality', value: p.nationality || p.issuing_country },
+    { label: 'Nationality', value: nationality || p.issuing_country },
     { label: 'Address', value: formatAddress(p) },
     {
       label: 'Document Number',
@@ -301,13 +325,21 @@ function formatDate(date: unknown): string | null {
 }
 
 // Format address helper
+// Supports both SD-JWT VC fields (street_address, locality, postal_code, country)
+// and mDOC fields (resident_street, resident_city, resident_postal_code, resident_country)
 function formatAddress(p: Record<string, unknown>): string | null {
   const address = p.address as Record<string, unknown> | undefined;
   const parts = [
-    p.street_address || address?.street_address,
-    p.locality || address?.locality,
-    p.postal_code || address?.postal_code,
-    p.country || address?.country,
+    // mDOC fields
+    p.resident_street,
+    p.resident_city,
+    p.resident_postal_code,
+    p.resident_country,
+    // SD-JWT VC fields (fallback)
+    !p.resident_street && (p.street_address || address?.street_address),
+    !p.resident_city && (p.locality || address?.locality),
+    !p.resident_postal_code && (p.postal_code || address?.postal_code),
+    !p.resident_country && (p.country || address?.country),
   ].filter(Boolean) as string[];
 
   return parts.length > 0 ? parts.join(', ') : null;
