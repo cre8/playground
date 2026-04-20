@@ -31,6 +31,7 @@ const statusBadge = getElement<HTMLDivElement>('statusBadge');
 const credentialDisplay = getElement<HTMLDivElement>('credentialDisplay');
 const resultPanel = getElement<HTMLDivElement>('resultPanel');
 const verifyBtn = getElement<HTMLButtonElement>('verifyBtn');
+const submitBtn = getElement<HTMLButtonElement>('submitBtn');
 
 // State
 let _currentSessionId: string | null = null;
@@ -38,6 +39,7 @@ let _currentSessionId: string | null = null;
 // Initialize
 function init(): void {
   verifyBtn.addEventListener('click', handleVerify);
+  submitBtn.addEventListener('click', handleSubmit);
 
   // Setup DC API toggle if available
   setupDcApiToggle();
@@ -65,6 +67,19 @@ function setupDcApiToggle(): void {
 function isDcApiEnabled(): boolean {
   const dcApiToggle = document.getElementById('dcApiToggle') as HTMLInputElement | null;
   return dcApiToggle?.checked ?? false;
+}
+
+// Handle submit button click
+function handleSubmit(): void {
+  alert(
+    '🎓 Application Submitted!\n\n' +
+    'This is a demo application. In a real scenario:\n\n' +
+    '1. Your verified credentials would be securely transmitted to the university\n' +
+    '2. You would receive a confirmation email\n' +
+    '3. The admissions team would review your application\n' +
+    '4. You would be notified of the decision within 2-4 weeks\n\n' +
+    'Thank you for trying the EUDIPLO verification demo!'
+  );
 }
 
 // Resume an existing session (from redirect)
