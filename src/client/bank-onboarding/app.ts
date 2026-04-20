@@ -9,6 +9,7 @@ import {
   waitForSession,
   getElement,
   getSessionFromUrl,
+  getResponseCodeFromUrl,
   buildRedirectUrl,
   clearSessionFromUrl,
   isDcApiAvailable,
@@ -16,6 +17,8 @@ import {
   type Session,
   type DcApiResult,
 } from '../shared/utils';
+
+type FlowType = 'same-device' | 'cross-device' | 'dc-api';
 
 const USE_CASE = 'bank-onboarding';
 
@@ -44,10 +47,12 @@ function init(): void {
   // Setup DC API toggle if available
   setupDcApiToggle();
   
-  // Check if returning from wallet with session
+  // Check if returning from wallet with session (same-device redirect)
   const sessionId = getSessionFromUrl();
   if (sessionId) {
-    resumeSession(sessionId);
+    // Per OID4VP Section 13.3, response_code confirms the redirect was legitimate
+    const responseCode = getResponseCodeFromUrl();
+    resumeSession(sessionId, responseCode);
   }
 }
 
@@ -69,8 +74,8 @@ function isDcApiEnabled(): boolean {
   return dcApiToggle?.checked ?? false;
 }
 
-// Resume an existing session (from redirect)
-async function resumeSession(sessionId: string): Promise<void> {
+// Resume an existing session (from same-device redirect)
+async function resumeSession(sessionId: string, responseCode: string | null = null): Promise<void> {
   // Show verification section in processing state
   showSection(verificationSection);
   qrCodeDiv.innerHTML = '<div class="processing-icon">🔄</div>';
@@ -90,7 +95,7 @@ async function resumeSession(sessionId: string): Promise<void> {
     });
     
     clearSessionFromUrl();
-    showSuccess(session);
+    showSuccess(session, responseCode ? 'same-device' : 'cross-device', responseCode);
   } catch (error) {
     clearSessionFromUrl();
     handleError(error);
@@ -150,8 +155,8 @@ async function handleQrCodeVerification(): Promise<void> {
     },
   });
 
-  // Handle success
-  showSuccess(session);
+  // Handle success — cross-device flow (no redirect, no response_code)
+  showSuccess(session, 'cross-device');
 }
 
 // Handle verification via DC API (browser-native)
@@ -211,14 +216,14 @@ function handleError(error: unknown): void {
 }
 
 // Show success state
-function showSuccess(session: Session): void {
+function showSuccess(session: Session, flowType: FlowType = 'cross-device', responseCode: string | null = null): void {
   showSection(successSection);
 
   // Display verified data
   const resultsDiv = document.getElementById('verificationResults');
   if (resultsDiv && session.presentation) {
     const p = session.presentation as Record<string, unknown>;
-    displayVerificationResults(resultsDiv, p, false, session.sessionId);
+    displayVerificationResults(resultsDiv, p, flowType, session.sessionId, responseCode);
   }
 }
 
@@ -229,12 +234,12 @@ function showSuccessFromDcApi(result: DcApiResult): void {
   const resultsDiv = document.getElementById('verificationResults');
   if (resultsDiv && result.presentation) {
     const p = result.presentation as Record<string, unknown>;
-    displayVerificationResults(resultsDiv, p, true, result.sessionId);
+    displayVerificationResults(resultsDiv, p, 'dc-api', result.sessionId);
   }
 }
 
 // Display verification results in the results div
-function displayVerificationResults(resultsDiv: HTMLElement, p: Record<string, unknown>, isDcApi = false, sessionId?: string): void {
+function displayVerificationResults(resultsDiv: HTMLElement, p: Record<string, unknown>, flowType: FlowType = 'cross-device', sessionId?: string, responseCode?: string | null): void {
   const fields = [
     {
       label: 'Full Name',
@@ -249,8 +254,20 @@ function displayVerificationResults(resultsDiv: HTMLElement, p: Record<string, u
     },
   ].filter((f) => f.value && f.value !== '***');
 
-  if (isDcApi) {
-    fields.push({ label: 'Method', value: 'DC API (Browser Native)' });
+  // Show verification method based on flow type
+  switch (flowType) {
+    case 'same-device':
+      fields.push({ label: 'Method', value: 'Same-Device (Redirect)' });
+      if (responseCode) {
+        fields.push({ label: 'Response Code', value: `<span style="font-family: monospace; font-size: 0.75rem;">\u2713 ${responseCode.slice(0, 8)}\u2026</span>` });
+      }
+      break;
+    case 'dc-api':
+      fields.push({ label: 'Method', value: 'DC API (Browser Native)' });
+      break;
+    case 'cross-device':
+      fields.push({ label: 'Method', value: 'Cross-Device (QR Code)' });
+      break;
   }
 
   if (sessionId) {

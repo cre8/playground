@@ -291,6 +291,16 @@ export function getSessionFromUrl(): string | null {
 }
 
 /**
+ * Get response_code from URL query parameter.
+ * Per OID4VP spec Section 13.3, the response_code is included in the redirect_uri
+ * after successful VP Token processing. It confirms the session completed legitimately.
+ */
+export function getResponseCodeFromUrl(): string | null {
+  const params = new URLSearchParams(globalThis.location.search);
+  return params.get('response_code');
+}
+
+/**
  * Build redirect URL with session parameter
  */
 export function buildRedirectUrl(sessionId: string): string {
