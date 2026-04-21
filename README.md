@@ -89,7 +89,7 @@ The playground exposes the following API endpoints:
 
 ### Verification Use Cases
 
-- **Vineyard Select** - Age verification (18+)
+- **Vineyard Select** - Age verification (16+)
 - **Nordic Digital Bank** - Full KYC/identity verification
 - **TechMarkt SIM Activation** - Identity verification per TKG §172
 - **Berlin History Museum** - Residency verification for discounts

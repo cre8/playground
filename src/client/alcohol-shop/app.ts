@@ -68,6 +68,21 @@ function isDcApiEnabled(): boolean {
   return dcApiToggle?.checked ?? false;
 }
 
+// Extract all claims from credentials array into a flat object
+function extractCredentialData(credentials?: Array<Record<string, unknown>>): Record<string, unknown> {
+  const data: Record<string, unknown> = {};
+  if (!credentials) return data;
+  for (const credential of credentials) {
+    const values = credential.values as Array<Record<string, unknown>> | undefined;
+    if (values) {
+      for (const valueSet of values) {
+        Object.assign(data, valueSet);
+      }
+    }
+  }
+  return data;
+}
+
 // Resume an existing session (from redirect)
 async function resumeSession(sessionId: string): Promise<void> {
   _currentSessionId = sessionId;
@@ -246,14 +261,13 @@ function showSuccess(session: Session): void {
   resultPanel.classList.remove('hidden');
 
   // Display credential data
-  if (session.presentation) {
-    const p = session.presentation as Record<string, unknown>;
-    const isOver18 = p.age_over_18 === true || p.age_over_18 === 'true';
+  const p = extractCredentialData(session.credentials);
+  const isOver16 = p.age_over_16 === true || p.age_over_16 === 'true';
 
-    credentialDisplay.innerHTML = `
+  credentialDisplay.innerHTML = `
       <div class="credential-item">
-        <span class="label">Age Over 18</span>
-        <span class="value ${isOver18 ? 'success' : 'error'}">${isOver18 ? '✓ Yes' : '✗ No'}</span>
+        <span class="label">Age Over 16</span>
+        <span class="value ${isOver16 ? 'success' : 'error'}">${isOver16 ? '✓ Yes' : '✗ No'}</span>
       </div>
       <div class="credential-item">
         <span class="label">Verified At</span>
@@ -264,7 +278,6 @@ function showSuccess(session: Session): void {
         <span class="value" style="font-family: monospace; font-size: 0.75rem;">${_currentSessionId ?? 'N/A'}</span>
       </div>
     `;
-  }
 
   // Show success section after a delay
   setTimeout(() => {
@@ -281,14 +294,13 @@ function showSuccessFromDcApi(result: DcApiResult): void {
   resultPanel.classList.remove('hidden');
 
   // Display credential data
-  if (result.presentation) {
-    const p = result.presentation as Record<string, unknown>;
-    const isOver18 = p.age_over_18 === true || p.age_over_18 === 'true';
+  const p = extractCredentialData(result.credentials);
+  const isOver16 = p.age_over_16 === true || p.age_over_16 === 'true';
 
-    credentialDisplay.innerHTML = `
+  credentialDisplay.innerHTML = `
       <div class="credential-item">
-        <span class="label">Age Over 18</span>
-        <span class="value ${isOver18 ? 'success' : 'error'}">${isOver18 ? '✓ Yes' : '✗ No'}</span>
+        <span class="label">Age Over 16</span>
+        <span class="value ${isOver16 ? 'success' : 'error'}">${isOver16 ? '✓ Yes' : '✗ No'}</span>
       </div>
       <div class="credential-item">
         <span class="label">Verified At</span>
@@ -303,7 +315,6 @@ function showSuccessFromDcApi(result: DcApiResult): void {
         <span class="value" style="font-family: monospace; font-size: 0.75rem;">${result.sessionId}</span>
       </div>
     `;
-  }
 
   // Show success section after a delay
   setTimeout(() => {
