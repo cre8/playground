@@ -31,7 +31,7 @@ const config = {
 // Use case configurations - map use case ID to presentation config
 const USE_CASES: Record<string, { presentationConfigId: string; name: string }> = {
   'alcohol-shop': {
-    presentationConfigId: 'age-over-18',
+    presentationConfigId: 'age-over-16',
     name: 'Alcohol Shop - Age Verification',
   },
   'bank-onboarding': {
