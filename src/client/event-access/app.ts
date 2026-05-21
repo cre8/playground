@@ -191,9 +191,8 @@ async function issueAttestation(pidSession: Session): Promise<void> {
     issuanceSessionId = issuanceOffer.sessionId;
     displaySessionIdInQrSection(issuanceOffer.sessionId);
 
-    // Generate QR code for attestation issuance
-    const redirectUrl = buildRedirectUrl(issuanceOffer.sessionId);
-    await generateVerificationUI(qrCodeDiv, sameDeviceLink, issuanceOffer.uri, redirectUrl);
+    // Generate QR code for attestation issuance (polling detects completion, no redirect needed)
+    await generateVerificationUI(qrCodeDiv, sameDeviceLink, issuanceOffer.uri);
 
     statusText.textContent = 'Scan QR code with your wallet to receive event attestation...';
 
@@ -231,13 +230,15 @@ async function handleGetAttestationWithQR(): Promise<void> {
   statusText.textContent = 'Preparing PID verification request...';
 
   try {
-    const verificationRequest = await createVerificationRequest(USE_CASE);
+    // Pass a redirect URI so the wallet knows where to send the user back on same-device
+    const redirectUrl = buildRedirectUrl('{sessionId}');
+    const verificationRequest = await createVerificationRequest(USE_CASE, redirectUrl);
     verificationSessionId = verificationRequest.sessionId;
     displaySessionIdInQrSection(verificationRequest.sessionId);
 
-    const redirectUrl = buildRedirectUrl(verificationRequest.sessionId);
+    // QR code uses crossDeviceUri (no redirect), same-device button uses uri (has redirect)
     const qrUri = verificationRequest.crossDeviceUri ?? verificationRequest.uri;
-    await generateVerificationUI(qrCodeDiv, sameDeviceLink, qrUri, redirectUrl);
+    await generateVerificationUI(qrCodeDiv, sameDeviceLink, qrUri, verificationRequest.uri);
 
     statusText.textContent = 'Scan QR code with your EUDI Wallet to verify your identity...';
 
