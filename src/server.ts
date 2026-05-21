@@ -74,6 +74,10 @@ const USE_CASES: Record<string, { presentationConfigId: string; name: string }> 
     presentationConfigId: 'datev-pid',
     name: 'Supplier Onboarding - DATEV Company + PID',
   },
+  'event-access': {
+    presentationConfigId: 'playground-pid',
+    name: 'Event Access - PID Verification for Event Attestation',
+  },
 };
 
 // Credential configurations for issuance
@@ -92,6 +96,11 @@ const CREDENTIALS: Record<string, { credentialConfigId: string; name: string; fl
   'loyalty-card': {
     credentialConfigId: 'loyalty-card',
     name: 'Loyalty/Membership Card',
+    flow: 'pre_authorized_code',
+  },
+  'event-access-attestation': {
+    credentialConfigId: 'event-access-attestation',
+    name: 'Event Access Attestation',
     flow: 'pre_authorized_code',
   },
 };
@@ -144,6 +153,30 @@ function getClient(): EudiploClient {
   return eudiploClient;
 }
 
+// Detect stale keep-alive socket errors from undici
+function isSocketError(error: unknown): boolean {
+  return (
+    error instanceof TypeError &&
+    error.message === 'fetch failed' &&
+    (error as any).cause?.code === 'UND_ERR_SOCKET'
+  );
+}
+
+// Retry once on socket errors by resetting the client singleton so a fresh
+// connection is established. This handles the common case where undici tries
+// to reuse a keep-alive connection that the backend has already closed.
+async function withRetry<T>(fn: () => Promise<T>): Promise<T> {
+  try {
+    return await fn();
+  } catch (error) {
+    if (isSocketError(error)) {
+      eudiploClient = null; // force new connection on next getClient() call
+      return fn();
+    }
+    throw error;
+  }
+}
+
 // API Routes
 
 // GET /api/use-cases - List available use cases
@@ -167,13 +200,13 @@ app.post('/api/verify', async (req: Request, res: Response) => {
       return;
     }
 
-    const client = getClient();
-
     // Create the presentation request
-    const { uri, crossDeviceUri, sessionId } = await client.createPresentationRequest({
-      configId: useCaseConfig.presentationConfigId,
-      redirectUri,
-    });
+    const { uri, crossDeviceUri, sessionId } = await withRetry(() =>
+      getClient().createPresentationRequest({
+        configId: useCaseConfig.presentationConfigId,
+        redirectUri,
+      })
+    );
 
     // Return both URIs:
     // - uri: for same-device flow (deep link button) with redirect after completion
@@ -205,18 +238,18 @@ app.post('/api/issue', async (req: Request, res: Response) => {
       return;
     }
 
-    const client = getClient();
-
     // Generate transaction code if requested
     const txCode = useTxCode ? generateTxCode() : undefined;
 
     // Create the issuance offer
-    const { uri, sessionId } = await client.createIssuanceOffer({
-      credentialConfigurationIds: [credential.credentialConfigId],
-      claims: claims ? { [credential.credentialConfigId]: claims } : undefined,
-      flow: credential.flow,
-      txCode,
-    });
+    const { uri, sessionId } = await withRetry(() =>
+      getClient().createIssuanceOffer({
+        credentialConfigurationIds: [credential.credentialConfigId],
+        claims: claims ? { [credential.credentialConfigId]: claims } : undefined,
+        flow: credential.flow,
+        txCode,
+      })
+    );
 
     res.json({ uri, sessionId, txCode });
   } catch (error: any) {
@@ -230,8 +263,7 @@ app.get('/api/session/:id', async (req: Request, res: Response) => {
   try {
     const sessionId = String(req.params.id);
 
-    const client = getClient();
-    const session = await client.getSession(sessionId);
+    const session = await withRetry(() => getClient().getSession(sessionId));
 
     // Only return safe data (no raw credentials)
     res.json({

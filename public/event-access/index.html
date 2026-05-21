@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>Event Access | EUDI Wallet Playground</title>
+    <link rel="stylesheet" href="/shared/styles.css" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"
+      integrity="sha384-lQXOAyZwHXE55JFyrOMB7nY2Wv+m5ZWNtJcHrd1rceRQXAYNLak8ukN5TjBTcIwz"
+      crossorigin="anonymous"
+    ></script>
+    <style>
+      :root {
+        --primary: #96f5af;
+        --primary-strong: #2f7d57;
+        --primary-soft: #e8fcec;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, var(--primary-strong) 0%, var(--primary) 100%);
+        color: white;
+        margin: -2rem -2rem 2rem -2rem;
+      }
+
+      @media (max-width: 640px) {
+        header {
+          padding: 1rem;
+          margin: -1rem -1rem 1.5rem -1rem;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+        }
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: white;
+        text-decoration: none;
+      }
+
+      .logo-icon {
+        font-size: 2rem;
+      }
+
+      .badge {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.25rem 0.75rem;
+        border-radius: 2rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+
+      .event-card {
+        background: white;
+        border: 2px solid var(--border);
+        border-radius: var(--radius);
+        padding: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .event-header {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .event-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--primary-strong) 0%, var(--primary) 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: white;
+        flex-shrink: 0;
+      }
+
+      .event-info h2 {
+        margin: 0 0 0.5rem 0;
+        color: var(--text);
+      }
+
+      .event-info p {
+        margin: 0.25rem 0;
+        color: var(--text-muted);
+        font-size: 0.95rem;
+      }
+
+      .event-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border);
+      }
+
+      .detail-item {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .detail-label {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+      }
+
+      .detail-value {
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      .info-section {
+        background: linear-gradient(135deg, var(--primary-soft) 0%, #f5fff8 100%);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .info-section h3 {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0 0 1rem 0;
+        color: var(--primary-strong);
+      }
+
+      .info-section p {
+        margin: 0.5rem 0;
+        color: var(--text-muted);
+        line-height: 1.6;
+      }
+
+      .qr-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+        padding: 2rem;
+      }
+
+      .processing-icon {
+        font-size: 3rem;
+        animation: spin 2s linear infinite;
+      }
+
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      #qrCode {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 300px;
+      }
+
+      #qrCode.has-qr {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1rem;
+      }
+
+      #sameDeviceLink {
+        text-align: center;
+      }
+
+      #sameDeviceLink a {
+        color: var(--primary-strong);
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      #sameDeviceLink a:hover {
+        text-decoration: underline;
+      }
+
+      .success-icon {
+        font-size: 4rem;
+        text-align: center;
+        margin-bottom: 1rem;
+      }
+
+      .attestation-card {
+        background: linear-gradient(135deg, var(--primary-soft) 0%, #f5fff8 100%);
+        border: 2px solid var(--primary-strong);
+        border-radius: var(--radius);
+        padding: 2rem;
+        margin: 2rem 0;
+      }
+
+      .attestation-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--primary-strong);
+      }
+
+      .attestation-icon {
+        width: 60px;
+        height: 60px;
+        background: var(--primary-strong);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+      }
+
+      .attestation-title h3 {
+        margin: 0;
+        color: var(--primary-strong);
+        font-size: 1.25rem;
+      }
+
+      .attestation-title p {
+        margin: 0.25rem 0 0 0;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+      }
+
+      .attestation-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+      }
+
+      .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem;
+        background: white;
+        border-radius: 6px;
+        border-left: 3px solid var(--primary-strong);
+      }
+
+      .detail-row .detail-label {
+        font-weight: 600;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+      }
+
+      .detail-row .detail-value {
+        font-weight: 600;
+        color: var(--primary-strong);
+      }
+
+      .dc-api-option {
+        background: #fef3c7;
+        border: 1px solid #fcd34d;
+        border-radius: var(--radius);
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .dc-api-option.hidden {
+        display: none;
+      }
+
+      .dc-api-option input[type='checkbox'] {
+        cursor: pointer;
+        width: 18px;
+        height: 18px;
+      }
+
+      .dc-api-option label {
+        margin: 0;
+        cursor: pointer;
+        flex: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div class="logo">
+          <span class="logo-icon">🎫</span>
+          <span>Event Access Attestation</span>
+        </div>
+        <div class="badge">Powered by EUDI Wallet</div>
+      </header>
+
+      <!-- Event Section -->
+      <section id="eventSection" style="display: block">
+        <div class="info-section">
+          <h3>🎯 How it works</h3>
+          <p>
+            <strong>1. Verify Identity:</strong> Present your PID (Personal ID) from your EUDI Wallet to verify your
+            identity.
+          </p>
+          <p>
+            <strong>2. Get Attestation:</strong> After verification, you'll receive an attestation credential that grants
+            you access to the event.
+          </p>
+          <p>
+            <strong>3. Use Anywhere:</strong> Present your attestation at event check-in or on any event partner
+            platform.
+          </p>
+        </div>
+
+        <div class="event-card">
+          <div class="event-header">
+            <div class="event-icon">🎪</div>
+            <div class="event-info">
+              <h2 id="eventName">Tech Conference 2026</h2>
+              <p>💡 Technology & Innovation Conference</p>
+              <p>🌐 Europe's Leading Tech Event</p>
+            </div>
+          </div>
+
+          <div class="event-details">
+            <div class="detail-item">
+              <span class="detail-label">📅 Dates</span>
+              <span class="detail-value">June 15-17, 2026</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">📍 Location</span>
+              <span class="detail-value">Berlin Convention Center</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">👥 Capacity</span>
+              <span class="detail-value">5,000 attendees</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">🎟️ Access Type</span>
+              <span class="detail-value">Full Access (3 days)</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="dcApiOption" class="dc-api-option hidden">
+          <input type="checkbox" id="dcApiToggle" />
+          <label for="dcApiToggle">
+            Use DC API for same-device verification (if available)
+          </label>
+        </div>
+
+        <button id="getAttestationBtn" class="btn btn-primary" style="width: 100%">
+          🔐 Get Event Access Attestation
+        </button>
+      </section>
+
+      <!-- Verification Section -->
+      <section id="verificationSection" style="display: none">
+        <div class="qr-container">
+          <div>
+            <h2>Verify Your Identity</h2>
+            <p id="statusText" style="color: var(--text-muted); margin-top: 1rem">
+              Preparing verification request...
+            </p>
+          </div>
+
+          <div id="qrCode"></div>
+
+          <div id="sameDeviceLink"></div>
+
+          <div id="qrSessionId" class="qr-session-id"></div>
+        </div>
+      </section>
+
+      <!-- Success Section -->
+      <section id="successSection" style="display: none">
+        <div style="text-align: center">
+          <div class="success-icon">✅</div>
+          <h2>Attestation Issued Successfully!</h2>
+          <p style="color: var(--text-muted); margin-bottom: 2rem">
+            Your event access credential has been added to your EUDI Wallet
+          </p>
+        </div>
+
+        <div class="attestation-card">
+          <div class="attestation-header">
+            <div class="attestation-icon">🎫</div>
+            <div class="attestation-title">
+              <h3 id="eventNameDisplay">Tech Conference 2026</h3>
+              <p>Event Access Attestation</p>
+            </div>
+          </div>
+
+          <div id="attestationDetails" class="attestation-details"></div>
+        </div>
+
+        <div class="info-section">
+          <h3>✨ What's Next?</h3>
+          <p>
+            Your event access attestation is now stored securely in your EUDI Wallet. You can:
+          </p>
+          <ul>
+            <li>Present it at the event check-in</li>
+            <li>Share it with event partners and sponsors</li>
+            <li>Use it for event-related services and accommodations</li>
+            <li>Export it as proof of verified attendance</li>
+          </ul>
+        </div>
+
+        <button id="doneBtn" class="btn btn-primary" style="width: 100%; margin-top: 1rem">
+          ← Get Another Attestation
+        </button>
+      </section>
+    </div>
+
+    <script src="/js/event-access/app.js"></script>
+  </body>
+</html>
