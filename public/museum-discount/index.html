@@ -60,10 +60,12 @@
           </div>
 
           <div class="ticket-card resident-ticket" id="residentTicket">
-            <div class="resident-badge">🏠 Berlin Residents</div>
+            <div class="resident-badge">🏠 Berlin Residents &amp; Ehrenamtskarte</div>
             <div class="ticket-info">
-              <span class="ticket-type">Berlin Resident Discount</span>
-              <span class="ticket-desc">50% off for Berlin citizens</span>
+              <span class="ticket-type">Community Discount</span>
+              <span class="ticket-desc"
+                >50% off for Berlin residents or valid Ehrenamtskarte holders</span
+              >
             </div>
             <div class="ticket-price">
               <span class="price-original">€16.00</span>
@@ -76,11 +78,11 @@
         <div class="discount-info">
           <span class="info-icon">💡</span>
           <div>
-            <strong>Berlin Resident Discount</strong>
+            <strong>Community Discount</strong>
             <p>
-              As a thank you to our local community, Berlin residents enjoy 50%
-              off admission. Verify your residency instantly with your EUDI
-              Wallet – no documents needed!
+              As a thank you to our community, Berlin residents and
+              Ehrenamtskarte holders enjoy 50% off admission. Verify instantly
+              with your EUDI Wallet – no paper documents needed!
             </p>
           </div>
         </div>
@@ -90,14 +92,15 @@
           <div>
             <strong>Privacy-First Verification</strong>
             <p>
-              We only check if you live in Berlin. Your exact address, name, or
-              other personal details are never shared.
+              We only check discount eligibility (Berlin residency or
+              Ehrenamtskarte). Your exact address, name, and other personal
+              details are not used for ticket pricing.
             </p>
           </div>
         </div>
 
         <button id="verifyBtn" class="btn btn-primary btn-large">
-          🪪 Verify Berlin Residency & Get Discount
+          🪪 Verify Eligibility &amp; Get Discount
         </button>
         <div id="dcApiOption" class="dc-api-option hidden">
           <label class="toggle-label">
@@ -113,9 +116,10 @@
 
       <!-- Step 2: Residency Verification -->
       <section id="verificationSection" class="card" style="display: none">
-        <h2>🪪 Verify Berlin Residency</h2>
+        <h2>🪪 Verify Discount Eligibility</h2>
         <p class="verification-subtitle">
-          Scan the QR code with your EUDI Wallet to prove you live in Berlin.
+          Scan the QR code with your EUDI Wallet to prove Berlin residency or
+          present a valid Ehrenamtskarte.
         </p>
 
         <div class="eudi-badge">
@@ -129,6 +133,10 @@
             <li>
               <span class="data-icon">🏙️</span> City of Residence
               <span class="check-badge">= Berlin</span>
+            </li>
+            <li>
+              <span class="data-icon">🤝</span> Credential Type
+              <span class="check-badge">= Ehrenamtskarte</span>
             </li>
           </ul>
           <div class="not-shared">
@@ -159,9 +167,9 @@
       <section id="successSection" class="card" style="display: none">
         <div class="success-header">
           <div class="success-icon">✓</div>
-          <h2>Berlin Residency Verified!</h2>
+          <h2>Discount Eligibility Verified!</h2>
           <p class="success-subtitle">
-            Welcome, fellow Berliner! Your discount has been applied.
+            Discount eligibility confirmed. Your reduced price has been applied.
           </p>
         </div>
 
@@ -176,7 +184,7 @@
               <span class="strikethrough">€16.00</span>
             </div>
             <div class="price-row discount-row">
-              <span>Resident Discount (50%)</span>
+              <span>Community Discount (50%)</span>
               <span class="discount-amount">-€8.00</span>
             </div>
             <div class="price-row total-row">
@@ -223,9 +231,10 @@
       <section id="notBerlinSection" class="card" style="display: none">
         <div class="info-header">
           <div class="info-icon">ℹ️</div>
-          <h2>Residency Not Confirmed</h2>
+          <h2>Eligibility Not Confirmed</h2>
           <p class="info-subtitle">
-            It looks like you're not currently registered as a Berlin resident.
+            This credential does not confirm Berlin residency and is not an
+            Ehrenamtskarte.
           </p>
           <p id="notBerlinCity" class="verified-city"></p>
         </div>

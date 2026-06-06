@@ -19,6 +19,13 @@ import {
 
 const USE_CASE = 'museum-discount';
 
+type DiscountQualification = 'berlin-residency' | 'presentation-policy';
+
+interface DiscountEligibility {
+  qualification: DiscountQualification;
+  city?: string;
+}
+
 // DOM Elements
 const ticketSection = getElement<HTMLElement>('ticketSection');
 const verificationSection = getElement<HTMLElement>('verificationSection');
@@ -84,7 +91,7 @@ async function resumeSession(sessionId: string): Promise<void> {
   qrCodeDiv.innerHTML = '<div class="processing-icon">🔄</div>';
   qrCodeDiv.classList.remove('has-qr');
   sameDeviceLink.classList.add('hidden');
-  statusText.textContent = 'Checking residency...';
+  statusText.textContent = 'Checking eligibility...';
   
   try {
     const session = await waitForSession(sessionId, {
@@ -92,7 +99,7 @@ async function resumeSession(sessionId: string): Promise<void> {
         if (s.status === 'pending') {
           statusText.textContent = 'Waiting for wallet response...';
         } else if (s.status === 'processing') {
-          statusText.textContent = 'Verifying residency...';
+          statusText.textContent = 'Verifying eligibility...';
         }
       },
     });
@@ -120,7 +127,7 @@ async function handleVerify(): Promise<void> {
     handleError(error);
   } finally {
     verifyBtn.disabled = false;
-    verifyBtn.textContent = '🪪 Verify Berlin Residency & Get Discount';
+    verifyBtn.textContent = '🪪 Verify Eligibility & Get Discount';
   }
 }
 
@@ -153,7 +160,7 @@ async function handleQrCodeVerification(): Promise<void> {
       if (s.status === 'pending') {
         statusText.textContent = 'Waiting for wallet response...';
       } else if (s.status === 'processing') {
-        statusText.textContent = 'Verifying residency...';
+        statusText.textContent = 'Verifying eligibility...';
       }
     },
   });
@@ -198,46 +205,54 @@ function displaySessionIdInQrSection(sessionId: string): void {
   }
 }
 
-// Check if user is from Berlin
-function isBerlinResident(session: Session): boolean {
-  const claims = extractClaims(session);
-  return isBerlinResidentFromClaims(claims);
+function getCityFromClaims(claims: Record<string, unknown>): string | undefined {
+  const address = claims.address as Record<string, unknown> | undefined;
+  const city =
+    address?.locality ||
+    claims.resident_city ||
+    claims.locality ||
+    claims.city ||
+    claims.place_of_residence;
+
+  return typeof city === 'string' ? city.trim() : undefined;
 }
 
-// Check Berlin residency from claims
 function isBerlinResidentFromClaims(claims: Record<string, unknown>): boolean {
-  // Check various possible city field names
-  // PID credentials have city in address.locality
-  const address = claims.address as Record<string, unknown> | undefined;
-  const city = address?.locality || claims.resident_city || claims.locality || claims.city || claims.place_of_residence;
-  
-  console.log(city);
-
-  if (typeof city === 'string') {
-    const cityLower = city.toLowerCase().trim();
-    return cityLower === 'berlin' || cityLower.includes('berlin');
+  const city = getCityFromClaims(claims);
+  if (!city) {
+    return false;
   }
-  
-  return false;
+
+  const cityLower = city.toLowerCase();
+  return cityLower === 'berlin' || cityLower.includes('berlin');
+}
+
+function evaluateDiscountEligibilityFromClaims(claims: Record<string, unknown>): DiscountEligibility {
+  if (isBerlinResidentFromClaims(claims)) {
+    return {
+      qualification: 'berlin-residency',
+      city: getCityFromClaims(claims),
+    };
+  }
+
+  return {
+    qualification: 'presentation-policy',
+    city: getCityFromClaims(claims),
+  };
 }
 
 // Handle verification result
 function handleVerificationResult(session: Session): void {
-  if (isBerlinResident(session)) {
-    showSuccess(session);
-  } else {
-    showNotBerlin(session);
-  }
+  const claims = extractClaims(session);
+  const eligibility = evaluateDiscountEligibilityFromClaims(claims);
+  showSuccess(session, claims, eligibility);
 }
 
 // Handle verification result from DC API
 function handleVerificationResultFromDcApi(result: DcApiResult): void {
   const claims = result.presentation ? extractClaimsFromPresentation(result.presentation) : {};
-  if (isBerlinResidentFromClaims(claims)) {
-    showSuccessFromDcApi(result);
-  } else {
-    showNotBerlinFromDcApi(result);
-  }
+  const eligibility = evaluateDiscountEligibilityFromClaims(claims);
+  showSuccessFromDcApi(result, claims, eligibility);
 }
 
 // Handle errors
@@ -271,21 +286,32 @@ function generateTicketId(): string {
 }
 
 // Show success state (Berlin resident)
-function showSuccess(session: Session): void {
+function showSuccess(
+  session: Session,
+  claims: Record<string, unknown>,
+  eligibility: DiscountEligibility
+): void {
   showSection(successSection);
-  const claims = extractClaims(session);
-  displaySuccessContent(claims, false, session.sessionId);
+  displaySuccessContent(claims, eligibility, false, session.sessionId);
 }
 
 // Show success state from DC API
-function showSuccessFromDcApi(result: DcApiResult): void {
+function showSuccessFromDcApi(
+  result: DcApiResult,
+  claims: Record<string, unknown>,
+  eligibility: DiscountEligibility
+): void {
   showSection(successSection);
-  const claims = result.presentation ? extractClaimsFromPresentation(result.presentation) : {};
-  displaySuccessContent(claims, true, result.sessionId);
+  displaySuccessContent(claims, eligibility, true, result.sessionId);
 }
 
 // Display success content
-function displaySuccessContent(claims: Record<string, unknown>, isDcApi: boolean, sessionId?: string): void {
+function displaySuccessContent(
+  claims: Record<string, unknown>,
+  eligibility: DiscountEligibility,
+  isDcApi: boolean,
+  sessionId?: string
+): void {
   // Set ticket ID
   const ticketIdEl = document.getElementById('ticketId');
   if (ticketIdEl) {
@@ -297,26 +323,36 @@ function displaySuccessContent(claims: Record<string, unknown>, isDcApi: boolean
   if (verifiedDataEl) {
     verifiedDataEl.innerHTML = '';
     
-    const address = claims.address as Record<string, unknown> | undefined;
-    const city = address?.locality || claims.resident_city || claims.locality || claims.city || claims.place_of_residence;
-    
-    // Only show city verification result
-    const item = document.createElement('div');
-    item.className = 'verified-item';
-    item.innerHTML = `
-      <span class="label">City of Residence</span>
-      <span class="value">✓ ${city || 'Berlin'}</span>
+    if (eligibility.qualification === 'berlin-residency') {
+      const cityItem = document.createElement('div');
+      cityItem.className = 'verified-item';
+      cityItem.innerHTML = `
+        <span class="label">City of Residence</span>
+        <span class="value">✓ ${eligibility.city || 'Berlin'}</span>
+      `;
+      verifiedDataEl.appendChild(cityItem);
+    }
+
+    const basisItem = document.createElement('div');
+    basisItem.className = 'verified-item';
+    basisItem.innerHTML = `
+      <span class="label">Qualification Basis</span>
+      <span class="value">✓ ${
+        eligibility.qualification === 'presentation-policy'
+          ? 'Presentation Policy'
+          : 'Berlin Residency'
+      }</span>
     `;
-    verifiedDataEl.appendChild(item);
+    verifiedDataEl.appendChild(basisItem);
 
     // Add eligibility status
-    const eligibility = document.createElement('div');
-    eligibility.className = 'verified-item';
-    eligibility.innerHTML = `
+    const eligibilityItem = document.createElement('div');
+    eligibilityItem.className = 'verified-item';
+    eligibilityItem.innerHTML = `
       <span class="label">Discount Eligibility</span>
       <span class="value" style="color: #16a34a;">✓ Qualified</span>
     `;
-    verifiedDataEl.appendChild(eligibility);
+    verifiedDataEl.appendChild(eligibilityItem);
 
     // Add DC API indicator if applicable
     if (isDcApi) {
@@ -343,45 +379,33 @@ function displaySuccessContent(claims: Record<string, unknown>, isDcApi: boolean
 }
 
 // Show not Berlin state
-function showNotBerlin(session: Session): void {
-  const claims = extractClaims(session);
-  displayNotBerlinContent(claims);
+interface PresentationCredential {
+  id?: unknown;
+  values?: unknown;
+  credential?: unknown;
 }
 
-// Show not Berlin state from DC API
-function showNotBerlinFromDcApi(result: DcApiResult): void {
-  const claims = result.presentation ? extractClaimsFromPresentation(result.presentation) : {};
-  displayNotBerlinContent(claims);
-}
-
-// Display not Berlin content
-function displayNotBerlinContent(claims: Record<string, unknown>): void {
-  showSection(notBerlinSection);
-  
-  // Show the actual city that was presented
-  const address = claims.address as Record<string, unknown> | undefined;
-  const city = address?.locality || claims.resident_city || claims.locality || claims.city || claims.place_of_residence;
-  
-  const cityInfoEl = document.getElementById('notBerlinCity');
-  if (cityInfoEl && city) {
-    cityInfoEl.textContent = `Your verified residence: ${city}`;
+function extractClaimsFromCredential(credential: PresentationCredential): Record<string, unknown> {
+  if (Array.isArray(credential.values) && credential.values.length > 0) {
+    const value = credential.values[0];
+    if (value && typeof value === 'object') {
+      return value as Record<string, unknown>;
+    }
   }
-}
 
-// Credential structure from session
-interface SessionCredential {
-  id: string;
-  values: Array<Record<string, unknown>>;
+  if (credential.credential && typeof credential.credential === 'object') {
+    return credential.credential as Record<string, unknown>;
+  }
+
+  return credential as Record<string, unknown>;
 }
 
 // Extract claims from session credentials
 function extractClaims(session: Session): Record<string, unknown> {
   // Session has credentials array: [{ id: "pid-sd-jwt", values: [{ address: { locality: "BERLIN" }, ... }] }]
   if (Array.isArray(session.credentials) && session.credentials.length > 0) {
-    const credential = session.credentials[0] as unknown as SessionCredential;
-    if (Array.isArray(credential.values) && credential.values.length > 0) {
-      return credential.values[0];
-    }
+    const credential = session.credentials[0] as unknown as PresentationCredential;
+    return extractClaimsFromCredential(credential);
   }
   
   // Fallback to presentation for backwards compatibility
@@ -398,7 +422,7 @@ function extractClaimsFromPresentation(presentation: Record<string, unknown>): R
   
   // Nested in credentials array
   if (Array.isArray(presentation.credentials) && presentation.credentials.length > 0) {
-    return presentation.credentials[0] as Record<string, unknown>;
+    return extractClaimsFromCredential(presentation.credentials[0] as PresentationCredential);
   }
   
   // Nested in credential object
@@ -423,7 +447,7 @@ function handleTryAgain(): void {
 
 // Handle purchase (discounted)
 function handlePurchase(): void {
-  alert('🎫 Thank you for your purchase!\n\nYour resident discount ticket (€8.00) has been confirmed.\n\nEnjoy your visit to the Berlin History Museum!');
+  alert('🎫 Thank you for your purchase!\n\nYour community discount ticket (€8.00) has been confirmed.\n\nEnjoy your visit to the Berlin History Museum!');
 }
 
 // Handle buy regular ticket
