@@ -11,6 +11,7 @@ import rateLimit from 'express-rate-limit';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
+  DcApiWalletResponse,
   EudiploClient,
   createDcApiRequestForBrowser,
   submitDcApiWalletResponse,
@@ -311,7 +312,7 @@ app.post('/api/dc-api/complete', async (req: Request, res: Response) => {
   try {
     const { responseUri, walletResponse } = req.body as {
       responseUri: string;
-      walletResponse: string;
+      walletResponse: DcApiWalletResponse;
     };
 
     if (!responseUri || !walletResponse) {
@@ -320,10 +321,11 @@ app.post('/api/dc-api/complete', async (req: Request, res: Response) => {
     }
 
     // Submit wallet response to EUDIPLO and get verified claims
-    // The walletResponse from the browser DC API is the response property
+    // The walletResponse from the browser DC API is the response property    
+
     const result = await submitDcApiWalletResponse({
       responseUri,
-      walletResponse: { response: walletResponse },
+      walletResponse,
       sendResponse: true, // Get verified claims back
     });
 
