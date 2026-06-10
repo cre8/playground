@@ -11,10 +11,7 @@ import rateLimit from 'express-rate-limit';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  DcApiWalletResponse,
   EudiploClient,
-  createDcApiRequestForBrowser,
-  submitDcApiWalletResponse,
 } from '@eudiplo/sdk-core';
 import 'dotenv/config';
 
@@ -108,6 +105,7 @@ const CREDENTIALS: Record<string, { credentialConfigId: string; name: string; fl
 
 // Create Express app
 const app = express();
+app.disable('x-powered-by');
 
 // Rate limiting for API endpoints
 const apiLimiter = rateLimit({
@@ -178,6 +176,60 @@ async function withRetry<T>(fn: () => Promise<T>): Promise<T> {
   }
 }
 
+function toOrigin(value?: string): string | undefined {
+  if (!value) {
+    return undefined;
+  }
+
+  try {
+    return new URL(value).origin;
+  } catch {
+    return undefined;
+  }
+}
+
+function decodeJwtPayload<T = Record<string, unknown>>(jwt: string): T {
+  const parts = jwt.split('.');
+  if (parts.length !== 3) {
+    throw new Error('Invalid JWT format');
+  }
+
+  const payload = parts[1];
+  const base64 = payload.replaceAll('-', '+').replaceAll('_', '/');
+  const jsonPayload = atob(base64);
+  return JSON.parse(jsonPayload) as T;
+}
+
+function extractResponseUriFromRequestObject(requestObject: string): string {
+  const requestPayload = decodeJwtPayload<{ response_uri?: string }>(requestObject);
+
+  if (!requestPayload.response_uri) {
+    throw new Error('No response_uri found in request object');
+  }
+
+  return requestPayload.response_uri;
+}
+
+// Resolve the browser origin for server-side DC API audience binding.
+function resolveRequestOrigin(req: Request, bodyOrigin?: string): string | undefined {
+  const headerOrigin = req.get('origin');
+  const refererOrigin = toOrigin(req.get('referer'));
+  const forwardedProto = req.get('x-forwarded-proto');
+  const forwardedHost = req.get('x-forwarded-host');
+  const forwardedOrigin = forwardedProto && forwardedHost
+    ? toOrigin(`${forwardedProto}://${forwardedHost}`)
+    : undefined;
+  const hostOrigin = req.get('host') ? `${req.protocol}://${req.get('host')}` : undefined;
+
+  return (
+    toOrigin(bodyOrigin) ??
+    toOrigin(headerOrigin) ??
+    refererOrigin ??
+    forwardedOrigin ??
+    toOrigin(hostOrigin)
+  );
+}
+
 // API Routes
 
 // GET /api/use-cases - List available use cases
@@ -193,7 +245,11 @@ app.get('/api/use-cases', (_req: Request, res: Response) => {
 // POST /api/verify - Create a presentation request
 app.post('/api/verify', async (req: Request, res: Response) => {
   try {
-    const { useCase, redirectUri } = req.body as { useCase: string; redirectUri?: string };
+    const { useCase, redirectUri, origin: bodyOrigin } = req.body as {
+      useCase: string;
+      redirectUri?: string;
+      origin?: string;
+    };
     const useCaseConfig = USE_CASES[useCase];
 
     if (!useCaseConfig) {
@@ -206,6 +262,7 @@ app.post('/api/verify', async (req: Request, res: Response) => {
       getClient().createPresentationRequest({
         configId: useCaseConfig.presentationConfigId,
         redirectUri,
+        origin: resolveRequestOrigin(req, bodyOrigin),
       })
     );
 
@@ -283,7 +340,7 @@ app.get('/api/session/:id', async (req: Request, res: Response) => {
 // POST /api/dc-api/start - Create a DC API presentation request
 app.post('/api/dc-api/start', async (req: Request, res: Response) => {
   try {
-    const { useCase } = req.body as { useCase: string };
+    const { useCase, origin: bodyOrigin } = req.body as { useCase: string; origin?: string };
     const useCaseConfig = USE_CASES[useCase];
 
     if (!useCaseConfig) {
@@ -291,16 +348,22 @@ app.post('/api/dc-api/start', async (req: Request, res: Response) => {
       return;
     }
 
-    // Create DC API request using SDK helper (credentials stay on server)
-    const requestData = await createDcApiRequestForBrowser({
-      baseUrl: config.eudiploUrl,
-      clientId: config.clientId,
-      clientSecret: config.clientSecret,
+    // Create DC API request using the class API (credentials stay on server)
+    const session = await getClient().createDcApiPresentationRequest({
       configId: useCaseConfig.presentationConfigId,
+      origin: resolveRequestOrigin(req, bodyOrigin),
     });
 
+    if (!session.requestObject) {
+      throw new Error('Session does not contain a requestObject');
+    }
+
     // Return safe data to browser (no credentials exposed)
-    res.json(requestData);
+    res.json({
+      requestObject: session.requestObject,
+      sessionId: session.id,
+      responseUri: extractResponseUriFromRequestObject(session.requestObject),
+    });
   } catch (error: any) {
     console.error('API Error (dc-api/start):', error);
     res.status(500).json({ error: error.message || 'Internal Server Error' });
@@ -312,7 +375,7 @@ app.post('/api/dc-api/complete', async (req: Request, res: Response) => {
   try {
     const { responseUri, walletResponse } = req.body as {
       responseUri: string;
-      walletResponse: DcApiWalletResponse;
+      walletResponse: { response?: string; error?: string; error_description?: string } | string;
     };
 
     if (!responseUri || !walletResponse) {
@@ -320,14 +383,23 @@ app.post('/api/dc-api/complete', async (req: Request, res: Response) => {
       return;
     }
 
-    // Submit wallet response to EUDIPLO and get verified claims
-    // The walletResponse from the browser DC API is the response property    
+    const submitResponse = await fetch(responseUri, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ...(typeof walletResponse === 'string' ? { response: walletResponse } : walletResponse),
+        sendResponse: true,
+      }),
+    });    
 
-    const result = await submitDcApiWalletResponse({
-      responseUri,
-      walletResponse,
-      sendResponse: true, // Get verified claims back
-    });
+    if (!submitResponse.ok) {
+      const errorText = await submitResponse.text();
+      throw new Error(`Failed to submit presentation: ${submitResponse.status} ${errorText}`);
+    }
+
+    const result = await submitResponse.json();
 
     res.json(result);
   } catch (error: any) {

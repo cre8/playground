@@ -59,6 +59,12 @@ export interface WaitOptions {
 }
 
 // DC API types
+export interface DcApiWalletResponse {
+  response?: string;
+  error?: string;
+  error_description?: string;
+}
+
 export interface DcApiRequestData {
   requestObject: string;
   responseUri: string;
@@ -369,7 +375,7 @@ export async function startDcApiVerification(useCase: string): Promise<DcApiRequ
  * Call the browser's Digital Credentials API
  * Returns the wallet's response (encrypted VP token)
  */
-export async function callDcApi(requestObject: string): Promise<string> {
+export async function callDcApi(requestObject: string): Promise<DcApiWalletResponse> {
   if (!isDcApiAvailable()) {
     throw new Error('Digital Credentials API is not available in this browser');
   }
@@ -389,7 +395,13 @@ export async function callDcApi(requestObject: string): Promise<string> {
     throw new Error('No credential returned from wallet');
   }
 
-  return (credential as DigitalCredentialResponse).data;
+  const walletResponse = (credential as DigitalCredentialResponse).data;
+
+  if (typeof walletResponse === 'string') {
+    return { response: walletResponse };
+  }
+
+  return walletResponse as DcApiWalletResponse;
 }
 
 /**
@@ -397,7 +409,7 @@ export async function callDcApi(requestObject: string): Promise<string> {
  */
 export async function completeDcApiVerification(
   responseUri: string,
-  walletResponse: string
+  walletResponse: DcApiWalletResponse
 ): Promise<DcApiResult> {
   const response = await fetch('/api/dc-api/complete', {
     method: 'POST',
