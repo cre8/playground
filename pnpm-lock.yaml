@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@eudiplo/sdk-core':
-        specifier: link:../eudiplo/packages/eudiplo-sdk-core
-        version: link:../eudiplo/packages/eudiplo-sdk-core
+        specifier: ^5.1.0
+        version: 5.1.0
       dotenv:
         specifier: ^17.4.2
         version: 17.4.2
@@ -251,6 +251,10 @@ packages:
   '@eslint/plugin-kit@0.7.2':
     resolution: {integrity: sha512-+CNAzxglkrpNf/kKywqQfk74QjtceuOE7Qm+AF8miRvPF/wmmK5+OJOgVh3AVTT3RP2mH3+FOaxlE5v72owk0A==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
+
+  '@eudiplo/sdk-core@5.1.0':
+    resolution: {integrity: sha512-6w7VvP+Eer+yT1bdxCDX8oo7Hv9deCPfdtIUSvH3cHohi0a3moNnUx+FK/QdGfJHfH6AHXl8x7ELulBT30jtgA==}
+    engines: {node: '>=20.0.0'}
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -1110,6 +1114,8 @@ snapshots:
     dependencies:
       '@eslint/core': 1.2.1
       levn: 0.4.1
+
+  '@eudiplo/sdk-core@5.1.0': {}
 
   '@humanfs/core@0.19.2':
     dependencies:
