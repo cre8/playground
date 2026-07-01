@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>Driving Licence Authority | EUDI Wallet Playground</title>
+    <link rel="stylesheet" href="/shared/styles.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"
+      integrity="sha384-lQXOAyZwHXE55JFyrOMB7nY2Wv+m5ZWNtJcHrd1rceRQXAYNLak8ukN5TjBTcIwz"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <header>
+      <a href="../" class="logo">
+        <span class="logo-icon">🪪</span>
+        Driving Licence Authority
+      </a>
+      <span class="badge">mDL Issuance</span>
+    </header>
+
+    <main class="container">
+      <section id="startSection" class="card">
+        <h1>Issue Mobile Driving Licence (mDL)</h1>
+        <p class="subtitle">
+          This demo issues an <strong>mso_mdoc</strong> credential using config <strong>mld</strong>
+          with the default values you provided.
+        </p>
+
+        <div class="hint-box">
+          <strong>Pre-authorized Code Flow:</strong>
+          No authentication step is required. The wallet can accept the offer directly.
+        </div>
+
+        <div class="mdl-preview">
+          <h3>Credential Preview</h3>
+          <div class="preview-grid">
+            <div class="preview-item"><span>Given name</span><strong>ERIKA</strong></div>
+            <div class="preview-item"><span>Family name</span><strong>MUSTERMANN</strong></div>
+            <div class="preview-item"><span>Birth date</span><strong>1964-08-12</strong></div>
+            <div class="preview-item"><span>Document number</span><strong>D-12345678</strong></div>
+            <div class="preview-item"><span>Issue date</span><strong>2022-01-15</strong></div>
+            <div class="preview-item"><span>Expiry date</span><strong>2032-01-14</strong></div>
+            <div class="preview-item"><span>Issuing country</span><strong>DE</strong></div>
+            <div class="preview-item"><span>Authority</span><strong>City of Berlin</strong></div>
+            <div class="preview-item"><span>Vehicle class</span><strong>B</strong></div>
+            <div class="preview-item"><span>Restriction code</span><strong>01</strong></div>
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button id="issueBtn" class="btn btn-primary btn-large">Issue mDL Instantly</button>
+          <button id="issueSecureBtn" class="btn btn-secondary btn-large">Issue Securely (with PIN)</button>
+        </div>
+      </section>
+
+      <section id="issuanceSection" class="card hidden">
+        <h2>Scan to Receive Your mDL</h2>
+        <p class="subtitle">Scan the QR code with your EUDI Wallet to accept the mobile driving licence.</p>
+
+        <div id="txCodeSection" class="tx-code-section hidden">
+          <div class="tx-code-header">
+            <strong>PIN Required in Wallet</strong>
+          </div>
+          <div class="tx-code-display">
+            <span id="txCodeValue" class="tx-code-value">------</span>
+            <button id="copyTxCodeBtn" class="btn btn-small" title="Copy to clipboard">📋</button>
+          </div>
+        </div>
+
+        <div class="qr-container">
+          <div id="qrCode" class="qr-code"></div>
+          <div class="same-device-section">
+            <span class="divider-text">or on this device</span>
+            <div id="sameDeviceLink" class="hidden"></div>
+          </div>
+          <p id="statusText" class="status-text">Scan the QR code with your EUDI Wallet</p>
+          <div id="qrSessionId" class="qr-session-id"></div>
+        </div>
+      </section>
+
+      <section id="successSection" class="card hidden">
+        <h2>mDL Issued Successfully</h2>
+        <p>The mobile driving licence credential has been issued to the wallet.</p>
+        <button id="issueAnotherBtn" class="btn btn-secondary">Issue Another mDL</button>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        Powered by
+        <a href="https://github.com/openwallet-foundation-labs/eudiplo" target="_blank" rel="noopener noreferrer">EUDIPLO</a>
+        · <a href="../">Back to Playground</a>
+      </p>
+    </footer>
+
+    <script type="module" src="/js/mdl-issuance/app.js"></script>
+  </body>
+</html>

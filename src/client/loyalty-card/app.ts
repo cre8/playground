@@ -183,6 +183,7 @@ async function handleRegister(useSecure: boolean): Promise<void> {
         } else if (s.status === 'processing') {
           statusText.textContent = 'Issuing membership card...';
         }
+        console.log(s.status);
       },
     });
 

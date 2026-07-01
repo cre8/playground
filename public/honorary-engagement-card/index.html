@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>Civic Honors Office | EUDI Wallet Playground</title>
+    <link rel="stylesheet" href="/shared/styles.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"
+      integrity="sha384-lQXOAyZwHXE55JFyrOMB7nY2Wv+m5ZWNtJcHrd1rceRQXAYNLak8ukN5TjBTcIwz"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <header>
+      <a href="../" class="logo">
+        <span class="logo-icon">🏅</span>
+        Civic Honors Office
+      </a>
+      <span class="badge">Issuance Portal</span>
+    </header>
+
+    <main class="container">
+      <section id="startSection" class="card">
+        <h1>Issue Honorary Engagement Card</h1>
+        <p class="subtitle">
+          Create a pre-authorized issuance offer using credential config <strong>honorary</strong>.
+        </p>
+
+        <div class="hint-box">
+          <strong>Pre-authorized Code Flow:</strong>
+          No account login is required in the wallet. After you issue the offer, the holder can accept it directly.
+        </div>
+
+        <div class="card-id-info">
+          <span class="label">Generated Card ID</span>
+          <span id="generatedCardId" class="value">-</span>
+        </div>
+
+        <div class="button-row">
+          <button id="issueBtn" class="btn btn-primary btn-large">Issue Card Instantly</button>
+          <button id="issueSecureBtn" class="btn btn-secondary btn-large">Issue Securely (with PIN)</button>
+        </div>
+      </section>
+
+      <section id="issuanceSection" class="card hidden">
+        <h2>Scan to Receive Honorary Card</h2>
+
+        <div class="preview-card">
+          <h3>Honorary Engagement Card</h3>
+          <div class="preview-line"><span>Credential Config</span><strong>honorary</strong></div>
+          <div class="preview-line"><span>Card ID</span><strong id="issuedCardId">-</strong></div>
+        </div>
+
+        <div id="txCodeSection" class="tx-code-section hidden">
+          <div class="tx-code-header">
+            <strong>PIN Required in Wallet</strong>
+          </div>
+          <div class="tx-code-display">
+            <span id="txCodeValue" class="tx-code-value">------</span>
+            <button id="copyTxCodeBtn" class="btn btn-small" title="Copy to clipboard">📋</button>
+          </div>
+        </div>
+
+        <div class="qr-container">
+          <div id="qrCode" class="qr-code"></div>
+          <div class="same-device-section">
+            <span class="divider-text">or on this device</span>
+            <div id="sameDeviceLink" class="hidden"></div>
+          </div>
+          <p id="statusText" class="status-text">Scan the QR code with your EUDI Wallet</p>
+        </div>
+      </section>
+
+      <section id="successSection" class="card hidden">
+        <h2>Card Issued Successfully</h2>
+        <p>Your honorary engagement card is now in the wallet.</p>
+        <p>Card ID: <strong id="successCardId">-</strong></p>
+        <button id="issueAnotherBtn" class="btn btn-secondary">Issue Another Card</button>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        Powered by
+        <a href="https://github.com/openwallet-foundation-labs/eudiplo" target="_blank" rel="noopener noreferrer">EUDIPLO</a>
+        · <a href="../">Back to Playground</a>
+      </p>
+    </footer>
+
+    <script type="module" src="/js/honorary-engagement-card/app.js"></script>
+  </body>
+</html>

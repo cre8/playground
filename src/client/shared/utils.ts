@@ -43,6 +43,7 @@ export interface IssuanceResult {
   sessionId: string;
   uri: string;
   txCode?: string;
+  cardId?: string;
 }
 
 export interface Session {

@@ -101,6 +101,16 @@ const CREDENTIALS: Record<string, { credentialConfigId: string; name: string; fl
     name: 'Event Access Attestation',
     flow: 'pre_authorized_code',
   },
+  'honorary-engagement-card': {
+    credentialConfigId: 'honorary',
+    name: 'Honorary Engagement Card',
+    flow: 'pre_authorized_code',
+  },
+  'mdl-issuance': {
+    credentialConfigId: 'mdl',
+    name: 'Mobile Driving Licence (mDL)',
+    flow: 'pre_authorized_code',
+  },
 };
 
 // Create Express app
@@ -281,6 +291,12 @@ function generateTxCode(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
+function generateHonoraryCardId(): string {
+  const now = Date.now().toString();
+  const randomPart = Math.floor(Math.random() * 1_000_000).toString().padStart(6, '0');
+  return `${now}${randomPart}`;
+}
+
 // POST /api/issue - Create a credential issuance offer
 app.post('/api/issue', async (req: Request, res: Response) => {
   try {
@@ -299,17 +315,33 @@ app.post('/api/issue', async (req: Request, res: Response) => {
     // Generate transaction code if requested
     const txCode = useTxCode ? generateTxCode() : undefined;
 
+    const claimPayload: Record<string, unknown> = claims ? { ...claims } : {};
+    if (credentialId === 'honorary-engagement-card') {
+      const providedCardId = claimPayload.card_id;
+      claimPayload.card_id =
+        typeof providedCardId === 'string' && providedCardId.trim().length > 0
+          ? providedCardId.trim()
+          : generateHonoraryCardId();
+    }
+
     // Create the issuance offer
     const { uri, sessionId } = await withRetry(() =>
       getClient().createIssuanceOffer({
         credentialConfigurationIds: [credential.credentialConfigId],
-        claims: claims ? { [credential.credentialConfigId]: claims } : undefined,
+        claims: Object.keys(claimPayload).length > 0
+          ? { [credential.credentialConfigId]: claimPayload }
+          : undefined,
         flow: credential.flow,
         txCode,
       })
     );
 
-    res.json({ uri, sessionId, txCode });
+    res.json({
+      uri,
+      sessionId,
+      txCode,
+      cardId: credentialId === 'honorary-engagement-card' ? String(claimPayload.card_id) : undefined,
+    });
   } catch (error: any) {
     console.error('API Error (issue):', error);
     res.status(500).json({ error: error.message || 'Internal Server Error' });

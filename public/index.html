@@ -172,6 +172,14 @@
           --card-accent: #7c3aed;
         }
 
+        .use-case-card.honorary {
+          --card-accent: #be123c;
+        }
+
+        .use-case-card.mdl-issuance {
+          --card-accent: #6f5c77;
+        }
+
       .use-case-icon {
         font-size: 3rem;
         margin-bottom: 1rem;
@@ -375,6 +383,32 @@
               <span class="use-case-arrow">→</span>
             </div>
           </a>
+
+        <a href="/honorary-engagement-card/" class="use-case-card honorary">
+          <div class="use-case-icon">🏅</div>
+          <h2>Civic Honors Office</h2>
+          <p>
+            Issue an Honorary Engagement Card with pre-authorized code flow.
+            The issuer uses the <strong>honorary</strong> credential configuration.
+          </p>
+          <div class="use-case-meta">
+            <span class="use-case-badge">Pre-auth: honorary</span>
+            <span class="use-case-arrow">→</span>
+          </div>
+        </a>
+
+        <a href="/mdl-issuance/" class="use-case-card mdl-issuance">
+          <div class="use-case-icon">🪪</div>
+          <h2>Driving Licence Authority</h2>
+          <p>
+            Issue an mDL credential (mso_mdoc) with default driver data and privileges.
+            Uses the pre-authorized code flow with config <strong>mdl</strong>.
+          </p>
+          <div class="use-case-meta">
+            <span class="use-case-badge">Pre-auth: mdl</span>
+            <span class="use-case-arrow">→</span>
+          </div>
+        </a>
       </section>
 
       <h2 style="margin: 2rem 0 1rem 0; color: var(--text);">🎫 EAA Verification</h2>
