@@ -19,11 +19,31 @@ import {
 
 const USE_CASE = 'museum-discount';
 
+const REGULAR_PRICE = 16;
+
+type CredentialDiscountType = 'berlin-resident' | 'honorary-card' | 'community';
+
 type DiscountQualification = 'berlin-residency' | 'presentation-policy';
 
 interface DiscountEligibility {
   qualification: DiscountQualification;
   city?: string;
+  credentialType: CredentialDiscountType;
+  discountPercent: number;
+}
+
+interface PricingDetails {
+  regularPrice: number;
+  discountPercent: number;
+  discountAmount: number;
+  finalPrice: number;
+  label: string;
+  audienceLabel: string;
+}
+
+interface VerificationPayload {
+  claims: Record<string, unknown>;
+  credentialId?: string;
 }
 
 // DOM Elements
@@ -217,6 +237,78 @@ function getCityFromClaims(claims: Record<string, unknown>): string | undefined 
   return typeof city === 'string' ? city.trim() : undefined;
 }
 
+function normalizeCredentialId(value: unknown): string | undefined {
+  if (typeof value !== 'string') {
+    return undefined;
+  }
+
+  const normalized = value.trim().toLowerCase();
+  return normalized || undefined;
+}
+
+function getCredentialTypeFromClaims(claims: Record<string, unknown>, credentialId?: string): CredentialDiscountType {
+  const normalizedCredentialId = normalizeCredentialId(credentialId);
+  const credentialTypeClaim = normalizeCredentialId(claims.credential_type);
+  const cardTypeClaim = normalizeCredentialId(claims.card_type);
+
+  if (
+    normalizedCredentialId?.includes('honorary') ||
+    credentialTypeClaim?.includes('honorary') ||
+    credentialTypeClaim?.includes('ehrenamtskarte') ||
+    cardTypeClaim?.includes('honorary') ||
+    cardTypeClaim?.includes('ehrenamtskarte')
+  ) {
+    return 'honorary-card';
+  }
+
+  if (isBerlinResidentFromClaims(claims)) {
+    return 'berlin-resident';
+  }
+
+  return 'community';
+}
+
+function getPricingDetails(credentialType: CredentialDiscountType): PricingDetails {
+  switch (credentialType) {
+    case 'honorary-card': {
+      const discountPercent = 80;
+      const discountAmount = (REGULAR_PRICE * discountPercent) / 100;
+      return {
+        regularPrice: REGULAR_PRICE,
+        discountPercent,
+        discountAmount,
+        finalPrice: REGULAR_PRICE - discountAmount,
+        label: 'Honorary Card Discount',
+        audienceLabel: 'Honorary Card Holder',
+      };
+    }
+    case 'berlin-resident': {
+      const discountPercent = 50;
+      const discountAmount = (REGULAR_PRICE * discountPercent) / 100;
+      return {
+        regularPrice: REGULAR_PRICE,
+        discountPercent,
+        discountAmount,
+        finalPrice: REGULAR_PRICE - discountAmount,
+        label: 'Community Discount',
+        audienceLabel: 'Berlin Resident',
+      };
+    }
+    default: {
+      const discountPercent = 50;
+      const discountAmount = (REGULAR_PRICE * discountPercent) / 100;
+      return {
+        regularPrice: REGULAR_PRICE,
+        discountPercent,
+        discountAmount,
+        finalPrice: REGULAR_PRICE - discountAmount,
+        label: 'Community Discount',
+        audienceLabel: 'Community Visitor',
+      };
+    }
+  }
+}
+
 function isBerlinResidentFromClaims(claims: Record<string, unknown>): boolean {
   const city = getCityFromClaims(claims);
   if (!city) {
@@ -227,32 +319,44 @@ function isBerlinResidentFromClaims(claims: Record<string, unknown>): boolean {
   return cityLower === 'berlin' || cityLower.includes('berlin');
 }
 
-function evaluateDiscountEligibilityFromClaims(claims: Record<string, unknown>): DiscountEligibility {
+function evaluateDiscountEligibilityFromClaims(
+  claims: Record<string, unknown>,
+  credentialId?: string
+): DiscountEligibility {
+  const credentialType = getCredentialTypeFromClaims(claims, credentialId);
+  const pricing = getPricingDetails(credentialType);
+
   if (isBerlinResidentFromClaims(claims)) {
     return {
       qualification: 'berlin-residency',
       city: getCityFromClaims(claims),
+      credentialType,
+      discountPercent: pricing.discountPercent,
     };
   }
 
   return {
     qualification: 'presentation-policy',
     city: getCityFromClaims(claims),
+    credentialType,
+    discountPercent: pricing.discountPercent,
   };
 }
 
 // Handle verification result
 function handleVerificationResult(session: Session): void {
-  const claims = extractClaims(session);
-  const eligibility = evaluateDiscountEligibilityFromClaims(claims);
-  showSuccess(session, claims, eligibility);
+  const payload = extractVerificationPayload(session);
+  const eligibility = evaluateDiscountEligibilityFromClaims(payload.claims, payload.credentialId);
+  const pricing = getPricingDetails(eligibility.credentialType);
+  showSuccess(session, payload.claims, eligibility, pricing);
 }
 
 // Handle verification result from DC API
 function handleVerificationResultFromDcApi(result: DcApiResult): void {
-  const claims = result.presentation ? extractClaimsFromPresentation(result.presentation) : {};
-  const eligibility = evaluateDiscountEligibilityFromClaims(claims);
-  showSuccessFromDcApi(result, claims, eligibility);
+  const payload = extractVerificationPayloadFromPresentation(result.presentation);
+  const eligibility = evaluateDiscountEligibilityFromClaims(payload.claims, payload.credentialId);
+  const pricing = getPricingDetails(eligibility.credentialType);
+  showSuccessFromDcApi(result, payload.claims, eligibility, pricing);
 }
 
 // Handle errors
@@ -289,26 +393,29 @@ function generateTicketId(): string {
 function showSuccess(
   session: Session,
   claims: Record<string, unknown>,
-  eligibility: DiscountEligibility
+  eligibility: DiscountEligibility,
+  pricing: PricingDetails
 ): void {
   showSection(successSection);
-  displaySuccessContent(claims, eligibility, false, session.sessionId);
+  displaySuccessContent(claims, eligibility, pricing, false, session.sessionId);
 }
 
 // Show success state from DC API
 function showSuccessFromDcApi(
   result: DcApiResult,
   claims: Record<string, unknown>,
-  eligibility: DiscountEligibility
+  eligibility: DiscountEligibility,
+  pricing: PricingDetails
 ): void {
   showSection(successSection);
-  displaySuccessContent(claims, eligibility, true, result.sessionId);
+  displaySuccessContent(claims, eligibility, pricing, true, result.sessionId);
 }
 
 // Display success content
 function displaySuccessContent(
   claims: Record<string, unknown>,
   eligibility: DiscountEligibility,
+  pricing: PricingDetails,
   isDcApi: boolean,
   sessionId?: string
 ): void {
@@ -316,6 +423,31 @@ function displaySuccessContent(
   const ticketIdEl = document.getElementById('ticketId');
   if (ticketIdEl) {
     ticketIdEl.textContent = generateTicketId();
+  }
+
+  const audienceLabelEl = document.querySelector('.discount-visual span');
+  if (audienceLabelEl) {
+    audienceLabelEl.textContent = pricing.audienceLabel;
+  }
+
+  const regularPriceEls = Array.from(document.querySelectorAll<HTMLElement>('.price-row .strikethrough'));
+  regularPriceEls.forEach((element) => {
+    element.textContent = `€${pricing.regularPrice.toFixed(2)}`;
+  });
+
+  const discountLabelEl = document.querySelector('.discount-row span');
+  if (discountLabelEl) {
+    discountLabelEl.textContent = `${pricing.label} (${pricing.discountPercent}%)`;
+  }
+
+  const discountAmountEl = document.querySelector('.discount-amount');
+  if (discountAmountEl) {
+    discountAmountEl.textContent = `-€${pricing.discountAmount.toFixed(2)}`;
+  }
+
+  const finalPriceEl = document.querySelector('.final-price');
+  if (finalPriceEl) {
+    finalPriceEl.textContent = `€${pricing.finalPrice.toFixed(2)}`;
   }
 
   // Display verified data
@@ -345,6 +477,14 @@ function displaySuccessContent(
     `;
     verifiedDataEl.appendChild(basisItem);
 
+    const credentialTypeItem = document.createElement('div');
+    credentialTypeItem.className = 'verified-item';
+    credentialTypeItem.innerHTML = `
+      <span class="label">Credential Type</span>
+      <span class="value">✓ ${pricing.audienceLabel}</span>
+    `;
+    verifiedDataEl.appendChild(credentialTypeItem);
+
     // Add eligibility status
     const eligibilityItem = document.createElement('div');
     eligibilityItem.className = 'verified-item';
@@ -353,6 +493,14 @@ function displaySuccessContent(
       <span class="value" style="color: #16a34a;">✓ Qualified</span>
     `;
     verifiedDataEl.appendChild(eligibilityItem);
+
+    const discountItem = document.createElement('div');
+    discountItem.className = 'verified-item';
+    discountItem.innerHTML = `
+      <span class="label">Discount Applied</span>
+      <span class="value" style="color: #16a34a;">✓ ${pricing.discountPercent}% off</span>
+    `;
+    verifiedDataEl.appendChild(discountItem);
 
     // Add DC API indicator if applicable
     if (isDcApi) {
@@ -400,37 +548,62 @@ function extractClaimsFromCredential(credential: PresentationCredential): Record
   return credential as Record<string, unknown>;
 }
 
+function extractVerificationPayloadFromCredential(credential: PresentationCredential): VerificationPayload {
+  return {
+    claims: extractClaimsFromCredential(credential),
+    credentialId: normalizeCredentialId(credential.id),
+  };
+}
+
 // Extract claims from session credentials
-function extractClaims(session: Session): Record<string, unknown> {
+function extractVerificationPayload(session: Session): VerificationPayload {
   // Session has credentials array: [{ id: "pid-sd-jwt", values: [{ address: { locality: "BERLIN" }, ... }] }]
   if (Array.isArray(session.credentials) && session.credentials.length > 0) {
     const credential = session.credentials[0] as unknown as PresentationCredential;
-    return extractClaimsFromCredential(credential);
+    return extractVerificationPayloadFromCredential(credential);
   }
   
   // Fallback to presentation for backwards compatibility
   const presentation = session.presentation || {};
-  return extractClaimsFromPresentation(presentation);
+  return extractVerificationPayloadFromPresentation(presentation);
 }
 
 // Extract claims from presentation object (for DC API results)
-function extractClaimsFromPresentation(presentation: Record<string, unknown>): Record<string, unknown> {
+function extractVerificationPayloadFromPresentation(
+  presentation: Record<string, unknown> | undefined
+): VerificationPayload {
+  const safePresentation = presentation || {};
+
   // Direct claims
-  if (presentation.resident_city || presentation.locality || presentation.city || presentation.address) {
-    return presentation;
+  if (
+    safePresentation.resident_city ||
+    safePresentation.locality ||
+    safePresentation.city ||
+    safePresentation.address
+  ) {
+    return {
+      claims: safePresentation,
+      credentialId: normalizeCredentialId(safePresentation.id),
+    };
   }
   
   // Nested in credentials array
-  if (Array.isArray(presentation.credentials) && presentation.credentials.length > 0) {
-    return extractClaimsFromCredential(presentation.credentials[0] as PresentationCredential);
+  if (Array.isArray(safePresentation.credentials) && safePresentation.credentials.length > 0) {
+    return extractVerificationPayloadFromCredential(safePresentation.credentials[0] as PresentationCredential);
   }
   
   // Nested in credential object
-  if (presentation.credential && typeof presentation.credential === 'object') {
-    return presentation.credential as Record<string, unknown>;
+  if (safePresentation.credential && typeof safePresentation.credential === 'object') {
+    return {
+      claims: safePresentation.credential as Record<string, unknown>,
+      credentialId: normalizeCredentialId(safePresentation.id),
+    };
   }
   
-  return presentation;
+  return {
+    claims: safePresentation,
+    credentialId: normalizeCredentialId(safePresentation.id),
+  };
 }
 
 // Handle skip link (no discount)
@@ -447,7 +620,11 @@ function handleTryAgain(): void {
 
 // Handle purchase (discounted)
 function handlePurchase(): void {
-  alert('🎫 Thank you for your purchase!\n\nYour community discount ticket (€8.00) has been confirmed.\n\nEnjoy your visit to the Berlin History Museum!');
+  const audienceLabel = document.querySelector('.discount-visual span')?.textContent || 'Visitor';
+  const finalPrice = document.querySelector('.final-price')?.textContent || '€8.00';
+  alert(
+    `🎫 Thank you for your purchase!\n\nYour ${audienceLabel.toLowerCase()} ticket (${finalPrice}) has been confirmed.\n\nEnjoy your visit to the Berlin History Museum!`
+  );
 }
 
 // Handle buy regular ticket
