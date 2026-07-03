@@ -12,6 +12,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   EudiploClient,
+  credentialOfferControllerGetOffer,
 } from '@eudiplo/sdk-core';
 import 'dotenv/config';
 
@@ -24,6 +25,8 @@ const config = {
   eudiploUrl: process.env.EUDIPLO_URL || 'http://localhost:3000',
   clientId: process.env.CLIENT_ID || 'root',
   clientSecret: process.env.CLIENT_SECRET || 'root',
+  mdlPreferredAuthServer: process.env.MDL_PREFERRED_AUTH_SERVER || 'authorization-server:name',
+  mdlAttributeProviderId: process.env.MDL_ATTRIBUTE_PROVIDER_ID || 'claims-provider',
 };
 
 // Use case configurations - map use case ID to presentation config
@@ -78,9 +81,19 @@ const USE_CASES: Record<string, { presentationConfigId: string; name: string }> 
   },
 };
 
-// Credential configurations for issuance
+// Issuance use case configurations
 type FlowType = 'authorization_code' | 'pre_authorized_code';
-const CREDENTIALS: Record<string, { credentialConfigId: string; name: string; flow: FlowType }> = {
+type CredentialClaimDefinition =
+  | { type: 'inline'; claims: Record<string, unknown> }
+  | { type: 'attributeProvider'; attributeProviderId: string };
+
+const ISSUANCE_USE_CASES: Record<string, {
+  credentialConfigId: string;
+  name: string;
+  flow: FlowType;
+  preferredAuthServer?: string;
+  defaultCredentialClaims?: Record<string, CredentialClaimDefinition>;
+}> = {
   pid: {
     credentialConfigId: 'pid',
     name: 'Personal ID (PID)',
@@ -109,7 +122,14 @@ const CREDENTIALS: Record<string, { credentialConfigId: string; name: string; fl
   'mdl-issuance': {
     credentialConfigId: 'mdl',
     name: 'Mobile Driving Licence (mDL)',
-    flow: 'pre_authorized_code',
+    flow: 'authorization_code',
+    preferredAuthServer: config.mdlPreferredAuthServer,
+    defaultCredentialClaims: {
+      mdl: {
+        type: 'attributeProvider',
+        attributeProviderId: config.mdlAttributeProviderId,
+      },
+    },
   },
 };
 
@@ -184,6 +204,49 @@ async function withRetry<T>(fn: () => Promise<T>): Promise<T> {
     }
     throw error;
   }
+}
+
+async function createIssuanceOffer(options: {
+  credentialConfigurationIds: string[];
+  claims?: Record<string, Record<string, unknown>>;
+  credentialClaims?: Record<string, CredentialClaimDefinition>;
+  flow: FlowType;
+  txCode?: string;
+  authorizationServer?: string;
+}): Promise<{ uri: string; sessionId: string }> {
+  await getClient().authenticate();
+
+  const credentialClaims = options.credentialClaims ?? (options.claims
+    ? Object.fromEntries(
+        Object.entries(options.claims).map(([configId, claims]) => [
+          configId,
+          {
+            type: 'inline',
+            claims,
+          },
+        ])
+      )
+    : undefined);
+
+  const response = await credentialOfferControllerGetOffer({
+    body: {
+      response_type: 'uri',
+      credentialConfigurationIds: options.credentialConfigurationIds,
+      credentialClaims,
+      flow: options.flow,
+      tx_code: options.flow === 'pre_authorized_code' ? options.txCode : undefined,
+      authorization_server: options.authorizationServer,
+    },
+  });
+
+  if (!response.data) {
+    throw new Error('Failed to create issuance offer');
+  }
+
+  return {
+    uri: response.data.uri,
+    sessionId: response.data.session,
+  };
 }
 
 function toOrigin(value?: string): string | undefined {
@@ -300,20 +363,23 @@ function generateHonoraryCardId(): string {
 // POST /api/issue - Create a credential issuance offer
 app.post('/api/issue', async (req: Request, res: Response) => {
   try {
-    const { credentialId, claims, useTxCode } = req.body as {
+    const { credentialId, claims, credentialClaims, useTxCode, preferredAuthServer } = req.body as {
       credentialId: string;
       claims?: Record<string, unknown>;
+      credentialClaims?: Record<string, CredentialClaimDefinition>;
       useTxCode?: boolean;
+      preferredAuthServer?: string;
     };
-    const credential = CREDENTIALS[credentialId];
+    const issuanceUseCase = ISSUANCE_USE_CASES[credentialId];
 
-    if (!credential) {
+    if (!issuanceUseCase) {
       res.status(400).json({ error: `Unknown credential: ${credentialId}` });
       return;
     }
 
     // Generate transaction code if requested
     const txCode = useTxCode ? generateTxCode() : undefined;
+    const selectedAuthServer = preferredAuthServer || issuanceUseCase.preferredAuthServer;
 
     const claimPayload: Record<string, unknown> = claims ? { ...claims } : {};
     if (credentialId === 'honorary-engagement-card') {
@@ -324,15 +390,25 @@ app.post('/api/issue', async (req: Request, res: Response) => {
           : generateHonoraryCardId();
     }
 
+    const effectiveCredentialClaims = credentialClaims
+      ?? issuanceUseCase.defaultCredentialClaims
+      ?? (Object.keys(claimPayload).length > 0
+        ? {
+            [issuanceUseCase.credentialConfigId]: {
+              type: 'inline' as const,
+              claims: claimPayload,
+            },
+          }
+        : undefined);
+
     // Create the issuance offer
     const { uri, sessionId } = await withRetry(() =>
-      getClient().createIssuanceOffer({
-        credentialConfigurationIds: [credential.credentialConfigId],
-        claims: Object.keys(claimPayload).length > 0
-          ? { [credential.credentialConfigId]: claimPayload }
-          : undefined,
-        flow: credential.flow,
+      createIssuanceOffer({
+        credentialConfigurationIds: [issuanceUseCase.credentialConfigId],
+        credentialClaims: effectiveCredentialClaims,
+        flow: issuanceUseCase.flow,
         txCode,
+        authorizationServer: selectedAuthServer,
       })
     );
 

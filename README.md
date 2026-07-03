@@ -66,6 +66,8 @@ Configure the playground using environment variables:
 | `EUDIPLO_URL`   | `http://localhost:3000` | URL of the EUDIPLO backend                   |
 | `CLIENT_ID`     | `root`                  | Client ID for EUDIPLO API authentication     |
 | `CLIENT_SECRET` | `root`                  | Client secret for EUDIPLO API authentication |
+| `MDL_PREFERRED_AUTH_SERVER` | `authorization-server:name` | Preferred authorization server for mDL issuance offers |
+| `MDL_ATTRIBUTE_PROVIDER_ID` | `claims-provider` | Attribute provider ID used for mDL credential claims |
 
 For local development, create a `.env` file:
 

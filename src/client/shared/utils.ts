@@ -46,6 +46,18 @@ export interface IssuanceResult {
   cardId?: string;
 }
 
+export interface InlineCredentialClaim {
+  type: 'inline';
+  claims: Record<string, unknown>;
+}
+
+export interface AttributeProviderCredentialClaim {
+  type: 'attributeProvider';
+  attributeProviderId: string;
+}
+
+export type IssuanceCredentialClaim = InlineCredentialClaim | AttributeProviderCredentialClaim;
+
 export interface Session {
   sessionId: string;
   status: 'pending' | 'processing' | 'completed' | 'fetched' | 'failed' | 'expired';
@@ -105,7 +117,9 @@ function extractErrorMessage(error: unknown, fallback: string): string {
 
 export interface IssuanceOptions {
   claims?: Record<string, unknown>;
+  credentialClaims?: Record<string, IssuanceCredentialClaim>;
   useTxCode?: boolean;
+  preferredAuthServer?: string;
 }
 
 /**
@@ -118,7 +132,15 @@ export async function createIssuanceOffer(
   options?: IssuanceOptions | Record<string, unknown>
 ): Promise<IssuanceResult> {
   // Support both old signature (claims object) and new signature (options object)
-  const issuanceOptions: IssuanceOptions = options && 'useTxCode' in options
+  const hasIssuanceOptionKeys =
+    !!options &&
+    typeof options === 'object' &&
+    ('claims' in options ||
+      'credentialClaims' in options ||
+      'useTxCode' in options ||
+      'preferredAuthServer' in options);
+
+  const issuanceOptions: IssuanceOptions = hasIssuanceOptionKeys
     ? options as IssuanceOptions
     : { claims: options as Record<string, unknown> | undefined };
 
@@ -128,7 +150,9 @@ export async function createIssuanceOffer(
     body: JSON.stringify({
       credentialId,
       claims: issuanceOptions.claims,
+      credentialClaims: issuanceOptions.credentialClaims,
       useTxCode: issuanceOptions.useTxCode,
+      preferredAuthServer: issuanceOptions.preferredAuthServer,
     }),
   });
 

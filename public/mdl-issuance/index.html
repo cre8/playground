@@ -26,13 +26,13 @@
       <section id="startSection" class="card">
         <h1>Issue Mobile Driving Licence (mDL)</h1>
         <p class="subtitle">
-          This demo issues an <strong>mso_mdoc</strong> credential using config <strong>mld</strong>
-          with the default values you provided.
+          This demo issues an <strong>mso_mdoc</strong> credential using config <strong>mdl</strong>
+          via an attribute provider and a dedicated authorization server.
         </p>
 
         <div class="hint-box">
-          <strong>Pre-authorized Code Flow:</strong>
-          No authentication step is required. The wallet can accept the offer directly.
+          <strong>Authorization Code Flow:</strong>
+          The offer is created with an attribute provider payload and the configured authorization server.
         </div>
 
         <div class="mdl-preview">
@@ -52,24 +52,13 @@
         </div>
 
         <div class="button-row">
-          <button id="issueBtn" class="btn btn-primary btn-large">Issue mDL Instantly</button>
-          <button id="issueSecureBtn" class="btn btn-secondary btn-large">Issue Securely (with PIN)</button>
+          <button id="issueBtn" class="btn btn-primary btn-large">Create mDL Offer</button>
         </div>
       </section>
 
       <section id="issuanceSection" class="card hidden">
         <h2>Scan to Receive Your mDL</h2>
         <p class="subtitle">Scan the QR code with your EUDI Wallet to accept the mobile driving licence.</p>
-
-        <div id="txCodeSection" class="tx-code-section hidden">
-          <div class="tx-code-header">
-            <strong>PIN Required in Wallet</strong>
-          </div>
-          <div class="tx-code-display">
-            <span id="txCodeValue" class="tx-code-value">------</span>
-            <button id="copyTxCodeBtn" class="btn btn-small" title="Copy to clipboard">📋</button>
-          </div>
-        </div>
 
         <div class="qr-container">
           <div id="qrCode" class="qr-code"></div>
