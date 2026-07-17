@@ -12,7 +12,7 @@ import {
 
 const CREDENTIAL_ID = 'mdl-issuance';
 const MDL_ATTRIBUTE_PROVIDER_ID = 'claims-provider';
-const MDL_AUTHORIZATION_SERVER = 'authorization-server:name';
+const MDL_AUTHORIZATION_SERVER = 'name';
 
 const startSection = getElement<HTMLElement>('startSection');
 const issuanceSection = getElement<HTMLElement>('issuanceSection');
