@@ -25,8 +25,9 @@ const config = {
   eudiploUrl: process.env.EUDIPLO_URL || 'http://localhost:3000',
   clientId: process.env.CLIENT_ID || 'root',
   clientSecret: process.env.CLIENT_SECRET || 'root',
-  mdlPreferredAuthServer: process.env.MDL_PREFERRED_AUTH_SERVER || 'authorization-server:name',
+  mdlPreferredAuthServer: process.env.MDL_PREFERRED_AUTH_SERVER || 'name',
   mdlAttributeProviderId: process.env.MDL_ATTRIBUTE_PROVIDER_ID || 'claims-provider',
+  chainedAuthServer: process.env.CHAINED_AUTH_SERVER || 'chained-auth',
 };
 
 // Use case configurations - map use case ID to presentation config
@@ -98,11 +99,13 @@ const ISSUANCE_USE_CASES: Record<string, {
     credentialConfigId: 'pid',
     name: 'Personal ID (PID)',
     flow: 'pre_authorized_code',
+    preferredAuthServer: config.mdlPreferredAuthServer,
   },
   'university-diploma': {
     credentialConfigId: 'university-diploma',
     name: 'University Diploma',
     flow: 'authorization_code',
+    preferredAuthServer: config.chainedAuthServer,
   },
   'loyalty-card': {
     credentialConfigId: 'loyalty-card',
