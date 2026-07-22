@@ -95,7 +95,6 @@ The playground exposes the following API endpoints:
 - **Nordic Digital Bank** - Full KYC/identity verification
 - **TechMarkt SIM Activation** - Identity verification per TKG §172
 - **Berlin History Museum** - Residency verification for discounts
-- **Alpine Grand Hotel** - Guest registration check-in
 - **SwiftBox Parcel Locker** - Minimal name-only verification
 
 ### Issuance Use Cases (EAA)
