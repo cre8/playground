@@ -1,24 +1,11 @@
 {
   "$schema": "https://eudiplo.dev/schemas/v1/PresentationConfigFile.schema.json",
   "metadata": {
-    "generation": 5
+    "generation": 6
   },
   "spec": {
     "registration_cert": {
-      "body": {
-        "purpose": [
-          {
-            "lang": "de",
-            "content": "Um Einlass in den Club zu erhalten"
-          },
-          {
-            "lang": "en",
-            "content": "To enter the club"
-          }
-        ],
-        "privacy_policy": "https://example.com/privacy",
-        "support_uri": "https://example.com/support"
-      }
+      "jwt": "eyJ0eXAiOiJyYy13cnArand0IiwieDVjIjpbIk1JSUNiVENDQWhLZ0F3SUJBZ0lVQkRyN1JGZkhiaXZJTllnNGcwcHlXd2Y0Wlg4d0NnWUlLb1pJemowRUF3SXdRekVMTUFrR0ExVUVCaE1DUkVVeEdUQVhCZ05WQkFvTUVFZGxjbTFoYmlCU1pXZHBjM1J5WVhJeEdUQVhCZ05WQkFNTUVFZGxjbTFoYmlCU1pXZHBjM1J5WVhJd0hoY05Nall3TnpJM01EZzFPRFF5V2hjTk1qZ3dOekkyTURnMU9EUXlXakJETVFzd0NRWURWUVFHRXdKRVJURVpNQmNHQTFVRUNnd1FSMlZ5YldGdUlGSmxaMmx6ZEhKaGNqRVpNQmNHQTFVRUF3d1FSMlZ5YldGdUlGSmxaMmx6ZEhKaGNqQlpNQk1HQnlxR1NNNDlBZ0VHQ0NxR1NNNDlBd0VIQTBJQUJLeGE5dTlGMDlIWGFuWjBCUlpnWnV5WHNsNUhlM3MrVXpnd0hhZmxFbkdYVWluQWhGU2ljRDlucGtkMTVveG1RS3BKdWRjNm41Q1BmQzVuNFZNWlJxcWpnZU13Z2VBd0hRWURWUjBPQkJZRUZCdXRIVEo4d0JSWEZEYStZT3hmRnZWRVlmSmZNQjhHQTFVZEl3UVlNQmFBRkJ1dEhUSjh3QlJYRkRhK1lPeGZGdlZFWWZKZk1CSUdBMVVkRXdFQi93UUlNQVlCQWY4Q0FRQXdEZ1lEVlIwUEFRSC9CQVFEQWdFR01DNEdBMVVkRWdRbk1DV0dJMmgwZEhCek9pOHZjMkZ1WkdKdmVDNWxkV1JwTFhkaGJHeGxkQzVrWlhZdllYQnBNRW9HQTFVZEh3UkRNRUV3UDZBOW9EdUdPV2gwZEhCek9pOHZjMkZ1WkdKdmVDNWxkV1JwTFhkaGJHeGxkQzVrWlhZdllYQnBMM04wWVhSMWN5MXRZVzVoWjJWdFpXNTBMMk55YkRBS0JnZ3Foa2pPUFFRREFnTkpBREJHQWlFQXBKWDYyYnpoaEdxa1ZES05QOGFkY0xYL0lQcUs1YkRGbnNvMnpBSEYxNmtDSVFEY1poblBVRm9LdmlzbUtlbHRrY3FhRTRYbC9aMy9DUUl6RDN4ajdvaWJTUT09Il0sImFsZyI6IkVTMjU2In0.eyJuYW1lIjoic3ByaW5kIiwic3ViX2xuIjoic3ByaW5kIiwic3ViIjoiTlRSREUtMUJGMzI0QzY3MjdCNEFBQSIsImNvdW50cnkiOiJERSIsInJlZ2lzdHJ5X3VyaSI6Imh0dHBzOi8vY2F0YWxvZ3VlLmV1ZGktd2FsbGV0LmRldi9hcGkiLCJzcnZfZGVzY3JpcHRpb24iOltbeyJsYW5nIjoiZW4iLCJ2YWx1ZSI6IkNsdWIifV1dLCJlbnRpdGxlbWVudHMiOlsiaHR0cHM6Ly91cmkuZXRzaS5vcmcvMTk0NzUvRW50aXRsZW1lbnQvU2VydmljZV9Qcm92aWRlciJdLCJwcml2YWN5X3BvbGljeSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vcHJpdmFjeSIsImluZm9fdXJpIjoiaHR0cHM6Ly9jYXRhbG9ndWUuZXVkaS13YWxsZXQuZGV2L2FwaSIsInN1cHBvcnRfdXJpIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9zdXBwb3J0Iiwic3VwZXJ2aXNvcnlfYXV0aG9yaXR5Ijp7ImVtYWlsIjoicG9zdHN0ZWxsZUBiZmRpLmJ1bmQuZGUiLCJwaG9uZSI6Iis0OSAoMCkyMjgtOTk3Nzk5LTAiLCJ1cmkiOiJodHRwczovL3d3dy5iZmRpLmJ1bmQuZGUvRU4vSG9tZS9ob21lX25vZGUuaHRtbCJ9LCJpYXQiOjE3OTA2ODM0MTMsInN0YXR1cyI6eyJzdGF0dXNfbGlzdCI6eyJpZHgiOjk5NzQsInVyaSI6Imh0dHBzOi8vY2F0YWxvZ3VlLmV1ZGktd2FsbGV0LmRldi9hcGkvc3RhdHVzLW1hbmFnZW1lbnQvc3RhdHVzLWxpc3QifX0sInB1cnBvc2UiOlt7ImxhbmciOiJlbiIsInZhbHVlIjoiV2UganVzdCBuZWVkIHlvdXIgYWdlIHRvIGVudGVyIHRoZSBjbHViLiJ9LHsibGFuZyI6ImRlIiwidmFsdWUiOiJXaXIgYnJhdWNoZW4gbnVyIGRlaW4gQWx0ZXIgZsO8ciBkZW4gQ2x1Yi4ifV0sImNyZWRlbnRpYWxzIjpbeyJmb3JtYXQiOiJkYytzZC1qd3QiLCJtZXRhIjp7InZjdF92YWx1ZXMiOlsidXJuOmV1ZGk6cGlkOmRlOjEiXX0sImNsYWltIjpbeyJwYXRoIjpbImFnZV9lcXVhbF9vcl9vdmVyIiwiMTYiXX1dfV0sImp0aSI6ImZjMDZkMjNiLTU2YTgtNGMyOS1hZDc1LWZjMjYzMmMwMDFiNyJ9.l8r_tBLQNLysItBN3SEmsM-i8A7RqpQBVW2Zhjki3lk2-YhpnYbwgicdSBktMH6lNzQwNfVOcedMQJ4tTolhyg"
     },
     "id": "age-over-18-overasking",
     "description": "Over-asking Demo - Only age over 18 is needed, but name and address are requested as well",
