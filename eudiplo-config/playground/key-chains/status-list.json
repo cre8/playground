@@ -1,7 +1,7 @@
 {
   "$schema": "https://eudiplo.dev/schemas/v1/KeyChainConfigFile.schema.json",
   "metadata": {
-    "generation": 1
+    "generation": 5
   },
   "spec": {
     "id": "dbb65456-c358-46c1-bb5b-c777ef72c1d4",
