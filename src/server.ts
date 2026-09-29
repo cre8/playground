@@ -36,6 +36,10 @@ const USE_CASES: Record<string, { presentationConfigId: string; name: string }> 
     presentationConfigId: 'age-over-16',
     name: 'Alcohol Shop - Age Verification',
   },
+  'club-overasking': {
+    presentationConfigId: 'age-over-18-overasking',
+    name: 'Club Nocturne - Over-asking Age Verification',
+  },
   'bank-onboarding': {
     presentationConfigId: 'playground-pid',
     name: 'Bank Onboarding - Identity Verification',

@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>Club Nocturne - Guest List</title>
+    <link rel="stylesheet" href="/shared/styles.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"
+      integrity="sha384-lQXOAyZwHXE55JFyrOMB7nY2Wv+m5ZWNtJcHrd1rceRQXAYNLak8ukN5TjBTcIwz"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="demo-header">
+        <a href="/">←</a>
+        <h1>🪩 Club Nocturne</h1>
+      </div>
+
+      <div class="demo-container">
+        <!-- Left: Club Content -->
+        <div class="demo-left club-content">
+          <div class="demo-warning">
+            <strong>⚠️ Over-asking demo</strong>
+            <p>
+              This club only needs to know that you are 18+, but its request
+              also asks for your <b>name</b> and <b>address</b>. Check what
+              your wallet shows you before sharing, and feel free to decline.
+            </p>
+          </div>
+
+          <div class="event-card">
+            <div class="event-image">🎧</div>
+            <div class="event-info">
+              <h2>Saturday Night Techno</h2>
+              <p class="event-description">
+                Doors open 23:00 · Free entry before midnight
+              </p>
+              <div class="event-badge">18+ only</div>
+            </div>
+          </div>
+
+          <div class="guestlist-summary">
+            <h3>Guest List</h3>
+            <div class="guestlist-item">
+              <span>Entry</span>
+              <span>Free before 00:00</span>
+            </div>
+            <div class="guestlist-item">
+              <span>Requirement</span>
+              <span>Age 18+</span>
+            </div>
+          </div>
+
+          <div id="checkoutSection">
+            <button id="checkoutBtn" class="btn btn-primary btn-block">
+              Join Guest List
+            </button>
+            <p class="checkout-note">
+              "We just need to check that you are over 18"
+            </p>
+            <div id="dcApiOption" class="dc-api-option hidden">
+              <label class="toggle-label">
+                <input type="checkbox" id="dcApiToggle" />
+                <span class="toggle-text">Use DC API (Browser Native)</span>
+              </label>
+            </div>
+          </div>
+
+          <div id="successSection" class="hidden">
+            <div class="message success">
+              ✅ You are on the guest list!
+            </div>
+            <div class="message error">
+              ⚠️ You shared more data than was needed for an age check.
+            </div>
+            <button
+              onclick="location.reload()"
+              class="btn btn-secondary btn-block"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Verification -->
+        <div class="demo-right">
+          <div id="verificationSection" class="hidden">
+            <div class="qr-section">
+              <h2>Verify Your Age</h2>
+              <p class="qr-instruction">
+                Scan with your EUDI Wallet or tap the button below
+              </p>
+
+              <div id="qrPlaceholder" class="qr-placeholder">Loading...</div>
+
+              <div class="same-device-section">
+                <span class="divider-text">or on this device</span>
+                <div id="sameDeviceLink" class="hidden"></div>
+              </div>
+
+              <div id="statusBadge" class="status waiting">
+                <span class="status-dot"></span>
+                <span id="statusText">Waiting for verification...</span>
+              </div>
+
+              <div id="qrSessionId" class="qr-session-id"></div>
+            </div>
+
+            <div id="resultPanel" class="result-panel hidden">
+              <h3>What the club received</h3>
+              <div id="credentialDisplay"></div>
+            </div>
+          </div>
+
+          <div id="infoSection">
+            <h2>What is over-asking?</h2>
+            <p>
+              A relying party over-asks when it requests more attributes than
+              its purpose requires. Getting into a club only needs an
+              "age over 18" check, not who you are or where you live.
+            </p>
+
+            <h3>What this request asks for</h3>
+            <ul class="requested-list">
+              <li><span class="tag needed">needed</span> Age over 18</li>
+              <li><span class="tag extra">extra</span> Given name &amp; family name</li>
+              <li><span class="tag extra">extra</span> Street, postal code &amp; city</li>
+            </ul>
+
+            <h3>What to look for in your wallet</h3>
+            <ol class="steps-list">
+              <li>Click "Join Guest List" and scan the QR code</li>
+              <li>Review the list of requested attributes</li>
+              <li>Notice that name and address are not needed for an age check</li>
+              <li>Decline the request, or share and see what the club gets</li>
+            </ol>
+
+            <div class="privacy-note">
+              <strong>🔒 Data minimisation</strong>
+              <p>
+                Under the GDPR, a service may only request the data it needs.
+                A registration certificate lets the wallet check which
+                attributes a relying party registered for and warn you about
+                anything beyond that.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="/js/club-overasking/app.js"></script>
+  </body>
+</html>
