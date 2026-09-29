@@ -4,6 +4,22 @@
     "generation": 1
   },
   "spec": {
+    "registration_cert": {
+      "body": {
+        "purpose": [
+          {
+            "lang": "de",
+            "content": "Um Einlass in den Club zu erhalten"
+          },
+          {
+            "lang": "en",
+            "content": "To enter the club"
+          }
+        ],
+        "privacy_policy": "https://example.com/privacy",
+        "support_uri": "https://example.com/support"
+      }
+    },
     "id": "age-over-18-overasking",
     "description": "Over-asking Demo - Only age over 18 is needed, but name and address are requested as well",
     "redirectUri": "${PLAYGROUND_URL:https://playground.eudi-wallet.org}/club-overasking/?session={sessionId}",

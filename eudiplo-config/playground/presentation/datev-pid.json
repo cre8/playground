@@ -4,6 +4,22 @@
     "generation": 1
   },
   "spec": {
+    "registration_cert": {
+      "body": {
+        "purpose": [
+          {
+            "lang": "de",
+            "content": "Um Sie als Lieferant zu registrieren"
+          },
+          {
+            "lang": "en",
+            "content": "To onboard you as a supplier"
+          }
+        ],
+        "privacy_policy": "https://example.com/privacy",
+        "support_uri": "https://example.com/support"
+      }
+    },
     "id": "datev-pid",
     "description": "Present PID and Datev Company credential",
     "redirectUri": "${PLAYGROUND_URL:https://playground.eudi-wallet.org}/supplier-onboarding/?session={sessionId}",

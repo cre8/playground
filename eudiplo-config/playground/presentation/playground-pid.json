@@ -4,6 +4,22 @@
     "generation": 1
   },
   "spec": {
+    "registration_cert": {
+      "body": {
+        "purpose": [
+          {
+            "lang": "de",
+            "content": "Um ein Bankkonto zu eröffnen"
+          },
+          {
+            "lang": "en",
+            "content": "To open a bank account"
+          }
+        ],
+        "privacy_policy": "https://example.com/privacy",
+        "support_uri": "https://example.com/support"
+      }
+    },
     "id": "playground-pid",
     "description": "Full PID Verification - Complete identity verification for KYC, SIM activation, and similar use cases",
     "redirectUri": "${PLAYGROUND_URL:https://playground.eudi-wallet.org}/bank-onboarding/?session={sessionId}",

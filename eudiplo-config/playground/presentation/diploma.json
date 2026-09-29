@@ -4,6 +4,22 @@
     "generation": 1
   },
   "spec": {
+    "registration_cert": {
+      "body": {
+        "purpose": [
+          {
+            "lang": "de",
+            "content": "Um Ihren Abschluss für Ihre Bewerbung zu prüfen"
+          },
+          {
+            "lang": "en",
+            "content": "To verify your diploma for your job application"
+          }
+        ],
+        "privacy_policy": "https://example.com/privacy",
+        "support_uri": "https://example.com/support"
+      }
+    },
     "id": "diploma",
     "description": "Presentation for verifying a diploma",
     "redirectUri": "${PLAYGROUND_URL:https://playground.eudi-wallet.org}/job-portal/?session={sessionId}",
