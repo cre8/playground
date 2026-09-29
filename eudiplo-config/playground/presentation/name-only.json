@@ -4,6 +4,22 @@
     "generation": 1
   },
   "spec": {
+    "registration_cert": {
+      "body": {
+        "purpose": [
+          {
+            "lang": "de",
+            "content": "Um Ihr Paket abzuholen"
+          },
+          {
+            "lang": "en",
+            "content": "To pick up your parcel"
+          }
+        ],
+        "privacy_policy": "https://example.com/privacy",
+        "support_uri": "https://example.com/support"
+      }
+    },
     "id": "name-only",
     "description": "Name Only Verification - Minimal disclosure for recipient/identity matching",
     "redirectUri": "${PLAYGROUND_URL:https://playground.eudi-wallet.org}/parcel-pickup/?session={sessionId}",

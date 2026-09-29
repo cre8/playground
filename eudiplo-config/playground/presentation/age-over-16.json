@@ -4,6 +4,22 @@
     "generation": 1
   },
   "spec": {
+    "registration_cert": {
+      "body": {
+        "purpose": [
+          {
+            "lang": "de",
+            "content": "Um Alkohol zu kaufen"
+          },
+          {
+            "lang": "en",
+            "content": "To buy alcohol"
+          }
+        ],
+        "privacy_policy": "https://example.com/privacy",
+        "support_uri": "https://example.com/support"
+      }
+    },
     "id": "age-over-16",
     "description": "Age Over 16 Verification - Proves user is 16+ without revealing exact birthdate",
     "redirectUri": "${PLAYGROUND_URL:https://playground.eudi-wallet.org}/alcohol-shop/?session={sessionId}",

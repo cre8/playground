@@ -4,6 +4,22 @@
     "generation": 1
   },
   "spec": {
+    "registration_cert": {
+      "body": {
+        "purpose": [
+          {
+            "lang": "de",
+            "content": "Um ein Auto zu mieten"
+          },
+          {
+            "lang": "en",
+            "content": "To rent a car"
+          }
+        ],
+        "privacy_policy": "https://example.com/privacy",
+        "support_uri": "https://example.com/support"
+      }
+    },
     "id": "driving-license",
     "description": "To rent a car",
     "redirectUri": "${PLAYGROUND_URL:https://playground.eudi-wallet.org}/drive-orange/?session={sessionId}",

@@ -4,6 +4,22 @@
     "generation": 1
   },
   "spec": {
+    "registration_cert": {
+      "body": {
+        "purpose": [
+          {
+            "lang": "de",
+            "content": "Um Ihren Anspruch auf den Anwohnerrabatt zu prüfen"
+          },
+          {
+            "lang": "en",
+            "content": "To check your eligibility for the resident discount"
+          }
+        ],
+        "privacy_policy": "https://example.com/privacy",
+        "support_uri": "https://example.com/support"
+      }
+    },
     "id": "resident-city",
     "description": "Resident City Verification - Only requests city/locality for residency discount eligibility",
     "redirectUri": "${PLAYGROUND_URL:https://playground.eudi-wallet.org}/museum-discount/?session={sessionId}",

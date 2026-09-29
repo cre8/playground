@@ -4,6 +4,22 @@
     "generation": 1
   },
   "spec": {
+    "registration_cert": {
+      "body": {
+        "purpose": [
+          {
+            "lang": "de",
+            "content": "Um Ihre Mitgliedschaft im Treueprogramm zu prüfen"
+          },
+          {
+            "lang": "en",
+            "content": "To verify your loyalty program membership"
+          }
+        ],
+        "privacy_policy": "https://example.com/privacy",
+        "support_uri": "https://example.com/support"
+      }
+    },
     "id": "loyalty-card",
     "description": "Presentation for verifying a loyalty membership card credential",
     "redirectUri": "${PLAYGROUND_URL:https://playground.eudi-wallet.org}/sports-shop/?session={sessionId}",
