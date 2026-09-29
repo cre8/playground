@@ -107,7 +107,9 @@ so it is gitignored. Create it from
    Symlink the whole config folder, not the tenant folder: EUDIPLO skips
    symlinked tenant folders when scanning `CONFIG_FOLDER`. When EUDIPLO runs in
    Docker, bind-mount `eudiplo-config` instead, since a symlink target outside
-   the container is not visible inside it.
+   the container is not visible inside it. The `eudiplo` service in
+   [`docker-compose.yml`](docker-compose.yml) does this and reads the secrets
+   from `eudiplo-config/.env`.
 
 To validate the config locally with the EUDIPLO CLI (the variables must be set):
 

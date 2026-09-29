@@ -10,21 +10,42 @@ services:
       - '8080:8080'
     environment:
       - PORT=8080
-      - EUDIPLO_URL=${EUDIPLO_URL:-http://host.docker.internal:3000}
+      # EUDIPLO_URL in .env is meant for `pnpm dev` on the host, so it is not used here
+      - EUDIPLO_URL=${COMPOSE_EUDIPLO_URL:-http://eudiplo:3000}
       - CLIENT_ID=${CLIENT_ID:-root}
       - CLIENT_SECRET=${CLIENT_SECRET:-root}
+    depends_on:
+      eudiplo:
+        condition: service_healthy
     restart: unless-stopped
 
-  # Optional: Include EUDIPLO backend for a complete standalone setup
-  # Uncomment the following to run with the EUDIPLO backend included
-  #
-  # eudiplo:
-  #   image: ghcr.io/openwallet-foundation-labs/eudiplo:latest
-  #   ports:
-  #     - "3000:3000"
-  #   environment:
-  #     - PUBLIC_URL=http://localhost:3000
-  #     - JWT_SECRET=change-me-in-production
-  #     - AUTH_CLIENT_SECRET=root
-  #   volumes:
-  #     - ../../assets/config:/app/config
+  # EUDIPLO backend, seeded on startup with the tenant config in ./eudiplo-config.
+  # Secrets referenced as ${VAR} in the config are read from eudiplo-config/.env
+  # (see eudiplo-config/.env.example).
+  eudiplo:
+    image: ghcr.io/openwallet-foundation/eudiplo:latest
+    ports:
+      - "3000:3000"
+    env_file:
+      - path: ./eudiplo-config/.env
+        required: false
+    environment:
+      - PUBLIC_URL=${EUDIPLO_PUBLIC_URL:-http://localhost:3000}
+      - MASTER_SECRET=${EUDIPLO_MASTER_SECRET:-change-me-in-production-min-32-characters}
+      # tenant-less admin client, must differ from the playground's CLIENT_ID
+      - AUTH_CLIENT_ID=${EUDIPLO_ADMIN_CLIENT_ID:-root}
+      - AUTH_CLIENT_SECRET=${EUDIPLO_ADMIN_CLIENT_SECRET:-root}
+      - CONFIG_FOLDER=/app/config/config
+      # upsert applies config files whose metadata.generation was increased
+      - CONFIG_IMPORT_MODE=${EUDIPLO_CONFIG_IMPORT_MODE:-upsert}
+      # the default attribute provider and webhook URLs are http://localhost:8787
+      - OUTBOUND_URL_ALLOW_HTTP=${EUDIPLO_OUTBOUND_URL_ALLOW_HTTP:-true}
+      - OUTBOUND_URL_ALLOW_PRIVATE_NETWORK=${EUDIPLO_OUTBOUND_URL_ALLOW_PRIVATE_NETWORK:-true}
+    volumes:
+      # /app/config holds EUDIPLO's database, the tenant config is mounted below it
+      - eudiplo-data:/app/config
+      - ./eudiplo-config:/app/config/config:ro
+    restart: unless-stopped
+
+volumes:
+  eudiplo-data:
