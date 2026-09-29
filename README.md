@@ -76,6 +76,49 @@ cp .env.example .env
 # Edit .env with your configuration
 ```
 
+## EUDIPLO Tenant Configuration
+
+The EUDIPLO configuration for the playground (clients, keys, credential and
+presentation configs, ...) lives in [`eudiplo-config/playground/`](eudiplo-config/playground).
+The folder name `playground` is the tenant ID.
+
+Secrets are not stored in the repository. The config files reference them as
+`${VAR}` placeholders, which EUDIPLO resolves from its environment during config
+import. All required variables are listed in
+[`eudiplo-config/.env.example`](eudiplo-config/.env.example).
+
+`registrar.json` is the exception: EUDIPLO does not resolve placeholders in it yet
+([openwallet-foundation/eudiplo#1087](https://github.com/openwallet-foundation/eudiplo/issues/1087)),
+so it is gitignored. Create it from
+[`registrar.example.json`](eudiplo-config/playground/registrar.example.json) on the server.
+
+### Deploying the config
+
+1. Check out this repository on the EUDIPLO host.
+2. Provide the variables from `eudiplo-config/.env.example` to the EUDIPLO backend.
+3. Create `eudiplo-config/playground/registrar.json`.
+4. Point EUDIPLO at the config, either by setting `CONFIG_FOLDER` to the
+   `eudiplo-config` folder or by symlinking it:
+
+   ```bash
+   ln -s /path/to/playground/eudiplo-config /path/to/eudiplo/config
+   ```
+
+   Symlink the whole config folder, not the tenant folder: EUDIPLO skips
+   symlinked tenant folders when scanning `CONFIG_FOLDER`. When EUDIPLO runs in
+   Docker, bind-mount `eudiplo-config` instead, since a symlink target outside
+   the container is not visible inside it.
+
+To validate the config locally with the EUDIPLO CLI (the variables must be set):
+
+```bash
+eudiplo config validate tenant eudiplo-config/playground
+```
+
+When adding a verification use case, add its presentation config to
+`eudiplo-config/playground/presentation/` and reference its `id` in `USE_CASES` in
+`src/server.ts`.
+
 ## API Endpoints
 
 The playground exposes the following API endpoints:
@@ -92,6 +135,7 @@ The playground exposes the following API endpoints:
 ### Verification Use Cases
 
 - **Vineyard Select** - Age verification (16+)
+- **Club Nocturne** - Over-asking demo: needs only age 18+, but also requests name and address
 - **Nordic Digital Bank** - Full KYC/identity verification
 - **TechMarkt SIM Activation** - Identity verification per TKG §172
 - **Berlin History Museum** - Residency verification for discounts
@@ -120,6 +164,9 @@ playground/
 │   ├── index.html
 │   ├── shared/
 │   └── [use-case]/
+├── eudiplo-config/      # EUDIPLO tenant config (secrets via env variables)
+│   ├── .env.example
+│   └── playground/      # Tenant "playground"
 ├── Dockerfile           # Docker build
 ├── docker-compose.yml   # Docker Compose for deployment
 ├── package.json         # Package config

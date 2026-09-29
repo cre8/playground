@@ -1,0 +1,25 @@
+{
+  "$schema": "https://eudiplo.dev/schemas/v1/PresentationConfigFile.schema.json",
+  "metadata": {
+    "generation": 1
+  },
+  "spec": {
+    "id": "diploma",
+    "description": "Presentation for verifying a diploma",
+    "redirectUri": "${PLAYGROUND_URL:https://playground.eudi-wallet.org}/job-portal/?session={sessionId}",
+    "dcql_query": {
+      "credentials": [
+        {
+          "id": "diploma",
+          "format": "dc+sd-jwt",
+          "meta": {
+            "vct_values": [
+              "urn:eudi:eaa:university-diploma:1"
+            ]
+          }
+        }
+      ]
+    },
+    "lifeTime": 300
+  }
+}

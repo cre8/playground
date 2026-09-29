@@ -1,0 +1,10 @@
+{
+    "$schema": "https://eudiplo.dev/schemas/v1/TenantConfigFile.schema.json",
+    "metadata": {
+        "generation": 1
+    },
+    "spec": {
+        "name": "Playground",
+        "description": "Showing use cases at playground.eudi-wallet.org"
+    }
+}

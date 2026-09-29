@@ -1,0 +1,21 @@
+{
+  "$schema": "https://eudiplo.dev/schemas/v1/ClientConfigFile.schema.json",
+  "metadata": {
+    "generation": 1
+  },
+  "spec": {
+    "clientId": "playground-admin",
+    "secret": "${PLAYGROUND_ADMIN_CLIENT_SECRET}",
+    "description": "Admin account",
+    "roles": [
+      "tenant:admin",
+      "clients:manage",
+      "issuance:manage",
+      "presentation:manage",
+      "presentation:request",
+      "issuance:offer",
+      "registrar:manage",
+      "users:manage"
+    ]
+  }
+}

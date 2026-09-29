@@ -1,0 +1,64 @@
+{
+  "$schema": "https://eudiplo.dev/schemas/v1/IssuanceConfigFile.schema.json",
+  "metadata": {
+    "generation": 1
+  },
+  "spec": {
+    "authorizationServers": [
+      {
+        "id": "issuer-built-in",
+        "type": "built-in"
+      },
+      {
+        "id": "name",
+        "label": "name only",
+        "type": "oid4vp",
+        "presentationConfigId": "name-only",
+        "immediateWalletRedirect": true,
+        "token": {
+          "lifetimeSeconds": 3600
+        },
+        "requireDPoP": false
+      },
+      {
+        "id": "chained-auth",
+        "type": "chained",
+        "label": "Chained Authorization Server",
+        "enabled": true,
+        "upstream": {
+          "issuer": "https://auth.sandbox.eudi-wallet.org/realms/playground",
+          "clientId": "eudiplo",
+          "clientSecret": "${CHAINED_AUTH_CLIENT_SECRET}",
+          "scopes": [
+            "openid",
+            "profile",
+            "email"
+          ]
+        },
+        "token": {
+          "lifetimeSeconds": 3600
+        },
+        "requireDPoP": false
+      }
+    ],
+    "batchSize": 10,
+    "dPopRequired": false,
+    "walletAttestationRequired": false,
+    "display": [
+      {
+        "locale": "en-US",
+        "name": "EUDI Wallet dev",
+        "logo": {
+          "uri": "company.png"
+        }
+      },
+      {
+        "locale": "de-DE",
+        "name": "EUDI Wallet Entwicklung",
+        "logo": {
+          "uri": "company.png"
+        }
+      }
+    ]
+  }
+}

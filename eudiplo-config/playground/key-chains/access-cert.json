@@ -1,0 +1,27 @@
+{
+  "$schema": "https://eudiplo.dev/schemas/v1/KeyChainConfigFile.schema.json",
+  "metadata": {
+    "generation": 1
+  },
+  "spec": {
+    "id": "c986c290-6545-4528-94a3-d256fddec1dd",
+    "description": "Access certificate from registrar (ID: AF6C025E8DC15B0A2941B86D287C366A)",
+    "usageType": "access",
+    "kmsProvider": "db",
+    "crt": [
+      "-----BEGIN CERTIFICATE-----\nMIIDSDCCAu2gAwIBAgIRAK9sAl6NwVsKKUG4bSh8NmowCgYIKoZIzj0EAwIwKDEL\nMAkGA1UEBhMCREUxGTAXBgNVBAMMEEdlcm1hbiBSZWdpc3RyYXIwHhcNMjYwNzIx\nMTAzNzA4WhcNMjcwNzIxMTAzNzA4WjBwMQswCQYDVQQGEwJERTEfMB0GA1UECgwW\nRVVESSBXYWxsZXQgUGxheWdyb3VuZDEfMB0GA1UEYQwWTlRSREUtNDg3MzUyQzBG\nNjE3MUNEMzEfMB0GA1UEAwwWRVVESSBXYWxsZXQgUGxheWdyb3VuZDBZMBMGByqG\nSM49AgEGCCqGSM49AwEHA0IABEA+XOkhMxe2SdGVyd1FFQ3GSWlKYBg/RvZfCNII\nEaj2fRYt5fg9Ku4a5TJUW3q7gPyJrOOUpXibkKz3p4ay4omjggGuMIIBqjAMBgNV\nHRMBAf8EAjAAMB0GA1UdDgQWBBSL0VYEgVDhsFPFUG/a2Kc8ncGEajAfBgNVHSME\nGDAWgBSpwqPaL22sVO7OuU7oLMksAIOAMzAOBgNVHQ8BAf8EBAMCB4AwEgYDVR0l\nBAswCQYHKIGMXQUBBjBDBgNVHREEPDA6hh9odHRwczovL2V1ZGlwbG8uZXVkaS13\nYWxsZXQub3JnghdldWRpcGxvLmV1ZGktd2FsbGV0Lm9yZzBLBgNVHSAERDBCMEAG\nBwQAi+xGAQIwNTAzBggrBgEFBQcCARYnaHR0cHM6Ly9zYW5kYm94LmV1ZGktd2Fs\nbGV0Lm9yZy9hcGkvY3BzMFgGCCsGAQUFBwEBBEwwSjBIBggrBgEFBQcwAoY8aHR0\ncHM6Ly9zYW5kYm94LmV1ZGktd2FsbGV0Lm9yZy9hcGkvc3RhdHVzLW1hbmFnZW1l\nbnQvY2EuZGVyMEoGA1UdHwRDMEEwP6A9oDuGOWh0dHBzOi8vc2FuZGJveC5ldWRp\nLXdhbGxldC5vcmcvYXBpL3N0YXR1cy1tYW5hZ2VtZW50L2NybDAKBggqhkjOPQQD\nAgNJADBGAiEAx499Yl7GMJoUBViRC/IoU1RCqoRd5ca5Jv5l73GBZbsCIQDBEpBs\ndEp/bmRKHiKdutR/03eDqR/V7oAcJBH7I5jXnw==\n-----END CERTIFICATE-----"
+    ],
+    "keySource": {
+      "type": "private-jwk",
+      "jwk": {
+        "kty": "EC",
+        "x": "QD5c6SEzF7ZJ0ZXJ3UUVDcZJaUpgGD9G9l8I0ggRqPY",
+        "y": "fRYt5fg9Ku4a5TJUW3q7gPyJrOOUpXibkKz3p4ay4ok",
+        "crv": "P-256",
+        "d": "${KEY_ACCESS_CERT_D}",
+        "kid": "c986c290-6545-4528-94a3-d256fddec1dd-active",
+        "alg": "ES256"
+      }
+    }
+  }
+}

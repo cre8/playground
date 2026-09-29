@@ -1,0 +1,17 @@
+{
+  "$schema": "https://eudiplo.dev/schemas/v1/RegistrarConfigFile.schema.json",
+  "metadata": {
+    "generation": 1
+  },
+  "spec": {
+    "clientId": "swagger",
+    "username": "<registrar username>",
+    "password": "<registrar password>",
+    "registrarUrl": "https://sandbox.eudi-wallet.org/api",
+    "oidcUrl": "https://auth.sandbox.eudi-wallet.org/realms/sandbox-registrar",
+    "registrationCertificateDefaults": {
+      "privacy_policy": "https://www.sprind.org/datenschutz",
+      "support_uri": "https://www.sprind.org/kontakt"
+    }
+  }
+}

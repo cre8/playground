@@ -47,3 +47,6 @@ __tests__/
 # OS
 .DS_Store
 Thumbs.db
+
+# EUDIPLO tenant config (deployed separately)
+eudiplo-config/

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://eudiplo.dev/schemas/v1/PresentationConfigFile.schema.json",
+  "metadata": {
+    "generation": 1
+  },
+  "spec": {
+    "id": "loyalty-card",
+    "description": "Presentation for verifying a loyalty membership card credential",
+    "redirectUri": "${PLAYGROUND_URL:https://playground.eudi-wallet.org}/sports-shop/?session={sessionId}",
+    "dcql_query": {
+      "credentials": [
+        {
+          "id": "pid-sd-jwt",
+          "format": "dc+sd-jwt",
+          "meta": {
+            "vct_values": [
+              "urn:eudi:eaa:loyalty-card:1"
+            ]
+          }
+        }
+      ]
+    },
+    "lifeTime": 300
+  }
+}

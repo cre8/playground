@@ -24,3 +24,8 @@ pnpm-debug.log*
 
 # Test coverage
 coverage/
+# EUDIPLO config: registrar.json holds registrar credentials and does not support ${VAR} placeholders
+eudiplo-config/*/registrar.json
+
+# Legacy clone of the private config repo (replaced by eudiplo-config/)
+playground-config/

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://eudiplo.dev/schemas/v1/ClientConfigFile.schema.json",
+  "metadata": {
+    "generation": 1
+  },
+  "spec": {
+    "clientId": "playground",
+    "secret": "${PLAYGROUND_CLIENT_SECRET}",
+    "description": "Client for playground.eudi-wallet.org",
+    "roles": [
+      "presentation:manage",
+      "issuance:offer"
+    ]
+  }
+}

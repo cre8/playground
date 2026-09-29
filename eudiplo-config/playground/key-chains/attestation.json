@@ -1,0 +1,31 @@
+{
+  "$schema": "https://eudiplo.dev/schemas/v1/KeyChainConfigFile.schema.json",
+  "metadata": {
+    "generation": 1
+  },
+  "spec": {
+    "id": "bf9c1f04-50b9-4091-b7fb-c3bce9ec4837",
+    "description": "Credential Signing Key",
+    "usageType": "attestation",
+    "kmsProvider": "db",
+    "crt": [
+      "-----BEGIN CERTIFICATE-----\nMIIBqjCCAU+gAwIBAgIBATAKBggqhkjOPQQDAjAqMQswCQYDVQQGEwJERTEbMBkG\nA1UEAxMSUGxheWdyb3VuZCBSb290IENBMB4XDTI2MDUwNzEwNTg0MVoXDTM2MDUw\nNDEwNTg0MVowKjELMAkGA1UEBhMCREUxGzAZBgNVBAMTElBsYXlncm91bmQgUm9v\ndCBDQTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABEsrNR53qZDYwBooFJ8sSrj6\nJ3izyEnPpeV5ntyYbJLjITYQPVuVMMSewUFfG7Bif+cY0dUwbwK4VK+3SYxCkhCj\nZjBkMCIGA1UdEQQbMBmCF3NlcnZpY2UuZXVkaS13YWxsZXQuZGV2MA8GA1UdEwEB\n/wQFMAMBAf8wDgYDVR0PAQH/BAQDAgKkMB0GA1UdDgQWBBTzHMB5N7+gYPB84lRf\nc1ERizaZjDAKBggqhkjOPQQDAgNJADBGAiEAyJiMi6PMpPCC11d14W1ZGnVrn2re\nwfBX6aZnzS6k16oCIQDzU9tv3AnH7DK7wp+vu6UahTMIZNE7SsBVatp/AOfb5Q==\n-----END CERTIFICATE-----"
+    ],
+    "rotationPolicy": {
+      "enabled": true,
+      "intervalDays": 30,
+      "certValidityDays": 365
+    },
+    "keySource": {
+      "type": "private-jwk",
+      "jwk": {
+        "kty": "EC",
+        "x": "Sys1HnepkNjAGigUnyxKuPoneLPISc-l5Xme3JhskuM",
+        "y": "ITYQPVuVMMSewUFfG7Bif-cY0dUwbwK4VK-3SYxCkhA",
+        "crv": "P-256",
+        "d": "${KEY_ATTESTATION_D}",
+        "kid": "bf9c1f04-50b9-4091-b7fb-c3bce9ec4837-root"
+      }
+    }
+  }
+}

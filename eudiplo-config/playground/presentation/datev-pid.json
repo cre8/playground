@@ -1,0 +1,187 @@
+{
+  "$schema": "https://eudiplo.dev/schemas/v1/PresentationConfigFile.schema.json",
+  "metadata": {
+    "generation": 1
+  },
+  "spec": {
+    "id": "datev-pid",
+    "description": "Present PID and Datev Company credential",
+    "redirectUri": "${PLAYGROUND_URL:https://playground.eudi-wallet.org}/supplier-onboarding/?session={sessionId}",
+    "dcql_query": {
+      "credentials": [
+        {
+          "id": "pid-sd-jwt",
+          "format": "dc+sd-jwt",
+          "meta": {
+            "vct_values": [
+              "urn:eudi:pid:de:1"
+            ]
+          },
+          "claims": [
+            {
+              "path": [
+                "given_name"
+              ]
+            },
+            {
+              "path": [
+                "family_name"
+              ]
+            }
+          ],
+          "trusted_authorities": [
+            {
+              "type": "etsi_tl",
+              "values": [
+                {
+                  "trustListId": "580831bc-ef11-43f4-a3be-a2b6bf1b29a3"
+                },
+                {
+                  "url": "https://bmi.usercontent.opencode.de/eudi-wallet/test-trust-lists/pid-provider.jwt",
+                  "verifierX509Der": "MIICDDCCAbGgAwIBAgIUNY57W5ZMQd54F96UP0jRWWnnHCkwCgYIKoZIzj0EAwIwWzELMAkGA1UEBhMCREUxDzANBgNVBAgMBkJlcmxpbjEPMA0GA1UEBwwGQmVybGluMRQwEgYDVQQKDAtUcnVzdCBMaXN0czEUMBIGA1UEAwwLTG9URSBTaWduZXIwHhcNMjYwMzIzMTA1NzE0WhcNMzYwMzIwMTA1NzE0WjBbMQswCQYDVQQGEwJERTEPMA0GA1UECAwGQmVybGluMQ8wDQYDVQQHDAZCZXJsaW4xFDASBgNVBAoMC1RydXN0IExpc3RzMRQwEgYDVQQDDAtMb1RFIFNpZ25lcjBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJI2t4NHAHvyUmWjFWWq1wRC7wWhoYsdKb//uMpdiAVeBTFlOaaC0DAppVcY94oWO2gRx4Pb5Ae6izprfTFhkSmjUzBRMB0GA1UdDgQWBBRB+dSpSYViEtAu6hNxoHPSbfcZyDAfBgNVHSMEGDAWgBRB+dSpSYViEtAu6hNxoHPSbfcZyDAPBgNVHRMBAf8EBTADAQH/MAoGCCqGSM49BAMCA0kAMEYCIQDNdv3YAVQqJvxkNHyar2TAfAgJkc83Nwni+jFyvjAjFwIhAOxJw3mCf1Mqq1lO41et3iViCUjdCbpdABXIi3JqzTN8"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "DatevCompanyCredential",
+          "format": "dc+sd-jwt",
+          "claims": [
+            {
+              "path": [
+                "buyer_org_official_name"
+              ]
+            },
+            {
+              "path": [
+                "buyer_org_unique_id"
+              ]
+            },
+            {
+              "path": [
+                "buyer_org_euid"
+              ]
+            },
+            {
+              "path": [
+                "buyer_postal_address_street"
+              ]
+            },
+            {
+              "path": [
+                "buyer_postal_address_postcode"
+              ]
+            },
+            {
+              "path": [
+                "buyer_postal_address_city"
+              ]
+            },
+            {
+              "path": [
+                "buyer_postal_address_country_code"
+              ]
+            },
+            {
+              "path": [
+                "buyer_tax_vat_id"
+              ]
+            },
+            {
+              "path": [
+                "buyer_reference"
+              ]
+            },
+            {
+              "path": [
+                "buyer_contact_email"
+              ]
+            },
+            {
+              "path": [
+                "buyer_routing_peppol_id"
+              ]
+            },
+            {
+              "path": [
+                "buyer_routing_traffiqx_id"
+              ]
+            },
+            {
+              "path": [
+                "buyer_routing_preferred_channel"
+              ]
+            },
+            {
+              "path": [
+                "buyer_routing_email"
+              ]
+            },
+            {
+              "path": [
+                "Empfängerwunschformat"
+              ]
+            },
+            {
+              "path": [
+                "Handelsname_des_Käufers"
+              ]
+            },
+            {
+              "path": [
+                "Beraternummer"
+              ]
+            },
+            {
+              "path": [
+                "Mandantennummer"
+              ]
+            },
+            {
+              "path": [
+                "MyDATEVPostfach"
+              ]
+            },
+            {
+              "path": [
+                "employee_person_id"
+              ]
+            },
+            {
+              "path": [
+                "employee_authorization_role"
+              ]
+            },
+            {
+              "path": [
+                "employee_authorization_limit_amount"
+              ]
+            },
+            {
+              "path": [
+                "employee_authorization_validity"
+              ]
+            },
+            {
+              "path": [
+                "employee_authorization_issuer_signature"
+              ]
+            },
+            {
+              "path": [
+                "employee_acts_for_org_unique"
+              ]
+            }
+          ],
+          "meta": {
+            "vct_values": [
+              "organization_vct"
+            ]
+          }
+        }
+      ]
+    },
+    "lifeTime": 300
+  }
+}
