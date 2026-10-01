@@ -163,6 +163,21 @@ function handleError(error: unknown): void {
   statusText.classList.add('error');
 }
 
+// Merge claim values from all presented credentials into one object
+function extractCredentialData(credentials?: Array<Record<string, unknown>>): Record<string, unknown> {
+  const data: Record<string, unknown> = {};
+  if (!credentials) return data;
+  for (const credential of credentials) {
+    const values = credential.values as Array<Record<string, unknown>> | undefined;
+    if (values) {
+      for (const valueSet of values) {
+        Object.assign(data, valueSet);
+      }
+    }
+  }
+  return data;
+}
+
 // Show success state
 function showSuccess(session: Session): void {
   showSection(successSection);
@@ -175,8 +190,8 @@ function showSuccess(session: Session): void {
 
   // Display verified license data
   const resultsDiv = document.getElementById('verificationResults');
-  if (resultsDiv && session.presentation) {
-    const p = session.presentation as Record<string, unknown>;
+  const p = extractCredentialData(session.credentials);
+  if (resultsDiv && Object.keys(p).length > 0) {
 
     const fields = [
       {
@@ -214,15 +229,14 @@ function showSuccess(session: Session): void {
 // Format date helper
 function formatDate(date: unknown): string | null {
   if (!date || typeof date !== 'string') return null;
-  try {
-    return new Date(date).toLocaleDateString('en-EU', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  } catch {
-    return date;
-  }
+  // Values may arrive pre-formatted (e.g. "April 3, 2026 at 21:29")
+  const parsed = new Date(date.replace(/ at \d{1,2}:\d{2}.*$/, ''));
+  if (Number.isNaN(parsed.getTime())) return date;
+  return parsed.toLocaleDateString('en-EU', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
 }
 
 // Mask license number for privacy
@@ -237,8 +251,12 @@ function formatCategories(privileges: unknown): string {
   if (!privileges) return 'B (Standard Car)';
   if (Array.isArray(privileges)) {
     const codes = privileges
-      .map((p) => (p as Record<string, unknown>).vehicle_category_code || (p as Record<string, unknown>).code || p)
-      .filter(Boolean);
+      .map((p) =>
+        p && typeof p === 'object'
+          ? (p as Record<string, unknown>).vehicle_category_code || (p as Record<string, unknown>).code
+          : p
+      )
+      .filter((c) => typeof c === 'string' && c.length > 0);
     return codes.length > 0 ? codes.join(', ') : 'B';
   }
   return String(privileges);
