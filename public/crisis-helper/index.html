@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>DRH Helfernetz - Crisis Helper Registration | EUDI Wallet Playground</title>
+    <link rel="stylesheet" href="/shared/styles.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"
+      integrity="sha384-lQXOAyZwHXE55JFyrOMB7nY2Wv+m5ZWNtJcHrd1rceRQXAYNLak8ukN5TjBTcIwz"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="demo-header">
+        <a href="/">←</a>
+        <h1>🤝 DRH Helfernetz Musterstadt</h1>
+      </div>
+
+      <div class="demo-container">
+        <!-- Left: Registration -->
+        <div class="demo-left">
+          <div class="intro-card">
+            <span class="intro-badge">Spontanhelfer:innen</span>
+            <h2>Help when your town needs you</h2>
+            <p>
+              Floods, power outages, evacuations: in a crisis, many people want to help,
+              but nobody knows who is available and qualified. Register once with the
+              Deutsches Rettungshilfswerk (DRH), so the crisis team can reach you
+              and knows which qualifications you hold.
+            </p>
+            <div class="intro-facts">
+              <div><span>Identity</span><strong>PID</strong></div>
+              <div><span>Qualification</span><strong>First aid or Ehrenamtskarte</strong></div>
+              <div><span>Contact</span><strong>Entered by you</strong></div>
+            </div>
+          </div>
+
+          <div class="registration-progress">
+            <div class="progress-steps">
+              <div class="progress-step active">
+                <span class="step-icon">1</span>
+                <span class="step-label">Contact details</span>
+              </div>
+              <div class="progress-step">
+                <span class="step-icon">2</span>
+                <span class="step-label">Verify with wallet</span>
+              </div>
+              <div class="progress-step">
+                <span class="step-icon">3</span>
+                <span class="step-label">Registered</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="contactSection">
+            <form id="contactForm" novalidate>
+              <h3>How can we reach you?</h3>
+              <p class="form-note">
+                Your PID does not contain contact details, so please enter them yourself.
+              </p>
+              <div class="form-group">
+                <label for="phone">Mobile phone</label>
+                <input id="phone" type="tel" placeholder="+49 170 1234567" autocomplete="tel" required />
+              </div>
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input id="email" type="email" placeholder="erika@example.com" autocomplete="email" required />
+              </div>
+              <label class="consent">
+                <input type="checkbox" required />
+                <span>I agree that the DRH may contact me in a crisis. I can withdraw this at any time.</span>
+              </label>
+              <button id="verifyBtn" type="submit" class="btn btn-primary btn-block">
+                Register with EUDI Wallet
+              </button>
+            </form>
+            <div id="dcApiOption" class="dc-api-option hidden">
+              <label class="toggle-label">
+                <input type="checkbox" id="dcApiToggle" />
+                <span class="toggle-text">Use DC API (Browser Native)</span>
+              </label>
+            </div>
+          </div>
+
+          <div id="successSection" class="hidden">
+            <div class="message success">
+              <strong>🎉 Thank you for registering!</strong>
+              <p>The crisis team can now see your qualification and how to reach you.</p>
+            </div>
+            <div id="helperProfile" class="helper-profile"></div>
+            <p class="renewal-note">
+              In production, the registry would remind you to re-verify before your
+              certificate expires, so the helper pool always shows valid qualifications.
+            </p>
+            <button onclick="location.reload()" class="btn btn-secondary btn-block">
+              Register Another Helper
+            </button>
+          </div>
+
+          <div id="rejectedSection" class="hidden">
+            <div class="message error">
+              <strong>Registration not possible</strong>
+              <p id="rejectedReason"></p>
+            </div>
+            <button onclick="location.reload()" class="btn btn-secondary btn-block">
+              Try Again
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Verification -->
+        <div class="demo-right">
+          <div id="verificationSection" class="hidden">
+            <div class="qr-section">
+              <h2>Share Your Credentials</h2>
+              <p class="qr-instruction">
+                Scan with your EUDI Wallet to share your PID and one qualification
+              </p>
+
+              <div id="qrPlaceholder" class="qr-placeholder">Loading...</div>
+
+              <div class="same-device-section">
+                <span class="divider-text">or on this device</span>
+                <div id="sameDeviceLink" class="hidden"></div>
+              </div>
+
+              <div id="statusBadge" class="status waiting">
+                <span class="status-dot"></span>
+                <span id="statusText">Waiting for verification...</span>
+              </div>
+
+              <div id="qrSessionId" class="qr-session-id"></div>
+            </div>
+          </div>
+
+          <div id="infoSection" class="info-section">
+            <h3>What we request</h3>
+            <ul class="info-list">
+              <li>
+                <span class="info-icon">🪪</span>
+                <div>
+                  <strong>Name (PID)</strong>
+                  <span>To identify you in the helper pool</span>
+                </div>
+              </li>
+              <li>
+                <span class="info-icon">🔞</span>
+                <div>
+                  <strong>Age 18+ (PID)</strong>
+                  <span>Only yes or no, not your date of birth</span>
+                </div>
+              </li>
+              <li>
+                <span class="info-icon">📍</span>
+                <div>
+                  <strong>Postal code and city (PID)</strong>
+                  <span>To assign you to a deployment region, not your street address</span>
+                </div>
+              </li>
+              <li>
+                <span class="info-icon">🩹</span>
+                <div>
+                  <strong>One qualification</strong>
+                  <span>Your first aid certificate or your Ehrenamtskarte</span>
+                </div>
+              </li>
+            </ul>
+
+            <div class="missing-credentials">
+              <strong>Missing a credential?</strong>
+              <a href="/first-aid-certificate/">Get a first aid certificate →</a>
+              <a href="/honorary-engagement-card/">Get an Ehrenamtskarte →</a>
+              <a href="/get-pid/">Get a demo PID →</a>
+            </div>
+
+            <div class="privacy-note">
+              <span class="shield-icon">🔒</span>
+              <span>Your qualifications are verified directly from the issuer's signature</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        Powered by
+        <a href="https://github.com/openwallet-foundation-labs/eudiplo" target="_blank" rel="noopener noreferrer">EUDIPLO</a>
+        · <a href="../">Back to Playground</a>
+      </p>
+    </footer>
+
+    <script type="module" src="/js/crisis-helper/app.js"></script>
+  </body>
+</html>

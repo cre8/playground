@@ -84,6 +84,10 @@ const USE_CASES: Record<string, { presentationConfigId: string; name: string }> 
     presentationConfigId: 'playground-pid',
     name: 'Event Access - PID Verification for Event Attestation',
   },
+  'crisis-helper': {
+    presentationConfigId: 'crisis-helper',
+    name: 'Crisis Helper Registration - PID + First Aid Certificate or Ehrenamtskarte',
+  },
 };
 
 // Issuance use case configurations
@@ -124,6 +128,11 @@ const ISSUANCE_USE_CASES: Record<string, {
   'honorary-engagement-card': {
     credentialConfigId: 'honorary',
     name: 'Honorary Engagement Card',
+    flow: 'pre_authorized_code',
+  },
+  'first-aid-certificate': {
+    credentialConfigId: 'first-aid',
+    name: 'First Aid Certificate',
     flow: 'pre_authorized_code',
   },
   'mdl-issuance': {

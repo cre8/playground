@@ -1,5 +1,5 @@
 header {
-  background: linear-gradient(135deg, #6f5c77 0%, #8b7a93 100%);
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
   border-bottom: none;
 }
 
@@ -27,17 +27,17 @@ header .badge {
 }
 
 .hint-box {
-  background: #f3f0f5;
-  border: 1px solid #d6cedb;
-  color: #57475f;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e3a8a;
   border-radius: 10px;
   padding: 0.9rem 1rem;
   margin-bottom: 1rem;
 }
 
 .mdl-preview {
-  background: #f7f5f8;
-  border: 1px solid #e3dde7;
+  background: #f5f9ff;
+  border: 1px solid #dbeafe;
   border-radius: 12px;
   padding: 1rem;
   margin-bottom: 1rem;
@@ -45,7 +45,7 @@ header .badge {
 
 .mdl-preview h3 {
   margin-bottom: 0.75rem;
-  color: #57475f;
+  color: #1e3a8a;
 }
 
 .preview-grid {
@@ -61,12 +61,12 @@ header .badge {
   padding: 0.45rem 0.55rem;
   border-radius: 8px;
   background: white;
-  border: 1px solid #ebe6ee;
+  border: 1px solid #dbeafe;
   font-size: 0.9rem;
 }
 
 .preview-item span {
-  color: #6f5c77;
+  color: #1d4ed8;
 }
 
 .button-row {
@@ -76,8 +76,8 @@ header .badge {
 }
 
 .tx-code-section {
-  background: #f5f3f7;
-  border: 1px solid #ddd3e3;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
   border-radius: 10px;
   padding: 0.9rem;
   margin-bottom: 1rem;
@@ -93,7 +93,7 @@ header .badge {
 .tx-code-value {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   background: white;
-  border: 1px dashed #8b7a93;
+  border: 1px dashed #3b82f6;
   border-radius: 6px;
   padding: 0.35rem 0.6rem;
   letter-spacing: 0.08rem;

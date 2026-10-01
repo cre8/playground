@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>DRH Bildungswerk - First Aid Certificate | EUDI Wallet Playground</title>
+    <link rel="stylesheet" href="/shared/styles.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"
+      integrity="sha384-lQXOAyZwHXE55JFyrOMB7nY2Wv+m5ZWNtJcHrd1rceRQXAYNLak8ukN5TjBTcIwz"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <header>
+      <a href="../" class="logo">
+        <span class="logo-mark" aria-hidden="true"></span>
+        DRH Bildungswerk
+      </a>
+      <span class="badge">Issuance Portal</span>
+    </header>
+
+    <main class="container">
+      <section id="startSection" class="card">
+        <h1>Erste-Hilfe-Bescheinigung</h1>
+        <p class="subtitle">
+          You completed a first aid course with the Deutsches Rettungshilfswerk (DRH).
+          Receive your certificate as a verifiable credential in your EUDI Wallet.
+        </p>
+
+        <div class="hint-box">
+          <strong>Demo tip:</strong>
+          Keep the default name to match the demo PID. The crisis helper registration
+          compares the name on the certificate with the name in your PID.
+        </div>
+
+        <form class="form-grid" onsubmit="return false">
+          <div class="form-group">
+            <label for="givenName">Given name</label>
+            <input id="givenName" type="text" value="ERIKA" autocomplete="off" required />
+          </div>
+          <div class="form-group">
+            <label for="familyName">Family name</label>
+            <input id="familyName" type="text" value="MUSTERMANN" autocomplete="off" required />
+          </div>
+          <div class="form-group">
+            <label for="courseDate">Course completed on</label>
+            <input id="courseDate" type="date" required />
+          </div>
+          <div class="form-group">
+            <span class="label">Valid until</span>
+            <span id="validUntilPreview" class="static-value">-</span>
+          </div>
+        </form>
+
+        <div class="course-facts">
+          <div><span>Course</span><strong>Erste-Hilfe-Ausbildung (9 UE)</strong></div>
+          <div><span>Training provider</span><strong>DRH Bildungswerk Musterstadt</strong></div>
+          <div><span>Credential config</span><strong>first-aid</strong></div>
+        </div>
+
+        <div class="button-row">
+          <button id="issueBtn" type="button" class="btn btn-primary">Issue Certificate</button>
+          <button id="issueSecureBtn" type="button" class="btn btn-secondary">Issue Securely (with PIN)</button>
+        </div>
+      </section>
+
+      <section id="issuanceSection" class="card hidden">
+        <h2>Scan to Receive Your Certificate</h2>
+
+        <div class="preview-card">
+          <div class="preview-head">
+            <span class="logo-mark" aria-hidden="true"></span>
+            <h3>Erste-Hilfe-Bescheinigung</h3>
+          </div>
+          <div class="preview-line"><span>Name</span><strong id="previewName">-</strong></div>
+          <div class="preview-line"><span>Course date</span><strong id="previewCourseDate">-</strong></div>
+          <div class="preview-line"><span>Valid until</span><strong id="previewValidUntil">-</strong></div>
+          <div class="preview-line"><span>Certificate ID</span><strong id="previewCertificateId">-</strong></div>
+        </div>
+
+        <div id="txCodeSection" class="tx-code-section hidden">
+          <strong>PIN required in wallet</strong>
+          <div class="tx-code-display">
+            <span id="txCodeValue" class="tx-code-value">------</span>
+            <button id="copyTxCodeBtn" type="button" class="btn btn-small" title="Copy to clipboard">📋</button>
+          </div>
+        </div>
+
+        <div class="qr-container">
+          <div id="qrCode" class="qr-code"></div>
+          <div class="same-device-section">
+            <span class="divider-text">or on this device</span>
+            <div id="sameDeviceLink" class="hidden"></div>
+          </div>
+          <p id="statusText" class="status-text">Scan the QR code with your EUDI Wallet</p>
+        </div>
+      </section>
+
+      <section id="successSection" class="card hidden">
+        <div class="success-icon">✅</div>
+        <h2>Certificate Issued</h2>
+        <p>Your first aid certificate is now in your wallet.</p>
+        <p class="next-step">
+          Next: register as a volunteer crisis helper with your PID and this certificate.
+        </p>
+        <div class="button-row centered">
+          <a href="/crisis-helper/" class="btn btn-primary">Register as Crisis Helper →</a>
+          <button id="issueAnotherBtn" type="button" class="btn btn-secondary">Issue Another Certificate</button>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        Powered by
+        <a href="https://github.com/openwallet-foundation-labs/eudiplo" target="_blank" rel="noopener noreferrer">EUDIPLO</a>
+        · <a href="../">Back to Playground</a>
+      </p>
+    </footer>
+
+    <script type="module" src="/js/first-aid-certificate/app.js"></script>
+  </body>
+</html>

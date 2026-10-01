@@ -1,7 +1,7 @@
 {
   "$schema": "https://eudiplo.dev/schemas/v1/IssuanceConfigFile.schema.json",
   "metadata": {
-    "generation": 5
+    "generation": 6
   },
   "spec": {
     "authorizationServers": [

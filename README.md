@@ -117,6 +117,10 @@ To validate the config locally with the EUDIPLO CLI (the variables must be set):
 eudiplo config validate tenant eudiplo-config/playground
 ```
 
+The credential card images in `eudiplo-config/playground/images/` are generated
+by [`scripts/generate-card-images.py`](scripts/generate-card-images.py)
+(requires `rsvg-convert`). Add new cards there so all cards share one style.
+
 When adding a verification use case, add its presentation config to
 `eudiplo-config/playground/presentation/` and reference its `id` in `USE_CASES` in
 `src/server.ts`.
@@ -142,12 +146,14 @@ The playground exposes the following API endpoints:
 - **TechMarkt SIM Activation** - Identity verification per TKG §172
 - **Berlin History Museum** - Residency verification for discounts
 - **SwiftBox Parcel Locker** - Minimal name-only verification
+- **DRH Helfernetz** - Crisis helper registration: PID (name, age 18+, postal code, city) plus a first aid certificate or Ehrenamtskarte, with self-reported contact details
 
 ### Issuance Use Cases (EAA)
 
 - **Get Demo PID** - Issue a test Personal ID credential
 - **European Technical University** - Digital diploma issuance (Authorization Code Flow)
 - **FitLife Health Club** - Loyalty card issuance (Pre-authorized Code Flow)
+- **DRH Bildungswerk** - First aid certificate issuance, valid for two years (Pre-authorized Code Flow)
 
 ## Project Structure
 

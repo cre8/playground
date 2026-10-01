@@ -1,0 +1,397 @@
+/* DRH Helfernetz - Crisis helper registration */
+
+:root {
+  --primary: #c2410c;
+  --primary-hover: #9a3412;
+  --drh-light: #fff7ed;
+  --drh-border: #fed7aa;
+  --drh-success: #059669;
+}
+
+.demo-header h1 {
+  color: var(--primary-hover);
+}
+
+/* Intro */
+.intro-card {
+  background: var(--drh-light);
+  border: 1px solid var(--drh-border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.intro-badge {
+  display: inline-block;
+  background: var(--primary);
+  color: white;
+  padding: 0.2rem 0.75rem;
+  border-radius: 2rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.intro-card h2 {
+  color: var(--primary-hover);
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.intro-card p {
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.intro-facts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  background: white;
+  border-radius: calc(var(--radius) / 2);
+  padding: 0.9rem 1rem;
+}
+
+.intro-facts div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.intro-facts span {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.intro-facts strong {
+  font-size: 0.875rem;
+  color: var(--primary-hover);
+}
+
+@media (max-width: 480px) {
+  .intro-facts {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Progress */
+.registration-progress {
+  margin-bottom: 1.5rem;
+}
+
+.progress-steps {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+}
+
+.progress-steps::before {
+  content: '';
+  position: absolute;
+  top: 1rem;
+  left: 2.5rem;
+  right: 2.5rem;
+  height: 2px;
+  background: var(--border);
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  position: relative;
+  z-index: 1;
+}
+
+.step-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.progress-step.active .step-icon {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+.progress-step.completed .step-icon {
+  background: var(--drh-success);
+  border-color: var(--drh-success);
+  color: white;
+}
+
+.step-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Contact form */
+#contactForm h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+
+.form-note {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(194, 65, 12, 0.15);
+}
+
+.consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-bottom: 1.25rem;
+  cursor: pointer;
+}
+
+.consent input {
+  margin-top: 0.25rem;
+  accent-color: var(--primary);
+}
+
+/* Info panel */
+.info-section {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.info-section h3 {
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.info-list {
+  list-style: none;
+}
+
+.info-list li {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.info-list li:last-child {
+  border-bottom: none;
+}
+
+.info-icon {
+  font-size: 1.25rem;
+}
+
+.info-list li div {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-list strong {
+  font-size: 0.875rem;
+}
+
+.info-list span {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.missing-credentials {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  background: white;
+  border: 1px dashed var(--drh-border);
+  border-radius: calc(var(--radius) / 2);
+  padding: 0.9rem 1rem;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+}
+
+.missing-credentials a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.missing-credentials a:hover {
+  text-decoration: underline;
+}
+
+.privacy-note {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #ecfdf5;
+  color: var(--drh-success);
+  font-size: 0.8rem;
+}
+
+/* Result */
+.message p {
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.helper-profile {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+  background: linear-gradient(135deg, #9a3412 0%, #ea580c 100%);
+  color: white;
+  padding: 1rem 1.25rem;
+}
+
+.profile-kicker {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.85;
+}
+
+.profile-header h3 {
+  font-size: 1.25rem;
+}
+
+.profile-id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.8rem;
+}
+
+.profile-block {
+  padding: 0.9rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.profile-block h4 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+}
+
+.source {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: #ecfdf5;
+  color: var(--drh-success);
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+}
+
+.source.self {
+  background: #f1f5f9;
+  color: var(--text-muted);
+}
+
+.profile-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.25rem 0;
+  font-size: 0.875rem;
+}
+
+.profile-label {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.profile-value {
+  text-align: right;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.pill {
+  display: inline-block;
+  margin-left: 0.5rem;
+  border-radius: 1rem;
+  padding: 0.05rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  vertical-align: middle;
+}
+
+.pill.valid {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.pill.warning {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.pill.expired {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.pill.neutral {
+  background: #f1f5f9;
+  color: var(--text-muted);
+}
+
+.profile-footer {
+  padding: 0.75rem 1.25rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background: var(--bg);
+  overflow-wrap: anywhere;
+}
+
+.muted {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.renewal-note {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+#successSection .btn,
+#rejectedSection .btn {
+  margin-top: 0.5rem;
+}
