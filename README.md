@@ -88,7 +88,7 @@ import. All required variables are listed in
 [`eudiplo-config/.env.example`](eudiplo-config/.env.example).
 
 `registrar.json` is the exception: EUDIPLO does not resolve placeholders in it yet
-([openwallet-foundation/eudiplo#1087](https://github.com/openwallet-foundation/eudiplo/issues/1087)),
+([EUDIPLO/eudiplo#1087](https://github.com/EUDIPLO/eudiplo/issues/1087)),
 so it is gitignored. Create it from
 [`registrar.example.json`](eudiplo-config/playground/registrar.example.json) on the server.
 

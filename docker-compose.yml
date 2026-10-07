@@ -23,7 +23,7 @@ services:
   # Secrets referenced as ${VAR} in the config are read from eudiplo-config/.env
   # (see eudiplo-config/.env.example).
   eudiplo:
-    image: ghcr.io/openwallet-foundation/eudiplo:latest
+    image: ghcr.io/eudiplo/eudiplo:latest
     ports:
       - "3000:3000"
     env_file:
