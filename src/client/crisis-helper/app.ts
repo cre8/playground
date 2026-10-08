@@ -126,7 +126,9 @@ function displaySessionId(sessionId: string): void {
 }
 
 function onSessionUpdate(s: { status: string }): void {
-  if (s.status === 'pending') {
+  if (s.status === 'fetched') {
+    updateStatus('waiting', 'Wallet opened the request, waiting for you to share...');
+  } else if (s.status === 'pending') {
     updateStatus('waiting', 'Waiting for wallet response...');
   } else if (s.status === 'processing') {
     updateStatus('processing', 'Processing verification...');

@@ -60,13 +60,18 @@ export type IssuanceCredentialClaim = InlineCredentialClaim | AttributeProviderC
 
 export interface Session {
   sessionId: string;
-  status: 'pending' | 'processing' | 'completed' | 'fetched' | 'failed' | 'expired';
+  status: 'active' | 'pending' | 'processing' | 'completed' | 'fetched' | 'failed' | 'expired';
   presentation?: Record<string, unknown>;
   credentials?: Array<Record<string, unknown>>;
 }
 
 export interface WaitOptions {
   onUpdate?: (session: Session) => void;
+  /**
+   * 'presentation' (default) waits for 'completed'. 'issuance' also accepts
+   * 'fetched', which means the wallet fetched the credential.
+   */
+  flow?: 'presentation' | 'issuance';
   timeout?: number;
   interval?: number;
 }
@@ -277,7 +282,7 @@ export async function waitForSession(
   sessionId: string,
   options: WaitOptions = {}
 ): Promise<Session> {
-  const { onUpdate, timeout = 300000, interval = 1500 } = options;
+  const { onUpdate, flow = 'presentation', timeout = 300000, interval = 1500 } = options;
   const startTime = Date.now();
 
   while (Date.now() - startTime < timeout) {
@@ -287,8 +292,8 @@ export async function waitForSession(
       onUpdate(session);
     }
 
-    // 'completed' for verification, 'fetched' for issuance
-    if (session.status === 'completed' || session.status === 'fetched') {
+    // For presentations 'fetched' only means the wallet loaded the request
+    if (session.status === 'completed' || (flow === 'issuance' && session.status === 'fetched')) {
       return session;
     }
 

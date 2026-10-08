@@ -198,6 +198,7 @@ async function issueAttestation(pidSession: Session): Promise<void> {
 
     // Wait for attestation issuance
     await waitForSession(issuanceOffer.sessionId, {
+      flow: 'issuance',
       onUpdate: (s) => {
         if (s.status === 'fetched') {
           statusText.textContent = 'Attestation issued successfully!';

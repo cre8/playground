@@ -247,6 +247,7 @@ async function handleGetCredential(): Promise<void> {
 
     // Wait for issuance to complete
     await waitForSession(result.sessionId, {
+      flow: 'issuance',
       onUpdate: (s) => {
         if (s.status === 'pending') {
           statusText.textContent = 'Waiting for wallet to accept...';

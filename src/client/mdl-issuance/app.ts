@@ -66,6 +66,7 @@ async function handleIssue(): Promise<void> {
     statusText.textContent = 'Scan the QR code with your EUDI Wallet';
 
     await waitForSession(result.sessionId, {
+      flow: 'issuance',
       onUpdate: (session) => {
         if (session.status === 'pending') {
           statusText.textContent = 'Waiting for wallet to accept...';

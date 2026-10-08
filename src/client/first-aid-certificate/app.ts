@@ -143,6 +143,7 @@ async function handleIssue(useTxCode: boolean): Promise<void> {
     }
 
     await waitForSession(result.sessionId, {
+      flow: 'issuance',
       onUpdate: (session) => {
         if (session.status === 'pending') {
           statusText.textContent = 'Waiting for wallet to accept...';
