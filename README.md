@@ -121,6 +121,11 @@ The credential card images in `eudiplo-config/playground/images/` are generated
 by [`scripts/generate-card-images.py`](scripts/generate-card-images.py)
 (requires `rsvg-convert`). Add new cards there so all cards share one style.
 
+The EUDIMON cards (`eudimon-<starter>.png` and `-logo.png`) use a pixel style
+instead and are generated together with the EUDIMON sprites
+(`src/client/shared/eudimon-sprites.ts`) by
+[`scripts/generate-eudimon-sprites.py`](scripts/generate-eudimon-sprites.py).
+
 When adding a verification use case, add its presentation config to
 `eudiplo-config/playground/presentation/` and reference its `id` in `USE_CASES` in
 `src/server.ts`.
@@ -155,6 +160,17 @@ The playground exposes the following API endpoints:
 - **FitLife Health Club** - Loyalty card issuance (Pre-authorized Code Flow)
 - **DRH Bildungswerk** - First aid certificate issuance, valid for two years (Pre-authorized Code Flow)
 
+### EUDIMON
+
+A Gen 1 style game built on two use cases. It is an easter egg: the start page has no card for it, only the small pixel ball in the footer links to `/eudimon/`.
+
+- **Professor Oak's Lab** (`/eudimon/`) - Pick Bulbasaur, Charmander or Squirtle and receive it as a credential (Pre-authorized Code Flow, optional PIN). Each starter has its own credential config (`eudimon-<starter>`) and card; the four moves are separate claims `move_1` to `move_4`
+- **EUDIMON Arena** (`/eudimon/arena/`) - Turn-based battle against Gary. Wallets answer a DCQL query with the first matching option, so the choices happen on the page: `eudimon-battle` sends out the EUDIMON (species, nickname, level; one credential query per species in a `credential_sets` entry), and the first use of a move requests exactly that move with `eudimon-move-1` to `eudimon-move-4`. Known moves need no new request. An "Under the hood" panel logs every request and what was disclosed; the battle state survives the same-device redirect (localStorage)
+
+Both pages play original 8-bit tunes in the Gen 1 style, synthesized with the Web Audio API
+(`src/client/shared/chiptune.ts`, songs in `src/client/shared/eudimon-music.ts`). Music starts
+with the first click or key press and can be switched off in the header.
+
 ## Project Structure
 
 ```
@@ -167,6 +183,8 @@ playground/
 │       ├── bank-onboarding/
 │       ├── university-diploma/  # EAA - Auth Code Flow
 │       ├── loyalty-card/        # EAA - Pre-auth Code Flow
+│       ├── eudimon-lab/         # EUDIMON issuance (Professor Oak)
+│       ├── eudimon-arena/       # EUDIMON verification (one request per move)
 │       └── ...
 ├── public/              # Static files (HTML, CSS)
 │   ├── index.html

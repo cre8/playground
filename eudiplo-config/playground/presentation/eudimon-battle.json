@@ -1,0 +1,134 @@
+{
+  "$schema": "https://eudiplo.dev/schemas/v1/PresentationConfigFile.schema.json",
+  "metadata": {
+    "generation": 3
+  },
+  "spec": {
+    "registration_cert": {
+      "body": {
+        "purpose": [
+          {
+            "lang": "en",
+            "content": "To send your EUDIMON into the battle against Gary"
+          },
+          {
+            "lang": "de",
+            "content": "Um dein EUDIMON in den Kampf gegen Gary zu schicken"
+          }
+        ],
+        "privacy_policy": "https://example.com/privacy",
+        "support_uri": "https://example.com/support"
+      }
+    },
+    "id": "eudimon-battle",
+    "description": "EUDIMON battle - send out one EUDIMON of any species (DCQL credential_sets): species, nickname and level, no moves",
+    "redirectUri": "${PLAYGROUND_URL:https://playground.eudi-wallet.org}/eudimon/arena/?session={sessionId}",
+    "dcql_query": {
+      "credentials": [
+        {
+          "id": "eudimon-bulbasaur",
+          "format": "dc+sd-jwt",
+          "meta": {
+            "vct_values": [
+              "urn:eudi:eaa:eudimon:bulbasaur:1"
+            ]
+          },
+          "claims": [
+            {
+              "id": "species",
+              "path": [
+                "species"
+              ]
+            },
+            {
+              "id": "nickname",
+              "path": [
+                "nickname"
+              ]
+            },
+            {
+              "id": "level",
+              "path": [
+                "level"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "eudimon-charmander",
+          "format": "dc+sd-jwt",
+          "meta": {
+            "vct_values": [
+              "urn:eudi:eaa:eudimon:charmander:1"
+            ]
+          },
+          "claims": [
+            {
+              "id": "species",
+              "path": [
+                "species"
+              ]
+            },
+            {
+              "id": "nickname",
+              "path": [
+                "nickname"
+              ]
+            },
+            {
+              "id": "level",
+              "path": [
+                "level"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "eudimon-squirtle",
+          "format": "dc+sd-jwt",
+          "meta": {
+            "vct_values": [
+              "urn:eudi:eaa:eudimon:squirtle:1"
+            ]
+          },
+          "claims": [
+            {
+              "id": "species",
+              "path": [
+                "species"
+              ]
+            },
+            {
+              "id": "nickname",
+              "path": [
+                "nickname"
+              ]
+            },
+            {
+              "id": "level",
+              "path": [
+                "level"
+              ]
+            }
+          ]
+        }
+      ],
+      "credential_sets": [
+        {
+          "options": [
+            [
+              "eudimon-bulbasaur"
+            ],
+            [
+              "eudimon-charmander"
+            ],
+            [
+              "eudimon-squirtle"
+            ]
+          ]
+        }
+      ]
+    },
+    "lifeTime": 300
+  }
+}

@@ -260,6 +260,45 @@
         gap: 1.5rem;
         flex-wrap: wrap;
       }
+
+      /* Easter egg: the EUDIMON demo is only reachable through this ball */
+      .secret-ball {
+        display: inline-block;
+        margin-top: 1.5rem;
+        line-height: 0;
+        opacity: 0.5;
+        transition: opacity 0.2s;
+      }
+
+      .secret-ball svg {
+        display: block;
+      }
+
+      .secret-ball:hover,
+      .secret-ball:focus-visible {
+        opacity: 1;
+        animation: ball-wobble 0.8s steps(2) infinite;
+      }
+
+      @keyframes ball-wobble {
+        0%,
+        100% {
+          transform: rotate(0);
+        }
+        25% {
+          transform: rotate(-15deg);
+        }
+        75% {
+          transform: rotate(15deg);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .secret-ball:hover,
+        .secret-ball:focus-visible {
+          animation: none;
+        }
+      }
     </style>
   </head>
   <body>
@@ -550,6 +589,14 @@
             >API Reference</a
           >
         </div>
+        <a href="/eudimon/" class="secret-ball" aria-label="EUDIMON" title="A wild EUDIMON appeared!">
+          <svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true">
+            <path fill="#FFFFFF" d="M7 6h2v1h-2zM6 7h4v1h-4zM6 8h4v1h-4zM1 9h4v1h-4zM7 9h2v1h-2zM11 9h3v1h-3zM1 10h5v1h-5zM10 10h4v1h-4zM1 11h12v1h-12zM2 12h10v1h-10zM3 13h8v1h-8z" />
+            <path fill="#D0D0D0" d="M4 3h2v1h-2zM4 4h1v1h-1zM14 9h1v1h-1zM14 10h1v1h-1zM13 11h2v1h-2zM12 12h2v1h-2zM11 13h2v1h-2zM4 14h8v1h-8z" />
+            <path fill="#E83030" d="M4 1h8v1h-8zM3 2h10v1h-10zM2 3h2v1h-2zM6 3h8v1h-8zM1 4h3v1h-3zM5 4h10v1h-10zM1 5h5v1h-5zM10 5h5v1h-5zM1 6h4v1h-4zM11 6h4v1h-4z" />
+            <path fill="#000000" d="M4 0h8v1h-8zM3 1h1v1h-1zM12 1h1v1h-1zM2 2h1v1h-1zM13 2h1v1h-1zM1 3h1v1h-1zM14 3h1v1h-1zM0 4h1v1h-1zM15 4h1v1h-1zM0 5h1v1h-1zM6 5h4v1h-4zM15 5h1v1h-1zM0 6h1v1h-1zM5 6h2v1h-2zM9 6h2v1h-2zM15 6h1v1h-1zM0 7h6v1h-6zM10 7h6v1h-6zM0 8h6v1h-6zM10 8h6v1h-6zM0 9h1v1h-1zM5 9h2v1h-2zM9 9h2v1h-2zM15 9h1v1h-1zM0 10h1v1h-1zM6 10h4v1h-4zM15 10h1v1h-1zM0 11h1v1h-1zM15 11h1v1h-1zM1 12h1v1h-1zM14 12h1v1h-1zM2 13h1v1h-1zM13 13h1v1h-1zM3 14h1v1h-1zM12 14h1v1h-1zM4 15h8v1h-8z" />
+          </svg>
+        </a>
       </footer>
     </div>
   </body>

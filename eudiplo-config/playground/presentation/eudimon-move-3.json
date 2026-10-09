@@ -1,0 +1,134 @@
+{
+  "$schema": "https://eudiplo.dev/schemas/v1/PresentationConfigFile.schema.json",
+  "metadata": {
+    "generation": 1
+  },
+  "spec": {
+    "registration_cert": {
+      "body": {
+        "purpose": [
+          {
+            "lang": "en",
+            "content": "To let your EUDIMON use move 3 in the battle against Gary"
+          },
+          {
+            "lang": "de",
+            "content": "Damit dein EUDIMON im Kampf gegen Gary Attacke 3 einsetzen kann"
+          }
+        ],
+        "privacy_policy": "https://example.com/privacy",
+        "support_uri": "https://example.com/support"
+      }
+    },
+    "id": "eudimon-move-3",
+    "description": "EUDIMON battle - use move 3: species and nickname to match the EUDIMON in battle, plus move_3",
+    "redirectUri": "${PLAYGROUND_URL:https://playground.eudi-wallet.org}/eudimon/arena/?session={sessionId}",
+    "dcql_query": {
+      "credentials": [
+        {
+          "id": "eudimon-bulbasaur",
+          "format": "dc+sd-jwt",
+          "meta": {
+            "vct_values": [
+              "urn:eudi:eaa:eudimon:bulbasaur:1"
+            ]
+          },
+          "claims": [
+            {
+              "id": "species",
+              "path": [
+                "species"
+              ]
+            },
+            {
+              "id": "nickname",
+              "path": [
+                "nickname"
+              ]
+            },
+            {
+              "id": "move_3",
+              "path": [
+                "move_3"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "eudimon-charmander",
+          "format": "dc+sd-jwt",
+          "meta": {
+            "vct_values": [
+              "urn:eudi:eaa:eudimon:charmander:1"
+            ]
+          },
+          "claims": [
+            {
+              "id": "species",
+              "path": [
+                "species"
+              ]
+            },
+            {
+              "id": "nickname",
+              "path": [
+                "nickname"
+              ]
+            },
+            {
+              "id": "move_3",
+              "path": [
+                "move_3"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "eudimon-squirtle",
+          "format": "dc+sd-jwt",
+          "meta": {
+            "vct_values": [
+              "urn:eudi:eaa:eudimon:squirtle:1"
+            ]
+          },
+          "claims": [
+            {
+              "id": "species",
+              "path": [
+                "species"
+              ]
+            },
+            {
+              "id": "nickname",
+              "path": [
+                "nickname"
+              ]
+            },
+            {
+              "id": "move_3",
+              "path": [
+                "move_3"
+              ]
+            }
+          ]
+        }
+      ],
+      "credential_sets": [
+        {
+          "options": [
+            [
+              "eudimon-bulbasaur"
+            ],
+            [
+              "eudimon-charmander"
+            ],
+            [
+              "eudimon-squirtle"
+            ]
+          ]
+        }
+      ]
+    },
+    "lifeTime": 300
+  }
+}
