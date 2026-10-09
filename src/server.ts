@@ -88,6 +88,16 @@ const USE_CASES: Record<string, { presentationConfigId: string; name: string }> 
     presentationConfigId: 'crisis-helper',
     name: 'Crisis Helper Registration - PID + First Aid Certificate or Ehrenamtskarte',
   },
+  'eudimon-arena': {
+    presentationConfigId: 'eudimon-battle',
+    name: 'EUDIMON Arena - Send out an EUDIMON',
+  },
+  // Wallets answer a DCQL query with the first matching option, so the arena
+  // lets the player pick the move and requests exactly that one
+  'eudimon-move-1': { presentationConfigId: 'eudimon-move-1', name: 'EUDIMON Arena - Move 1' },
+  'eudimon-move-2': { presentationConfigId: 'eudimon-move-2', name: 'EUDIMON Arena - Move 2' },
+  'eudimon-move-3': { presentationConfigId: 'eudimon-move-3', name: 'EUDIMON Arena - Move 3' },
+  'eudimon-move-4': { presentationConfigId: 'eudimon-move-4', name: 'EUDIMON Arena - Move 4' },
 };
 
 // Issuance use case configurations
@@ -133,6 +143,22 @@ const ISSUANCE_USE_CASES: Record<string, {
   'first-aid-certificate': {
     credentialConfigId: 'first-aid',
     name: 'First Aid Certificate',
+    flow: 'pre_authorized_code',
+  },
+  // One config per starter, so every EUDIMON gets its own card in the wallet
+  'eudimon-bulbasaur': {
+    credentialConfigId: 'eudimon-bulbasaur',
+    name: 'EUDIMON Starter Bulbasaur',
+    flow: 'pre_authorized_code',
+  },
+  'eudimon-charmander': {
+    credentialConfigId: 'eudimon-charmander',
+    name: 'EUDIMON Starter Charmander',
+    flow: 'pre_authorized_code',
+  },
+  'eudimon-squirtle': {
+    credentialConfigId: 'eudimon-squirtle',
+    name: 'EUDIMON Starter Squirtle',
     flow: 'pre_authorized_code',
   },
   'mdl-issuance': {

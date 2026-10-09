@@ -74,6 +74,8 @@ export interface WaitOptions {
   flow?: 'presentation' | 'issuance';
   timeout?: number;
   interval?: number;
+  /** Stops polling, the promise rejects with the signal's reason */
+  signal?: AbortSignal;
 }
 
 // DC API types
@@ -282,11 +284,13 @@ export async function waitForSession(
   sessionId: string,
   options: WaitOptions = {}
 ): Promise<Session> {
-  const { onUpdate, flow = 'presentation', timeout = 300000, interval = 1500 } = options;
+  const { onUpdate, flow = 'presentation', timeout = 300000, interval = 1500, signal } = options;
   const startTime = Date.now();
 
   while (Date.now() - startTime < timeout) {
+    signal?.throwIfAborted();
     const session = await getSessionStatus(sessionId);
+    signal?.throwIfAborted();
 
     if (onUpdate) {
       onUpdate(session);

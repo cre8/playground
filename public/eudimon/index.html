@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>Professor Oak's Lab - EUDIMON | EUDI Wallet Playground</title>
+    <meta
+      name="description"
+      content="Pick your starter EUDIMON at Professor Oak's lab and receive it as a credential in your EUDI Wallet."
+    />
+    <link rel="stylesheet" href="/eudimon/styles.css" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"
+      integrity="sha384-lQXOAyZwHXE55JFyrOMB7nY2Wv+m5ZWNtJcHrd1rceRQXAYNLak8ukN5TjBTcIwz"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <header class="gb-header">
+      <div class="gb-header-inner">
+        <div class="gb-header-actions">
+          <a href="/" class="gb-back"><span class="tri-left" aria-hidden="true"></span> Playground</a>
+          <button id="musicToggle" type="button" class="gb-music" aria-pressed="true">
+            <svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true">
+              <path d="M4 0h2v1h-2zM4 1h3v1h-3zM4 2h1v1h-1zM6 2h2v1h-2zM4 3h1v2h-1zM1 5h4v1h-4zM0 6h4v1h-4zM1 7h2v1h-2z" />
+            </svg>
+            <span data-music-label>Music on</span>
+          </button>
+        </div>
+        <div class="gb-title">
+          <span class="gb-logo">EUDIMON</span>
+          <span class="gb-edition">Prof. Oak's Lab</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="gb-main">
+      <section class="gb-screen" aria-labelledby="labTitle">
+        <h1 id="labTitle" class="visually-hidden">Professor Oak's lab</h1>
+
+        <div class="lab-stage">
+          <div class="lab-people">
+            <div id="oakSprite"></div>
+            <div id="garySprite" class="hidden"></div>
+          </div>
+
+          <div class="lab-panel">
+            <!-- 1. Three balls on the table -->
+            <div id="tablePanel" class="lab-table">
+              <div id="ballRow" class="lab-balls" role="group" aria-label="Starter EUDIMON"></div>
+            </div>
+
+            <!-- 2. Dex entry of the chosen starter -->
+            <div id="dexPanel" class="gb-box dex hidden">
+              <div id="dexSprite" class="dex-sprite"></div>
+              <div class="dex-facts">
+                <div id="dexNumber">No.000</div>
+                <div id="dexName" class="dex-name">-</div>
+                <div id="dexType">Type/-</div>
+                <div>Level 5</div>
+              </div>
+              <ol id="dexMoves" class="dex-moves" aria-label="Moves"></ol>
+            </div>
+
+            <!-- 3. Trainer and nickname -->
+            <form id="namePanel" class="gb-box lab-form hidden" novalidate>
+              <div class="gb-field">
+                <label for="trainerName">Your name</label>
+                <input
+                  id="trainerName"
+                  class="gb-input"
+                  type="text"
+                  maxlength="7"
+                  value="BLUE"
+                  autocomplete="off"
+                  spellcheck="false"
+                  required
+                />
+              </div>
+              <div class="gb-field">
+                <label for="nickname">Nickname (optional)</label>
+                <input
+                  id="nickname"
+                  class="gb-input"
+                  type="text"
+                  maxlength="10"
+                  autocomplete="off"
+                  spellcheck="false"
+                />
+              </div>
+              <label class="gb-check">
+                <input id="usePin" type="checkbox" />
+                <span>Protect with a PIN (tx_code)</span>
+              </label>
+              <div class="gb-menu row">
+                <button id="issueBtn" type="submit" class="gb-btn primary">Receive EUDIMON</button>
+                <button id="backBtn" type="button" class="gb-btn">Back</button>
+              </div>
+            </form>
+
+            <!-- 4. Credential offer -->
+            <div id="offerPanel" class="gb-box offer hidden">
+              <div id="qrFrame" class="qr-frame"><div id="qrCode" class="qr-code"></div></div>
+              <div id="walletLink" class="wallet-link hidden"></div>
+              <div id="pinBox" class="pin-box hidden">
+                <span>PIN:</span>
+                <strong id="pinValue" class="pin-value">------</strong>
+                <button id="copyPinBtn" type="button" class="gb-btn">Copy</button>
+              </div>
+              <p id="offerStatus" class="status-line" role="status">Scan the code with your EUDI Wallet</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="textbox" class="gb-box gb-text" aria-live="polite">
+          <p id="dialogText"></p>
+          <span class="gb-next tri-down" aria-hidden="true"></span>
+        </div>
+
+        <div class="gb-menu-anchor">
+          <div id="confirmMenu" class="gb-box gb-menu hidden">
+            <button id="yesBtn" type="button" class="gb-btn">Yes</button>
+            <button id="noBtn" type="button" class="gb-btn">No</button>
+          </div>
+          <div id="doneMenu" class="gb-box gb-menu hidden">
+            <a href="/eudimon/arena/" class="gb-btn primary">To the arena</a>
+            <button id="againBtn" type="button" class="gb-btn">Pick another one</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="gb-box gb-info" aria-labelledby="infoTitle">
+        <h2 id="infoTitle">What happens here?</h2>
+        <p>
+          Professor Oak issues your starter EUDIMON as a credential (SD-JWT VC) using the
+          <code>pre-authorized code flow</code>: no login, just scan the QR code, optionally with a PIN.
+        </p>
+        <ul>
+          <li>Each starter has its own credential config, so it gets its own card in your wallet.</li>
+          <li>The four moves are separately disclosable claims: <code>move_1</code> to <code>move_4</code>.</li>
+          <li>In the arena against Gary, each move is disclosed only when you use it for the first time.</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="gb-footer">
+      <p>
+        Powered by
+        <a href="https://github.com/EUDIPLO/eudiplo" target="_blank" rel="noopener noreferrer">EUDIPLO</a>
+        · <a href="/">Back to Playground</a>
+      </p>
+      <p class="disclaimer">
+        EUDIMON is a fan tribute for demo purposes and is not affiliated with Nintendo, Game Freak or
+        The Pokémon Company.
+      </p>
+    </footer>
+
+    <script type="module" src="/js/eudimon-lab/app.js"></script>
+  </body>
+</html>
