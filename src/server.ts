@@ -178,6 +178,9 @@ const ISSUANCE_USE_CASES: Record<string, {
 // Create Express app
 const app = express();
 app.disable('x-powered-by');
+// The playground runs behind one reverse proxy (Traefik). Take the client IP from
+// X-Forwarded-For, otherwise the rate limiter puts all visitors in one bucket.
+app.set('trust proxy', 1);
 
 // Rate limiting for API endpoints
 const apiLimiter = rateLimit({
