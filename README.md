@@ -85,7 +85,9 @@ The folder name `playground` is the tenant ID.
 Secrets are not stored in the repository. The config files reference them as
 `${VAR}` placeholders, which EUDIPLO resolves from its environment during config
 import. All required variables are listed in
-[`eudiplo-config/.env.example`](eudiplo-config/.env.example).
+[`eudiplo-config/.env.example`](eudiplo-config/.env.example). Their names start
+with `PLAYGROUND_`, so the tenant can share an EUDIPLO instance with other
+tenants without name clashes.
 
 `registrar.json` is the exception: EUDIPLO does not resolve placeholders in it yet
 ([EUDIPLO/eudiplo#1087](https://github.com/EUDIPLO/eudiplo/issues/1087)),
@@ -97,19 +99,25 @@ so it is gitignored. Create it from
 1. Check out this repository on the EUDIPLO host.
 2. Provide the variables from `eudiplo-config/.env.example` to the EUDIPLO backend.
 3. Create `eudiplo-config/playground/registrar.json`.
-4. Point EUDIPLO at the config, either by setting `CONFIG_FOLDER` to the
-   `eudiplo-config` folder or by symlinking it:
+4. Add the tenant folder to EUDIPLO's `CONFIG_FOLDER`. Every folder in
+   `CONFIG_FOLDER` is one tenant, so the playground can sit next to other
+   tenants. Symlink it (EUDIPLO 9.0 or later follows symlinked tenant folders):
 
    ```bash
-   ln -s /path/to/playground/eudiplo-config /path/to/eudiplo/config
+   ln -s /path/to/playground/eudiplo-config/playground /path/to/eudiplo/config/playground
    ```
 
-   Symlink the whole config folder, not the tenant folder: EUDIPLO skips
-   symlinked tenant folders when scanning `CONFIG_FOLDER`. When EUDIPLO runs in
-   Docker, bind-mount `eudiplo-config` instead, since a symlink target outside
-   the container is not visible inside it. The `eudiplo` service in
-   [`docker-compose.yml`](docker-compose.yml) does this and reads the secrets
-   from `eudiplo-config/.env`.
+   When EUDIPLO runs in Docker, bind-mount the tenant folder instead, since a
+   symlink target outside the container is not visible inside it:
+
+   ```yaml
+   volumes:
+     - ./playground/eudiplo-config/playground:/app/config/config/playground:ro
+   ```
+
+   The `eudiplo` service in [`docker-compose.yml`](docker-compose.yml) mounts the
+   whole `eudiplo-config` folder for local use and reads the secrets from
+   `eudiplo-config/.env`.
 
 To validate the config locally with the EUDIPLO CLI (the variables must be set):
 

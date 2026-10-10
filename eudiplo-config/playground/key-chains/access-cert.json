@@ -18,7 +18,7 @@
         "x": "QD5c6SEzF7ZJ0ZXJ3UUVDcZJaUpgGD9G9l8I0ggRqPY",
         "y": "fRYt5fg9Ku4a5TJUW3q7gPyJrOOUpXibkKz3p4ay4ok",
         "crv": "P-256",
-        "d": "${KEY_ACCESS_CERT_D}",
+        "d": "${PLAYGROUND_KEY_ACCESS_CERT_D}",
         "kid": "c986c290-6545-4528-94a3-d256fddec1dd-active",
         "alg": "ES256"
       }

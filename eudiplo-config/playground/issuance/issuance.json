@@ -28,7 +28,7 @@
         "upstream": {
           "issuer": "https://auth.sandbox.eudi-wallet.org/realms/playground",
           "clientId": "eudiplo",
-          "clientSecret": "${CHAINED_AUTH_CLIENT_SECRET}",
+          "clientSecret": "${PLAYGROUND_CHAINED_AUTH_CLIENT_SECRET}",
           "scopes": [
             "openid",
             "profile",

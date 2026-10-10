@@ -16,7 +16,7 @@
       "type": "private-jwk",
       "jwk": {
         "crv": "P-256",
-        "d": "${KEY_STATUS_LIST_D}",
+        "d": "${PLAYGROUND_KEY_STATUS_LIST_D}",
         "kty": "EC",
         "x": "HHkkbUgKSkkqXmL8utl-TLWIg8CYQS4WPJ8j_nO44Yw",
         "y": "1NJY0LT3mEuucLQCZJWNrA7fVW8ypR4Zf5cuu85NjSw",

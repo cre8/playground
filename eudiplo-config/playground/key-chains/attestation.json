@@ -23,7 +23,7 @@
         "x": "Sys1HnepkNjAGigUnyxKuPoneLPISc-l5Xme3JhskuM",
         "y": "ITYQPVuVMMSewUFfG7Bif-cY0dUwbwK4VK-3SYxCkhA",
         "crv": "P-256",
-        "d": "${KEY_ATTESTATION_D}",
+        "d": "${PLAYGROUND_KEY_ATTESTATION_D}",
         "kid": "bf9c1f04-50b9-4091-b7fb-c3bce9ec4837-root"
       }
     }

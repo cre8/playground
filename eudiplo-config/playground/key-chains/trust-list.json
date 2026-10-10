@@ -12,7 +12,7 @@
       "type": "private-jwk",
       "jwk": {
         "crv": "P-256",
-        "d": "${KEY_TRUST_LIST_D}",
+        "d": "${PLAYGROUND_KEY_TRUST_LIST_D}",
         "kty": "EC",
         "x": "MhpvX9dEM8NsXM-c6474d2uHrPRWrVD4WZGtVvxfQhk",
         "y": "q_uS4tQZSKu22_YgTlEFjuNdz-e-uNHzW1-x_VLicco",

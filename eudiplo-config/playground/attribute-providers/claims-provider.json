@@ -7,7 +7,7 @@
     "id": "claims-provider",
     "name": "Claims Provider",
     "description": "Provides dynamic claim values during credential issuance",
-    "url": "${ATTRIBUTE_PROVIDER_URL:http://localhost:8787/claims}",
+    "url": "${PLAYGROUND_ATTRIBUTE_PROVIDER_URL:http://localhost:8787/claims}",
     "auth": {
       "type": "none"
     }
