@@ -136,7 +136,10 @@ instead and are generated together with the EUDIMON sprites
 
 When adding a verification use case, add its presentation config to
 `eudiplo-config/playground/presentation/` and reference its `id` in `USE_CASES` in
-`src/server.ts`.
+`src/server.ts`. EUDIPLO rejects credential queries without `trusted_authorities`:
+link the PID trust list for the PID, and the `playground-eaa` trust list
+([`trust-lists/eaa.json`](eudiplo-config/playground/trust-lists/eaa.json)) for
+the other credentials the playground issues.
 
 ## API Endpoints
 

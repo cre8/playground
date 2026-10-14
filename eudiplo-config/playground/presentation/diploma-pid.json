@@ -1,7 +1,7 @@
 {
   "$schema": "https://eudiplo.dev/schemas/v1/PresentationConfigFile.schema.json",
   "metadata": {
-    "generation": 5
+    "generation": 6
   },
   "spec": {
     "registration_cert": {
@@ -180,7 +180,17 @@
             "vct_values": [
               "urn:eudi:eaa:university-diploma:1"
             ]
-          }
+          },
+          "trusted_authorities": [
+            {
+              "type": "etsi_tl",
+              "values": [
+                {
+                  "trustListId": "playground-eaa"
+                }
+              ]
+            }
+          ]
         }
       ],
       "credential_sets": [

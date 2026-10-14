@@ -1,0 +1,22 @@
+{
+  "$schema": "https://eudiplo.dev/schemas/v1/TrustListConfigFile.schema.json",
+  "metadata": {
+    "generation": 1
+  },
+  "spec": {
+    "id": "playground-eaa",
+    "description": "trust list for the EAAs the playground issues",
+    "keyChainId": "570852d7-7e7f-40af-a0e3-a6ebffd75ed0",
+    "entities": [
+      {
+        "type": "internal",
+        "issuerKeyChainId": "bf9c1f04-50b9-4091-b7fb-c3bce9ec4837",
+        "revocationKeyChainId": "dbb65456-c358-46c1-bb5b-c777ef72c1d4",
+        "info": {
+          "name": "EUDI Wallet Playground EAA Provider",
+          "lang": "en"
+        }
+      }
+    ]
+  }
+}
