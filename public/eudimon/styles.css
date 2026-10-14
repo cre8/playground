@@ -950,6 +950,13 @@ a {
   border: 2px solid var(--gb-3);
 }
 
+.fx-bolt {
+  width: calc(var(--px) * 8);
+  height: calc(var(--px) * 16);
+  background: var(--gb-3);
+  clip-path: polygon(55% 0, 15% 55%, 45% 55%, 25% 100%, 85% 40%, 55% 40%, 80% 0);
+}
+
 .fx-wave {
   width: calc(var(--px) * 10);
   height: calc(var(--px) * 16);

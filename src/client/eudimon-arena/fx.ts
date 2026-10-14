@@ -148,6 +148,16 @@ export class MoveEffects {
         seeds.forEach((seed) => seed.remove());
         break;
       }
+      case 'thunder': {
+        // Bolts strike the target from above, the screen flashes
+        const bolts = [-18, 16, 0].map((offset) =>
+          this.spawn('fx-bolt', { x: to.x + offset, y: to.y - 30 })
+        );
+        await this.flash(2);
+        bolts.forEach((bolt) => bolt.remove());
+        await blink(defender);
+        break;
+      }
       case 'growl': {
         // Sound waves from the attacker towards the target
         const rotate = direction.x < 0 ? 180 : 0;

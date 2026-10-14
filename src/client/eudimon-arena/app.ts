@@ -6,7 +6,9 @@
  * - the first use of a move is another one that asks for exactly that move
  *   (one presentation config per move slot),
  * - moves Gary already knows need no new request.
- * Every request shows up in the "Under the hood" log.
+ * Every request shows up in the "Under the hood" log. The server referees the
+ * battle with the claims it reads from EUDIPLO and issues Gary's Pikachu to
+ * the winner.
  */
 
 import {
@@ -23,13 +25,14 @@ import {
 } from '../shared/utils';
 import {
   Dialog,
-  STARTERS,
-  STARTER_LEVEL,
+  PIKACHU,
+  SEND_OUT_CONFIGS,
+  type SendOutChoice,
   enableMenuKeys,
   findMove,
-  findStarter,
   getStarter,
   isCancelled,
+  moveConfig,
   renderSprite,
   renderWalletLink,
   sleep,
@@ -43,20 +46,21 @@ import {
   type PlayerEudimon,
   type RequestKind,
   type Side,
+  type TurnResult,
+  claimReward,
   clearBattle,
-  createBattle,
-  endTurn,
-  garysMove,
+  isRejected,
   knownMove,
   loadBattle,
   saveBattle,
-  useMove,
+  startBattle,
+  takeTurn,
 } from './battle';
 import { MoveEffects, animate, faint, popIn } from './fx';
 import { neverShared, renderLog } from './log';
 
 /**
- * EUDIMON credentials are recognised by their vct (urn:eudi:eaa:eudimon:<starter>:1),
+ * EUDIMON credentials are recognised by their vct (urn:eudi:eaa:eudimon:<species>:1),
  * so it does not matter which credential query of a presentation config the
  * wallet answered.
  */
@@ -70,14 +74,18 @@ const AUTO_ADVANCE_MS = 1800;
 type Claims = Record<string, unknown>;
 type PresentedCredential = { id?: string; values?: Claims[] };
 
-// Use cases in src/server.ts and their presentation configs in
-// eudiplo-config/playground/presentation/eudimon-*.json
-function useCaseFor(request: RequestKind): string {
-  return request.kind === 'send-out' ? 'eudimon-arena' : `eudimon-move-${request.slot}`;
+// Presentation configs in eudiplo-config/playground/presentation/eudimon-*.json
+function configFor(request: RequestKind): string {
+  return request.kind === 'send-out'
+    ? SEND_OUT_CONFIGS[request.choice]
+    : moveConfig(state?.player.eudimonId, request.slot);
 }
 
-function configFor(request: RequestKind): string {
-  return request.kind === 'send-out' ? 'eudimon-battle' : `eudimon-move-${request.slot}`;
+// Use cases in src/server.ts, named like their configs except the starter send-out
+function useCaseFor(request: RequestKind): string {
+  return request.kind === 'send-out' && request.choice === 'starter'
+    ? 'eudimon-arena'
+    : configFor(request);
 }
 
 function requestedClaims(request: RequestKind): string[] {
@@ -89,6 +97,7 @@ function requestedClaims(request: RequestKind): string[] {
 const battle = getElement<HTMLDivElement>('battle');
 const foeHud = getElement<HTMLDivElement>('foeHud');
 const foeName = getElement<HTMLDivElement>('foeName');
+const foeLevel = getElement<HTMLDivElement>('foeLevel');
 const foeHp = getElement<HTMLDivElement>('foeHp');
 const foeSlot = getElement<HTMLDivElement>('foeSlot');
 const playerSlot = getElement<HTMLDivElement>('playerSlot');
@@ -108,7 +117,14 @@ const qrCode = getElement<HTMLDivElement>('qrCode');
 const walletLink = getElement<HTMLDivElement>('walletLink');
 const dcApiBtn = getElement<HTMLButtonElement>('dcApiBtn');
 const cancelRequestBtn = getElement<HTMLButtonElement>('cancelRequestBtn');
+const sendOutMenu = getElement<HTMLDivElement>('sendOutMenu');
+const sendStarterBtn = getElement<HTMLButtonElement>('sendStarterBtn');
 const verifyStatus = getElement<HTMLParagraphElement>('verifyStatus');
+const rewardPanel = getElement<HTMLDivElement>('rewardPanel');
+const rewardQrFrame = getElement<HTMLDivElement>('rewardQrFrame');
+const rewardQr = getElement<HTMLDivElement>('rewardQr');
+const rewardLink = getElement<HTMLDivElement>('rewardLink');
+const rewardStatus = getElement<HTMLParagraphElement>('rewardStatus');
 const resultPanel = getElement<HTMLDivElement>('resultPanel');
 const resultTitle = getElement<HTMLHeadingElement>('resultTitle');
 const resultFacts = getElement<HTMLDListElement>('resultFacts');
@@ -128,6 +144,8 @@ let state: BattleState | null = null;
 let currentRequest: RequestKind | null = null;
 /** Aborts polling of the QR code session, e.g. when switching to the DC API */
 let polling: AbortController | null = null;
+/** Aborts polling of the reward offer when a new battle starts */
+let rewardPolling: AbortController | null = null;
 let turnRunning = false;
 
 // --- Helpers ------------------------------------------------------------------------
@@ -170,7 +188,7 @@ function resetScene(): void {
   foeHud.classList.add('hidden');
   playerHud.classList.add('hidden');
   fxLayer.replaceChildren();
-  for (const panel of [fightMenu, verifyPanel, resultPanel, endMenu]) {
+  for (const panel of [sendOutMenu, fightMenu, verifyPanel, rewardPanel, resultPanel, endMenu]) {
     panel.classList.add('hidden');
   }
 }
@@ -188,13 +206,14 @@ function setHp(side: Side, hp: number, maxHp: number): void {
 
 function playerSprite(player: PlayerEudimon): SVGSVGElement {
   // Unknown species (hand-crafted claims) fight as an EUDI ball
-  return player.starterId
-    ? renderSprite(player.starterId, { flip: true, label: `Your ${player.species}` })
+  return player.eudimonId
+    ? renderSprite(player.eudimonId, { flip: true, label: `Your ${player.species}` })
     : renderSprite('ball', { label: player.species || 'EUDIMON' });
 }
 
 function showHuds(current: BattleState): void {
   foeName.textContent = upper(getStarter(current.rivalId).name);
+  foeLevel.textContent = `:L${current.foe.level}`;
   playerName.textContent = current.player.nickname;
   playerLevel.textContent = `:L${current.player.level}`;
   setHp('foe', current.foe.hp, current.foe.maxHp);
@@ -262,6 +281,9 @@ async function sendOut(current: BattleState): Promise<void> {
     popIn(sprite),
     say(`Go! ${current.player.nickname}!`, 1400),
   ]);
+  if (current.player.eudimonId === PIKACHU.id) {
+    await say(`GARY: My old PIKACHU?! My ${upper(rival.name)} trained just for this!`);
+  }
 }
 
 // --- Fight menu ----------------------------------------------------------------------
@@ -325,6 +347,61 @@ async function chooseMove(slot: number): Promise<void> {
   await playTurn(slot);
 }
 
+/** Asks the referee to play the turn, a new move comes with the session that disclosed it */
+async function playTurn(slot: number, sessionId?: string, entry?: LogEntry): Promise<void> {
+  const current = state;
+  if (!current) {
+    return;
+  }
+  turnRunning = true;
+  fightMenu.classList.add('hidden');
+  let result: TurnResult;
+  try {
+    result = await takeTurn(current.battleId, slot, sessionId);
+  } catch (error) {
+    turnRunning = false;
+    if (entry && isRejected(error, 'wrong-eudimon', 'no-move')) {
+      entry.note = `${error.message}, so Gary ignored it.`;
+      addLog(entry);
+      await say(
+        error.reason === 'wrong-eudimon'
+          ? "GARY: Hey! That's not the EUDIMON you sent out!"
+          : `${current.player.nickname} doesn't know which move to use...`
+      );
+      showFightMenu();
+    } else {
+      await showRequestError(error);
+    }
+    return;
+  }
+  if (entry && !result.duplicate) {
+    addLog(entry);
+  }
+  await playResult(current, result);
+}
+
+async function playResult(current: BattleState, result: TurnResult): Promise<void> {
+  Object.assign(current, result.battle);
+  saveBattle(current);
+  renderBattleLog();
+  if (result.duplicate) {
+    // Another tab already played this turn
+    turnRunning = false;
+    restoreScene(current);
+  } else {
+    await playEvents(result.events);
+    turnRunning = false;
+  }
+
+  if (current.outcome && !result.duplicate) {
+    await finishBattle(current);
+  } else if (current.outcome) {
+    showSummary(current);
+  } else {
+    showFightMenu();
+  }
+}
+
 async function run(): Promise<void> {
   fightMenu.classList.add('hidden');
   await say("No! There's no running from a trainer battle!");
@@ -335,7 +412,8 @@ async function run(): Promise<void> {
 
 function describeRequest(request: RequestKind): string {
   if (request.kind === 'send-out') {
-    return 'Gary asks for your EUDIMON: species, nickname and level. Its moves stay private for now.';
+    const which = request.choice === 'pikachu' ? 'PIKACHU' : 'starter';
+    return `Gary asks for your ${which}: species, nickname and level. Its moves stay private for now.`;
   }
   return `To use move ${request.slot}, your wallet shares species, nickname and move_${request.slot}. Gary learns this one move, the others stay private.`;
 }
@@ -347,8 +425,11 @@ async function requestFromWallet(request: RequestKind): Promise<void> {
   currentRequest = request;
 
   fightMenu.classList.add('hidden');
+  sendOutMenu.classList.add('hidden');
   verifyText.textContent = describeRequest(request);
-  cancelRequestBtn.classList.toggle('hidden', request.kind === 'send-out');
+  cancelRequestBtn.textContent =
+    request.kind === 'send-out' ? 'Pick another EUDIMON' : 'Pick another move';
+  cancelRequestBtn.classList.remove('hidden');
   qrCode.replaceChildren();
   qrFrame.classList.remove('hidden');
   walletLink.classList.add('hidden');
@@ -356,7 +437,7 @@ async function requestFromWallet(request: RequestKind): Promise<void> {
   verifyPanel.classList.remove('hidden');
   void dialog.show(
     request.kind === 'send-out'
-      ? 'Which EUDIMON will you send out? Scan the code with your EUDI Wallet.'
+      ? 'Scan the code with your EUDI Wallet to send out your EUDIMON.'
       : `Reveal move ${request.slot} with your EUDI Wallet.`
   );
 
@@ -404,10 +485,12 @@ async function requestWithDcApi(): Promise<void> {
 
 function cancelRequest(): void {
   polling?.abort();
-  if (state) {
-    state.pending = undefined;
-    saveBattle(state);
+  if (!state) {
+    showSendOutMenu();
+    return;
   }
+  state.pending = undefined;
+  saveBattle(state);
   showFightMenu();
 }
 
@@ -425,9 +508,13 @@ async function showRequestError(error: unknown): Promise<void> {
   setStatus(`Error: ${message}`, true);
   qrFrame.classList.toggle('hidden', !qrCode.hasChildNodes());
   verifyPanel.classList.remove('hidden');
-  if (currentRequest?.kind === 'move') {
+  // A move can be retried, unless the server no longer knows the battle (restart)
+  if (currentRequest?.kind === 'move' && state && !isRejected(error, 'unknown-battle')) {
     cancelRequestBtn.classList.remove('hidden');
     await dialog.show('The wallet request failed. Try again or pick another move.');
+  } else if (currentRequest?.kind === 'send-out' && !state) {
+    cancelRequestBtn.classList.remove('hidden');
+    await dialog.show('The wallet request failed. Try again or pick another EUDIMON.');
   } else {
     endMenu.classList.remove('hidden');
     againBtn.focus();
@@ -439,17 +526,6 @@ function findEudimonClaims(credentials: PresentedCredential[] | undefined): Clai
   return credentials
     ?.flatMap((credential) => credential.values ?? [])
     .find((claims) => EUDIMON_VCT.test(asText(claims.vct)));
-}
-
-function readPlayer(claims: Claims): PlayerEudimon {
-  const species = asText(claims.species);
-  const fromVct = EUDIMON_VCT.exec(asText(claims.vct))?.[1];
-  return {
-    species,
-    nickname: upper(asText(claims.nickname) || species || 'EUDIMON'),
-    level: Number(claims.level) || STARTER_LEVEL,
-    starterId: (findStarter(species) ?? STARTERS.find((s) => s.id === fromVct))?.id,
-  };
 }
 
 function logEntry(
@@ -510,7 +586,7 @@ async function applyResponse(
   }
 
   const claims = findEudimonClaims(credentials as PresentedCredential[] | undefined);
-  if (!claims) {
+  if (!claims || !sessionId) {
     await say("GARY: Huh? That's not an EUDIMON!", 0);
     if (request.kind === 'move' && state) {
       showFightMenu();
@@ -521,11 +597,17 @@ async function applyResponse(
   }
 
   if (request.kind === 'send-out') {
-    state = createBattle(readPlayer(claims));
-    if (sessionId) {
-      state.handled.push(sessionId);
+    let started: BattleState;
+    try {
+      started = await startBattle(sessionId);
+    } catch (error) {
+      await showRequestError(error);
+      return;
     }
-    state.log.push(logEntry(state, request, claims, method, sessionId));
+    state = started;
+    const choice: SendOutChoice =
+      EUDIMON_VCT.exec(asText(claims.vct))?.[1] === PIKACHU.id ? 'pikachu' : 'starter';
+    state.log.push(logEntry(state, { kind: 'send-out', choice }, claims, method, sessionId));
     saveBattle(state);
     renderBattleLog();
     await sendOut(state);
@@ -538,33 +620,9 @@ async function applyResponse(
     return;
   }
   state.pending = undefined;
-  if (sessionId) {
-    state.handled.push(sessionId);
-  }
-  const entry = logEntry(state, request, claims, method, sessionId);
-
-  // The wallet picks the first matching credential, so it can be another EUDIMON
-  const presented = readPlayer(claims);
-  if (presented.nickname !== state.player.nickname || presented.species !== state.player.species) {
-    entry.note = `The wallet shared ${presented.nickname}, not ${state.player.nickname}, so Gary ignored it.`;
-    addLog(entry);
-    await say("GARY: Hey! That's not the EUDIMON you sent out!");
-    showFightMenu();
-    return;
-  }
-
-  const moveName = asText(claims[`move_${request.slot}`]);
-  if (!moveName) {
-    entry.note = `The wallet did not share move_${request.slot}.`;
-    addLog(entry);
-    await say(`${state.player.nickname} doesn't know which move to use...`);
-    showFightMenu();
-    return;
-  }
-
-  state.knownMoves.push({ slot: request.slot, name: moveName });
-  addLog(entry);
-  await playTurn(request.slot);
+  state.handled.push(sessionId);
+  saveBattle(state);
+  await playTurn(request.slot, sessionId, logEntry(state, request, claims, method, sessionId));
 }
 
 // --- Turns ------------------------------------------------------------------------------
@@ -601,39 +659,17 @@ async function playEvents(events: BattleEvent[]): Promise<void> {
   }
 }
 
-async function playTurn(slot: number): Promise<void> {
-  const current = state;
-  const known = current ? knownMove(current, slot) : undefined;
-  if (!current || !known) {
-    return;
-  }
-  turnRunning = true;
-  fightMenu.classList.add('hidden');
-
-  await playEvents(useMove(current, 'you', findMove(known.name)));
-  if (!current.outcome) {
-    await playEvents(useMove(current, 'foe', garysMove(current)));
-  }
-  if (!current.outcome) {
-    await playEvents(endTurn(current));
-  }
-  saveBattle(current);
-  renderBattleLog();
-  turnRunning = false;
-
-  if (current.outcome) {
-    await finishBattle(current);
-  } else {
-    showFightMenu();
-  }
-}
-
 async function finishBattle(current: BattleState): Promise<void> {
   fightMenu.classList.add('hidden');
   if (current.outcome === 'won') {
     music.jingle(FANFARE, LAB_THEME);
     await say('GARY: WHAT?! My EUDIMON lost?');
-    await say(`GARY: Fine, ${current.player.nickname} is not bad. Smell ya later!`);
+    if (earnsReward(current)) {
+      await say(`GARY: Fine, ${current.player.nickname} is not bad.`);
+      await say(`GARY: Here, take my ${upper(PIKACHU.name)}. It never listened to me anyway!`);
+    } else {
+      await say(`GARY: Beaten by my own ${upper(PIKACHU.name)}... Smell ya later!`);
+    }
   } else {
     music.setBackground(LAB_THEME);
     await say(`${current.player.nickname} has no strength left!`);
@@ -686,13 +722,75 @@ function showSummary(current: BattleState): void {
   resultPanel.classList.remove('hidden');
   endMenu.classList.remove('hidden');
   againBtn.focus({ preventScroll: true });
-  void dialog.show(`${current.player.nickname} is ready for the next battle!`);
+  if (earnsReward(current)) {
+    void offerReward(current);
+  } else {
+    void dialog.show(`${current.player.nickname} is ready for the next battle!`);
+  }
+}
+
+// --- Reward ---------------------------------------------------------------------------
+
+/** Gary hands over his Pikachu, unless you beat him with it */
+function earnsReward(current: BattleState): boolean {
+  return current.outcome === 'won' && current.player.eudimonId !== PIKACHU.id;
+}
+
+function setRewardStatus(message: string, isError = false): void {
+  rewardStatus.textContent = message;
+  rewardStatus.classList.toggle('error', isError);
+}
+
+/** The server issues the offer only for a battle it saw won */
+async function offerReward(current: BattleState): Promise<void> {
+  rewardPolling?.abort();
+  rewardPolling = new AbortController();
+  const { signal } = rewardPolling;
+  const name = upper(PIKACHU.name);
+
+  rewardQr.replaceChildren();
+  rewardQrFrame.classList.remove('hidden');
+  rewardLink.classList.add('hidden');
+  setRewardStatus('Preparing the offer...');
+  rewardPanel.classList.remove('hidden');
+  void dialog.show(`Scan the code to put ${name} in your EUDI Wallet!`);
+
+  try {
+    const offer = await claimReward(current.battleId);
+    signal.throwIfAborted();
+    await generateQRCode(rewardQr, offer.uri);
+    renderWalletLink(rewardLink, offer.uri);
+    setRewardStatus('Waiting for your wallet...');
+    await waitForSession(offer.sessionId, {
+      flow: 'issuance',
+      signal,
+      onUpdate: (session) => {
+        if (session.status === 'processing') {
+          setRewardStatus(`Transferring ${name}...`);
+        }
+      },
+    });
+    rewardQrFrame.classList.add('hidden');
+    rewardLink.classList.add('hidden');
+    setRewardStatus(`${name} is in your wallet.`);
+    music.jingle(FANFARE, LAB_THEME);
+    await say(`${name} joined your team! Send it out in the next battle.`, 0);
+  } catch (error) {
+    if (isCancelled(error)) {
+      return;
+    }
+    console.error('EUDIMON reward failed', error);
+    const message = error instanceof Error ? error.message : String(error);
+    rewardQrFrame.classList.toggle('hidden', !rewardQr.hasChildNodes());
+    setRewardStatus(`Error: ${message}`, true);
+  }
 }
 
 // --- Start --------------------------------------------------------------------------------
 
 async function newBattle(intro: boolean): Promise<void> {
   polling?.abort();
+  rewardPolling?.abort();
   clearBattle();
   state = null;
   renderBattleLog();
@@ -706,7 +804,18 @@ async function newBattle(intro: boolean): Promise<void> {
     await say('GARY: Again? Bring it on!', 1600);
   }
   showWaitingBall();
-  await requestFromWallet({ kind: 'send-out' });
+  showSendOutMenu();
+}
+
+function showSendOutMenu(): void {
+  verifyPanel.classList.add('hidden');
+  sendOutMenu.classList.remove('hidden');
+  sendStarterBtn.focus({ preventScroll: true });
+  void dialog.show('Which EUDIMON will you send out? PIKACHU is the reward for beating Gary.');
+}
+
+function chooseSendOut(choice: SendOutChoice): void {
+  void requestFromWallet({ kind: 'send-out', choice });
 }
 
 /** Same-device flow: the wallet redirected back with ?session=... */
@@ -726,7 +835,8 @@ async function resume(sessionId: string): Promise<void> {
     return;
   }
 
-  let request: RequestKind = { kind: 'send-out' };
+  // Without a battle the session sent out an EUDIMON, the log names the config by its vct
+  let request: RequestKind = { kind: 'send-out', choice: 'starter' };
   if (saved?.pending?.sessionId === sessionId && !saved.outcome) {
     state = saved;
     restoreScene(saved);
@@ -753,6 +863,11 @@ function init(): void {
   againBtn.addEventListener('click', () => void newBattle(false));
   dcApiBtn.addEventListener('click', () => void requestWithDcApi());
   cancelRequestBtn.addEventListener('click', cancelRequest);
+  sendStarterBtn.addEventListener('click', () => chooseSendOut('starter'));
+  getElement<HTMLButtonElement>('sendPikachuBtn').addEventListener('click', () =>
+    chooseSendOut('pikachu')
+  );
+  enableMenuKeys(sendOutMenu);
   runBtn.addEventListener('click', () => void run());
   enableMenuKeys(endMenu);
   enableMenuKeys(fightMenu);

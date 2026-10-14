@@ -1,0 +1,71 @@
+{
+  "$schema": "https://eudiplo.dev/schemas/v1/PresentationConfigFile.schema.json",
+  "metadata": {
+    "generation": 1
+  },
+  "spec": {
+    "registration_cert": {
+      "body": {
+        "purpose": [
+          {
+            "lang": "en",
+            "content": "To let your PIKACHU use move 4 in the battle against Gary"
+          },
+          {
+            "lang": "de",
+            "content": "Damit dein PIKACHU im Kampf gegen Gary Attacke 4 einsetzen kann"
+          }
+        ],
+        "privacy_policy": "https://example.com/privacy",
+        "support_uri": "https://example.com/support"
+      }
+    },
+    "id": "eudimon-pikachu-move-4",
+    "description": "EUDIMON battle - Pikachu uses move 4: species and nickname to match the EUDIMON in battle, plus move_4",
+    "redirectUri": "${PLAYGROUND_URL:https://playground.eudi-wallet.org}/eudimon/arena/?session={sessionId}",
+    "dcql_query": {
+      "credentials": [
+        {
+          "id": "eudimon-pikachu",
+          "format": "dc+sd-jwt",
+          "meta": {
+            "vct_values": [
+              "urn:eudi:eaa:eudimon:pikachu:1"
+            ]
+          },
+          "claims": [
+            {
+              "id": "species",
+              "path": [
+                "species"
+              ]
+            },
+            {
+              "id": "nickname",
+              "path": [
+                "nickname"
+              ]
+            },
+            {
+              "id": "move_4",
+              "path": [
+                "move_4"
+              ]
+            }
+          ],
+          "trusted_authorities": [
+            {
+              "type": "etsi_tl",
+              "values": [
+                {
+                  "trustListId": "playground-eaa"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "lifeTime": 300
+  }
+}

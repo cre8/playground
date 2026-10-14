@@ -15,6 +15,7 @@ import {
   credentialOfferControllerGetOffer,
 } from '@eudiplo/sdk-core';
 import 'dotenv/config';
+import { eudimonArena } from './eudimon-arena';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -98,6 +99,15 @@ const USE_CASES: Record<string, { presentationConfigId: string; name: string }> 
   'eudimon-move-2': { presentationConfigId: 'eudimon-move-2', name: 'EUDIMON Arena - Move 2' },
   'eudimon-move-3': { presentationConfigId: 'eudimon-move-3', name: 'EUDIMON Arena - Move 3' },
   'eudimon-move-4': { presentationConfigId: 'eudimon-move-4', name: 'EUDIMON Arena - Move 4' },
+  // A winner holds a starter and Pikachu, so Pikachu has requests of its own
+  'eudimon-battle-pikachu': {
+    presentationConfigId: 'eudimon-battle-pikachu',
+    name: 'EUDIMON Arena - Send out Pikachu',
+  },
+  'eudimon-pikachu-move-1': { presentationConfigId: 'eudimon-pikachu-move-1', name: 'EUDIMON Arena - Pikachu Move 1' },
+  'eudimon-pikachu-move-2': { presentationConfigId: 'eudimon-pikachu-move-2', name: 'EUDIMON Arena - Pikachu Move 2' },
+  'eudimon-pikachu-move-3': { presentationConfigId: 'eudimon-pikachu-move-3', name: 'EUDIMON Arena - Pikachu Move 3' },
+  'eudimon-pikachu-move-4': { presentationConfigId: 'eudimon-pikachu-move-4', name: 'EUDIMON Arena - Pikachu Move 4' },
 };
 
 // Issuance use case configurations
@@ -161,6 +171,8 @@ const ISSUANCE_USE_CASES: Record<string, {
     name: 'EUDIMON Starter Squirtle',
     flow: 'pre_authorized_code',
   },
+  // eudimon-pikachu is missing on purpose: only the arena referee issues it,
+  // for a battle it saw won (src/eudimon-arena.ts)
   'mdl-issuance': {
     credentialConfigId: 'mdl',
     name: 'Mobile Driving Licence (mDL)',
@@ -560,6 +572,22 @@ app.post('/api/dc-api/complete', async (req: Request, res: Response) => {
     res.status(500).json({ error: error.message || 'Internal Server Error' });
   }
 });
+
+// EUDIMON arena: the server referees the battles and issues Pikachu to winners
+app.use(
+  '/api/eudimon',
+  eudimonArena({
+    getSession: (sessionId) => withRetry(() => getClient().getSession(sessionId)),
+    createRewardOffer: (claims) =>
+      withRetry(() =>
+        createIssuanceOffer({
+          credentialConfigurationIds: ['eudimon-pikachu'],
+          claims: { 'eudimon-pikachu': claims },
+          flow: 'pre_authorized_code',
+        })
+      ),
+  })
+);
 
 // Serve static files from public directory
 const publicDir = path.resolve(__dirname, '..', 'public');

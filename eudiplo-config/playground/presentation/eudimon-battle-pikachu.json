@@ -1,0 +1,71 @@
+{
+  "$schema": "https://eudiplo.dev/schemas/v1/PresentationConfigFile.schema.json",
+  "metadata": {
+    "generation": 1
+  },
+  "spec": {
+    "registration_cert": {
+      "body": {
+        "purpose": [
+          {
+            "lang": "en",
+            "content": "To send your PIKACHU into the battle against Gary"
+          },
+          {
+            "lang": "de",
+            "content": "Um dein PIKACHU in den Kampf gegen Gary zu schicken"
+          }
+        ],
+        "privacy_policy": "https://example.com/privacy",
+        "support_uri": "https://example.com/support"
+      }
+    },
+    "id": "eudimon-battle-pikachu",
+    "description": "EUDIMON battle - send out Pikachu, Gary's reward: species, nickname and level, no moves. A separate request, because wallets answer with the first matching option and a winner also holds a starter",
+    "redirectUri": "${PLAYGROUND_URL:https://playground.eudi-wallet.org}/eudimon/arena/?session={sessionId}",
+    "dcql_query": {
+      "credentials": [
+        {
+          "id": "eudimon-pikachu",
+          "format": "dc+sd-jwt",
+          "meta": {
+            "vct_values": [
+              "urn:eudi:eaa:eudimon:pikachu:1"
+            ]
+          },
+          "claims": [
+            {
+              "id": "species",
+              "path": [
+                "species"
+              ]
+            },
+            {
+              "id": "nickname",
+              "path": [
+                "nickname"
+              ]
+            },
+            {
+              "id": "level",
+              "path": [
+                "level"
+              ]
+            }
+          ],
+          "trusted_authorities": [
+            {
+              "type": "etsi_tl",
+              "values": [
+                {
+                  "trustListId": "playground-eaa"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "lifeTime": 300
+  }
+}

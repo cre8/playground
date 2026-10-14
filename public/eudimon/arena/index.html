@@ -42,7 +42,7 @@
         <div id="battle" class="battle">
           <div id="foeHud" class="hud foe-hud hidden" aria-label="Opponent">
             <div class="hud-name" id="foeName">-</div>
-            <div class="hud-level">:L5</div>
+            <div class="hud-level" id="foeLevel">:L5</div>
             <div class="hp-row">
               <span class="hp-label">HP:</span>
               <div class="hp-bar"><div id="foeHp" class="hp-fill"></div></div>
@@ -67,6 +67,14 @@
           <span class="gb-next tri-down" aria-hidden="true"></span>
         </div>
 
+        <!-- Wallets answer with the first matching EUDIMON, so the page asks which one -->
+        <div class="gb-menu-anchor">
+          <div id="sendOutMenu" class="gb-box gb-menu hidden" role="group" aria-label="Choose your EUDIMON">
+            <button id="sendStarterBtn" type="button" class="gb-btn primary">Your starter</button>
+            <button id="sendPikachuBtn" type="button" class="gb-btn">PIKACHU</button>
+          </div>
+        </div>
+
         <!-- FIGHT menu: unknown moves are revealed with the wallet -->
         <div id="fightMenu" class="gb-box fight hidden" role="group" aria-labelledby="fightTitle">
           <h2 id="fightTitle" class="visually-hidden">Choose a move</h2>
@@ -86,6 +94,20 @@
             <button id="dcApiBtn" type="button" class="gb-btn hidden">Use browser wallet (DC API)</button>
             <button id="cancelRequestBtn" type="button" class="gb-btn hidden">Pick another move</button>
             <p id="verifyStatus" class="status-line" role="status">Waiting for your wallet...</p>
+          </div>
+        </div>
+
+        <!-- Gary's reward: Pikachu as a new credential -->
+        <div id="rewardPanel" class="gb-box verify hidden" aria-labelledby="rewardTitle">
+          <div id="rewardQrFrame" class="qr-frame"><div id="rewardQr" class="qr-code"></div></div>
+          <div class="verify-actions">
+            <h2 id="rewardTitle">Gary's PIKACHU</h2>
+            <p>
+              The arena checked every move with your wallet, so it knows you won. It issues Gary's
+              PIKACHU as a new EUDIMON credential.
+            </p>
+            <div id="rewardLink" class="hidden"></div>
+            <p id="rewardStatus" class="status-line" role="status">Preparing the offer...</p>
           </div>
         </div>
 
@@ -117,12 +139,22 @@
           The arena is a verifier, and every disclosure is a separate presentation request:
         </p>
         <ul>
-          <li><code>eudimon-battle</code> sends out your EUDIMON: species, nickname and level.</li>
+          <li>
+            <code>eudimon-battle</code> sends out your starter: species, nickname and level.
+            <code>eudimon-battle-pikachu</code> does the same for PIKACHU.
+          </li>
           <li>
             <code>eudimon-move-1</code> to <code>eudimon-move-4</code> ask for exactly one move, plus
-            species and nickname to check it is still the same EUDIMON.
+            species and nickname to check it is still the same EUDIMON. PIKACHU has its own
+            <code>eudimon-pikachu-move-1</code> to <code>-4</code>, so the wallet does not answer with
+            your starter instead.
           </li>
           <li>A move Gary already knows needs no new request.</li>
+          <li>
+            The server referees the battle: it reads every disclosed move from EUDIPLO and rolls the
+            damage itself. Only a battle it saw won gets the reward, Gary's PIKACHU
+            (<code>eudimon-pikachu</code>), which you can send out in the next battle.
+          </li>
         </ul>
         <p>
           DCQL could let the wallet choose (<code>credential_sets</code>, <code>claim_sets</code>), but

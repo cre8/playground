@@ -1,6 +1,6 @@
 """Generate the EUDIMON pixel sprites (src/client/shared/eudimon-sprites.ts) and
-the credential card images and logos of the three starters
-(eudiplo-config/playground/images/eudimon-<starter>[-logo].png).
+the credential card images and logos of the three starters and of Pikachu, the
+arena reward (eudiplo-config/playground/images/eudimon-<id>[-logo].png).
 
 Usage: python3 scripts/generate-eudimon-sprites.py [--preview DIR]
 Requires rsvg-convert (brew install librsvg). --preview also writes an 8x
@@ -22,6 +22,7 @@ PALETTES = {
     "bulbasaur": ["#FFFFFF", "#98D890", "#308850", "#000000"],
     "charmander": ["#FFFFFF", "#F8B060", "#D85020", "#000000"],
     "squirtle": ["#FFFFFF", "#90D0F8", "#3080D0", "#000000"],
+    "pikachu": ["#FFFFFF", "#F8D838", "#E06838", "#000000"],
     "oak": ["#FFFFFF", "#C8C8C8", "#707070", "#000000"],
     "gary": ["#FFFFFF", "#A8B8F0", "#805030", "#000000"],
     "ball": ["#FFFFFF", "#D0D0D0", "#E83030", "#000000"],
@@ -256,6 +257,48 @@ def squirtle():
     return s
 
 
+def pikachu():
+    s = Sprite(40, 40)
+    # lightning bolt tail behind the body, brown at the base
+    tail = s.poly_mask([(25, 30), (29, 24), (27, 22), (32, 15), (30, 13), (36, 4), (39, 6),
+                        (35, 13), (37.5, 15), (32, 23), (34, 25), (28, 32)])
+    s.part(tail, shade=None)
+    s.fill({(x, y) for (x, y) in tail if y >= 27}, "2")
+    # far foot
+    s.part(s.ellipse_mask(25, 36, 3.6, 2.2), shade=None)
+    # body
+    body = s.ellipse_mask(20, 28.5, 7.5, 7.5)
+    s.part(body)
+    # back stripes
+    s.line(25, 25, 27, 25, "2")
+    s.line(25, 28, 27, 28, "2")
+    # near foot
+    s.part(s.ellipse_mask(15, 36, 3.8, 2.2), shade=None)
+    # arms
+    s.part(s.ellipse_mask(26, 27, 2.8, 1.8, rot=-0.4), shade=None)
+    s.part(s.ellipse_mask(12.5, 28, 3, 1.8, rot=0.5), shade=None)
+    # ears, black tips
+    far_ear = s.poly_mask([(19, 9), (25, 0.5), (27, 1.5), (23, 11)])
+    s.part(far_ear, shade=None)
+    s.fill({(x, y) for (x, y) in far_ear if y <= 3}, "3")
+    near_ear = s.poly_mask([(10, 9.5), (2, 1), (0.5, 3.5), (6, 13)])
+    s.part(near_ear, shade=None)
+    s.fill({(x, y) for (x, y) in near_ear if x + y <= 7}, "3")
+    # head
+    head = s.ellipse_mask(14.5, 15.5, 8.5, 7)
+    s.part(head)
+    # eyes
+    for ex in (9, 16):
+        s.fill({(x, y) for x in range(ex, ex + 2) for y in range(12, 15)}, "3")
+        s.set(ex, 12, "0")
+    # nose and mouth
+    s.set(12, 16, "3")
+    s.pixels([(10, 18), (11, 19), (12, 18), (13, 19), (14, 18)], "3")
+    # red cheeks
+    s.fill(s.ellipse_mask(7.5, 18, 1.8, 1.6), "2")
+    s.fill(s.ellipse_mask(19.5, 18, 2, 1.8), "2")
+    return s
+
 
 def oak():
     s = Sprite(32, 56)
@@ -365,6 +408,7 @@ SPRITES = {
     "charmander": charmander,
     "bulbasaur": bulbasaur,
     "squirtle": squirtle,
+    "pikachu": pikachu,
     "oak": oak,
     "gary": gary,
     "ball": ball,
@@ -373,11 +417,14 @@ SPRITES = {
 
 # --- credential cards ----------------------------------------------------------
 
-# Same data as STARTERS in src/client/shared/eudimon.ts
+# Same data as EUDIMON in src/shared/eudimon-rules.ts
+LAB = dict(label="STARTER", footer=("PROF. OAK", "PALLET TOWN LAB"))
 CARD_STARTERS = [
-    dict(id="bulbasaur", name="BULBASAUR", dex=1, type="GRASS/POISON"),
-    dict(id="charmander", name="CHARMANDER", dex=4, type="FIRE"),
-    dict(id="squirtle", name="SQUIRTLE", dex=7, type="WATER"),
+    dict(id="bulbasaur", name="BULBASAUR", dex=1, type="GRASS/POISON", **LAB),
+    dict(id="charmander", name="CHARMANDER", dex=4, type="FIRE", **LAB),
+    dict(id="squirtle", name="SQUIRTLE", dex=7, type="WATER", **LAB),
+    dict(id="pikachu", name="PIKACHU", dex=25, type="ELECTRIC", label="REWARD",
+         footer=("RIVAL GARY", "WON IN THE ARENA")),
 ]
 
 # 5x7 pixel font for the card texts
@@ -503,15 +550,15 @@ def card_svg(starter, sprites):
   {text_rects("EUDIMON", 60 + 7, 32 + 7, 8, black)}
   {text_rects("EUDIMON", 60, 32, 8, white)}
   {sprite_rects("ball", sprites["ball"], ball_x, 28, 4)}
-  {text_rects("STARTER", ball_x - 24 - text_width("STARTER", 3), 50, 3, white)}
+  {text_rects(starter["label"], ball_x - 24 - text_width(starter["label"], 3), 50, 3, white)}
   {sprite_rects(starter["id"], sprites[starter["id"]], CARD_W - 40 * 11 - 40, header + 30, 11)}
   {text_rects("NO." + str(starter["dex"]).zfill(3), 60, header + 70, 5, dark)}
   {text_rects(starter["name"], 60, header + 130, name_scale, black)}
   {text_rects("TYPE/", 60, header + 230, 4, black)}
   {text_rects(starter["type"], 60, header + 270, 4, black)}
   {gb_box(40, CARD_H - 150, 470, 110, 6, light)}
-  {text_rects("PROF. OAK", 76, CARD_H - 122, 4, black)}
-  {text_rects("PALLET TOWN LAB", 76, CARD_H - 82, 3, dark)}
+  {text_rects(starter["footer"][0], 76, CARD_H - 122, 4, black)}
+  {text_rects(starter["footer"][1], 76, CARD_H - 82, 3, dark)}
   <rect x="0" y="0" width="{CARD_W}" height="{CARD_H}" fill="none" stroke="{black}" stroke-width="16"/>
 </svg>
 """
