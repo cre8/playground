@@ -68,6 +68,12 @@ Configure the playground using environment variables:
 | `CLIENT_SECRET`             | `root`                  | Client secret for EUDIPLO API authentication           |
 | `MDL_PREFERRED_AUTH_SERVER` | `name`                  | Preferred authorization server for mDL issuance offers |
 | `MDL_ATTRIBUTE_PROVIDER_ID` | `claims-provider`       | Attribute provider ID used for mDL credential claims   |
+| `INDEX_USE_CASES`           | _(all)_                 | Comma-separated use cases to list on the index page    |
+
+`INDEX_USE_CASES` takes the page paths of the use cases, for example
+`INDEX_USE_CASES=alcohol-shop,bank-onboarding,drive-orange`. Groups without a
+listed use case are hidden, and `eudimon` shows the EUDIMON easter egg. Pages
+that are not listed stay reachable by their URL.
 
 For local development, create a `.env` file:
 

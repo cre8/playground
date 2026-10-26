@@ -8,6 +8,7 @@
 
 import express, { Request, Response, NextFunction } from 'express';
 import rateLimit from 'express-rate-limit';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -29,6 +30,11 @@ const config = {
   mdlPreferredAuthServer: process.env.MDL_PREFERRED_AUTH_SERVER || 'name',
   mdlAttributeProviderId: process.env.MDL_ATTRIBUTE_PROVIDER_ID || 'claims-provider',
   chainedAuthServer: process.env.CHAINED_AUTH_SERVER || 'chained-auth',
+  // Comma-separated use case IDs (page paths) to list on the index page, empty lists all
+  indexUseCases: (process.env.INDEX_USE_CASES || '')
+    .split(',')
+    .map((id) => id.trim())
+    .filter(Boolean),
 };
 
 // Use case configurations - map use case ID to presentation config
@@ -591,6 +597,40 @@ app.use(
 
 // Serve static files from public directory
 const publicDir = path.resolve(__dirname, '..', 'public');
+const indexFile = path.join(publicDir, 'index.html');
+
+// Drop the index page cards not listed in INDEX_USE_CASES, and the groups left empty
+async function renderIndex(): Promise<string> {
+  const html = await readFile(indexFile, 'utf8');
+  if (config.indexUseCases.length === 0) {
+    return html;
+  }
+  return html
+    .replaceAll(/<a [^>]*data-use-case="([^"]+)"[^>]*>[\s\S]*?<\/a>\s*/g, (card, id: string) =>
+      config.indexUseCases.includes(id) ? card : ''
+    )
+    .replaceAll(/<section class="use-case-group">[\s\S]*?<\/section>\s*/g, (group) =>
+      group.includes('data-use-case=') ? group : ''
+    );
+}
+
+async function sendIndex(res: Response): Promise<void> {
+  res.type('html').send(await renderIndex());
+}
+
+if (config.indexUseCases.length > 0) {
+  readFile(indexFile, 'utf8').then((html) => {
+    const known = new Set([...html.matchAll(/data-use-case="([^"]+)"/g)].map((m) => m[1]));
+    const unknown = config.indexUseCases.filter((id) => !known.has(id));
+    if (unknown.length > 0) {
+      console.warn(`⚠️  INDEX_USE_CASES contains unknown use cases: ${unknown.join(', ')}`);
+    }
+  });
+}
+
+app.get(['/', '/index.html'], (_req: Request, res: Response, next: NextFunction) => {
+  sendIndex(res).catch(next);
+});
 
 app.use(express.static(publicDir));
 
@@ -618,7 +658,7 @@ app.get('/{*any}', (req: Request, res: Response) => {
   res.sendFile(indexPath, (err) => {
     if (err) {
       // Fallback to main index.html
-      res.sendFile(path.join(publicDir, 'index.html'));
+      sendIndex(res).catch(() => res.status(500).send('Internal Server Error'));
     }
   });
 });

@@ -82,6 +82,15 @@
         text-decoration: underline;
       }
 
+      .use-case-group > h2 {
+        margin: 2rem 0 1rem 0;
+        color: var(--text);
+      }
+
+      .use-case-group:first-of-type > h2 {
+        margin-top: 0;
+      }
+
       .use-case-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -308,255 +317,265 @@
         <p>Test your EUDI Wallet with real-world verification scenarios</p>
       </header>
 
-      <h2 style="margin-bottom: 1rem; color: var(--text);">🪪 PID Verification</h2>
-      <section class="use-case-grid">
-        <a href="/alcohol-shop/" class="use-case-card alcohol">
-          <div class="use-case-icon">🍷</div>
-          <h2>Vineyard Select</h2>
-          <p>
-            Age verification for online alcohol purchases. Customer proves
-            they're 16+ without revealing exact birthdate.
-          </p>
-          <div class="use-case-meta">
-            <span class="use-case-badge">Age 16+</span>
-            <span class="use-case-arrow">→</span>
-          </div>
-        </a>
-
-        <a href="/club-overasking/" class="use-case-card club">
-          <div class="use-case-icon">🪩</div>
-          <h2>Club Nocturne</h2>
-          <p>
-            Over-asking example. The club only needs to know you're 18+, but
-            also requests your name and address. Spot it in your wallet and
-            decline.
-          </p>
-          <div class="use-case-meta">
-            <span class="use-case-badge">Over-asking</span>
-            <span class="use-case-arrow">→</span>
-          </div>
-        </a>
-
-        <a href="/bank-onboarding/" class="use-case-card bank">
-          <div class="use-case-icon">🏦</div>
-          <h2>Nordic Digital Bank</h2>
-          <p>
-            Complete KYC identity verification for account opening. Full PID
-            request with name, address, and national ID.
-          </p>
-          <div class="use-case-meta">
-            <span class="use-case-badge">Full PID</span>
-            <span class="use-case-arrow">→</span>
-          </div>
-        </a>
-
-        <a href="/sim-activation/" class="use-case-card sim">
-          <div class="use-case-icon">📱</div>
-          <h2>TechMarkt SIM-Activation</h2>
-          <p>
-            Identity verification for prepaid SIM card activation per German
-            telecommunications law (TKG §172). Replaces video-ident.
-          </p>
-          <div class="use-case-meta">
-            <span class="use-case-badge">Full PID</span>
-            <span class="use-case-arrow">→</span>
-          </div>
-        </a>
-
-        <a href="/museum-discount/" class="use-case-card museum">
-          <div class="use-case-icon">🏛️</div>
-          <h2>Berlin History Museum</h2>
-          <p>
-            Resident discount verification. Prove Berlin residency or present
-            an Ehrenamtskarte to receive 50% off museum admission without
-            revealing other personal data.
-          </p>
-          <div class="use-case-meta">
-            <span class="use-case-badge">City Only</span>
-            <span class="use-case-arrow">→</span>
-          </div>
-        </a>
-
-        <a href="/parcel-pickup/" class="use-case-card parcel">
-          <div class="use-case-icon">📦</div>
-          <h2>SwiftBox Parcel Locker</h2>
-          <p>
-            Minimal disclosure for parcel pickup. Only verify your name matches
-            the recipient – no birthdate, address, or ID required.
-          </p>
-          <div class="use-case-meta">
-            <span class="use-case-badge">Name Only</span>
-            <span class="use-case-arrow">→</span>
-          </div>
-        </a>
-      </section>
-
-      <h2 style="margin: 2rem 0 1rem 0; color: var(--text);">🚗 MDL Verification</h2>
-      <section class="use-case-grid">
-        <a href="/drive-orange/" class="use-case-card drive-orange">
-          <div class="use-case-icon">🍊</div>
-          <h2>DriveOrange</h2>
-          <p>
-            Mobile driving license verification for car rental. Life's too short
-            for paper documents – just scan and drive.
-          </p>
-          <div class="use-case-meta">
-            <span class="use-case-badge">Driving License</span>
-            <span class="use-case-arrow">→</span>
-          </div>
-        </a>
-      </section>
-
-      <h2 style="margin: 2rem 0 1rem 0; color: var(--text);">📜 EAA Issuance</h2>
-      <section class="use-case-grid">
-        <a href="/university-diploma/" class="use-case-card university">
-          <div class="use-case-icon">🎓</div>
-          <h2>European Technical University</h2>
-          <p>
-            Digital diploma issuance with authentication. Log in to the student 
-            portal and receive your verifiable academic credential.
-          </p>
-          <div class="use-case-meta">
-            <span class="use-case-badge">Auth Code Flow</span>
-            <span class="use-case-arrow">→</span>
-          </div>
-        </a>
-
-        <a href="/loyalty-card/" class="use-case-card loyalty">
-          <div class="use-case-icon">💪</div>
-          <h2>FitLife Health Club</h2>
-          <p>
-            Instant membership card issuance. Sign up and receive your digital 
-            loyalty card immediately – no additional authentication needed.
-          </p>
-          <div class="use-case-meta">
-            <span class="use-case-badge">Pre-auth Code Flow</span>
-            <span class="use-case-arrow">→</span>
-          </div>
-        </a>
-
-        <a href="/event-access/" class="use-case-card event">
-            <div class="use-case-icon">🎫</div>
-            <h2>Tech Conference 2026</h2>
+      <section class="use-case-group">
+        <h2>🪪 PID Verification</h2>
+        <div class="use-case-grid">
+          <a href="/alcohol-shop/" data-use-case="alcohol-shop" class="use-case-card alcohol">
+            <div class="use-case-icon">🍷</div>
+            <h2>Vineyard Select</h2>
             <p>
-              Present your PID and receive an event access attestation. Verify your identity 
-              once and get a reusable credential for event access and partner services.
+              Age verification for online alcohol purchases. Customer proves
+              they're 16+ without revealing exact birthdate.
             </p>
             <div class="use-case-meta">
-              <span class="use-case-badge">PID → Attestation</span>
+              <span class="use-case-badge">Age 16+</span>
               <span class="use-case-arrow">→</span>
             </div>
           </a>
 
-        <a href="/honorary-engagement-card/" class="use-case-card honorary">
-          <div class="use-case-icon">🏅</div>
-          <h2>Civic Honors Office</h2>
-          <p>
-            Issue an Honorary Engagement Card with pre-authorized code flow.
-            The issuer uses the <strong>honorary</strong> credential configuration.
-          </p>
-          <div class="use-case-meta">
-            <span class="use-case-badge">Pre-auth: honorary</span>
-            <span class="use-case-arrow">→</span>
-          </div>
-        </a>
+          <a href="/club-overasking/" data-use-case="club-overasking" class="use-case-card club">
+            <div class="use-case-icon">🪩</div>
+            <h2>Club Nocturne</h2>
+            <p>
+              Over-asking example. The club only needs to know you're 18+, but
+              also requests your name and address. Spot it in your wallet and
+              decline.
+            </p>
+            <div class="use-case-meta">
+              <span class="use-case-badge">Over-asking</span>
+              <span class="use-case-arrow">→</span>
+            </div>
+          </a>
 
-        <a href="/first-aid-certificate/" class="use-case-card first-aid">
-          <div class="use-case-icon">🩹</div>
-          <h2>DRH Bildungswerk</h2>
-          <p>
-            Receive a first aid certificate after your course. It is valid for two years
-            and can be used to register as a crisis helper.
-          </p>
-          <div class="use-case-meta">
-            <span class="use-case-badge">Pre-auth: first-aid</span>
-            <span class="use-case-arrow">→</span>
-          </div>
-        </a>
+          <a href="/bank-onboarding/" data-use-case="bank-onboarding" class="use-case-card bank">
+            <div class="use-case-icon">🏦</div>
+            <h2>Nordic Digital Bank</h2>
+            <p>
+              Complete KYC identity verification for account opening. Full PID
+              request with name, address, and national ID.
+            </p>
+            <div class="use-case-meta">
+              <span class="use-case-badge">Full PID</span>
+              <span class="use-case-arrow">→</span>
+            </div>
+          </a>
 
-        <a href="/mdl-issuance/" class="use-case-card mdl-issuance">
-          <div class="use-case-icon">🪪</div>
-          <h2>Driving Licence Authority</h2>
-          <p>
-            Issue an mDL credential (mso_mdoc) with default driver data and privileges.
-            Uses the pre-authorized code flow with config <strong>mdl</strong>.
-          </p>
-          <div class="use-case-meta">
-            <span class="use-case-badge">Pre-auth: mdl</span>
-            <span class="use-case-arrow">→</span>
-          </div>
-        </a>
+          <a href="/sim-activation/" data-use-case="sim-activation" class="use-case-card sim">
+            <div class="use-case-icon">📱</div>
+            <h2>TechMarkt SIM-Activation</h2>
+            <p>
+              Identity verification for prepaid SIM card activation per German
+              telecommunications law (TKG §172). Replaces video-ident.
+            </p>
+            <div class="use-case-meta">
+              <span class="use-case-badge">Full PID</span>
+              <span class="use-case-arrow">→</span>
+            </div>
+          </a>
+
+          <a href="/museum-discount/" data-use-case="museum-discount" class="use-case-card museum">
+            <div class="use-case-icon">🏛️</div>
+            <h2>Berlin History Museum</h2>
+            <p>
+              Resident discount verification. Prove Berlin residency or present
+              an Ehrenamtskarte to receive 50% off museum admission without
+              revealing other personal data.
+            </p>
+            <div class="use-case-meta">
+              <span class="use-case-badge">City Only</span>
+              <span class="use-case-arrow">→</span>
+            </div>
+          </a>
+
+          <a href="/parcel-pickup/" data-use-case="parcel-pickup" class="use-case-card parcel">
+            <div class="use-case-icon">📦</div>
+            <h2>SwiftBox Parcel Locker</h2>
+            <p>
+              Minimal disclosure for parcel pickup. Only verify your name matches
+              the recipient – no birthdate, address, or ID required.
+            </p>
+            <div class="use-case-meta">
+              <span class="use-case-badge">Name Only</span>
+              <span class="use-case-arrow">→</span>
+            </div>
+          </a>
+        </div>
       </section>
 
-      <h2 style="margin: 2rem 0 1rem 0; color: var(--text);">🎫 EAA Verification</h2>
-      <section class="use-case-grid">          
-        <a href="/job-portal/" class="use-case-card job">
-          <div class="use-case-icon">💼</div>
-          <h2>TechCorp Careers</h2>
-          <p>
-            Verify your identity and university diploma for job applications. 
-            Employers can instantly confirm who you are and your qualifications.
-          </p>
-          <div class="use-case-meta">
-            <span class="use-case-badge">PID + Diploma</span>
-            <span class="use-case-arrow">→</span>
-          </div>
-        </a>
-
-        <a href="/masters-application/" class="use-case-card masters">
-          <div class="use-case-icon">🎓</div>
-          <h2>Graduate School Portal</h2>
-          <p>
-            Apply for a Master's program by verifying your Bachelor's degree 
-            and identity. Universities can confirm your qualifications instantly.
-          </p>
-          <div class="use-case-meta">
-            <span class="use-case-badge">PID + Diploma</span>
-            <span class="use-case-arrow">→</span>
-          </div>
-        </a>
-
-        <a href="/crisis-helper/" class="use-case-card crisis-helper">
-          <div class="use-case-icon">🤝</div>
-          <h2>DRH Helfernetz</h2>
-          <p>
-            Register as a volunteer crisis helper with your PID and a first aid
-            certificate or Ehrenamtskarte, so the crisis team knows who is qualified.
-          </p>
-          <div class="use-case-meta">
-            <span class="use-case-badge">PID + First Aid / Ehrenamtskarte</span>
-            <span class="use-case-arrow">→</span>
-          </div>
-        </a>
-
-        <a href="/sports-shop/" class="use-case-card sports">
-          <div class="use-case-icon">🏃</div>
-          <h2>SportZone</h2>
-          <p>
-            Get 15% off by verifying your gym membership. Partner stores 
-            recognize your FitLife loyalty card.
-          </p>
-          <div class="use-case-meta">
-            <span class="use-case-badge">Loyalty Card</span>
-            <span class="use-case-arrow">→</span>
-          </div>
-        </a>
+      <section class="use-case-group">
+        <h2>🚗 MDL Verification</h2>
+        <div class="use-case-grid">
+          <a href="/drive-orange/" data-use-case="drive-orange" class="use-case-card drive-orange">
+            <div class="use-case-icon">🍊</div>
+            <h2>DriveOrange</h2>
+            <p>
+              Mobile driving license verification for car rental. Life's too short
+              for paper documents – just scan and drive.
+            </p>
+            <div class="use-case-meta">
+              <span class="use-case-badge">Driving License</span>
+              <span class="use-case-arrow">→</span>
+            </div>
+          </a>
+        </div>
       </section>
 
-      <h2 style="margin: 2rem 0 1rem 0; color: var(--text);">🏢 B2B / Organizational</h2>
-      <section class="use-case-grid">
-        <a href="/supplier-onboarding/" class="use-case-card supplier">
-          <div class="use-case-icon">📋</div>
-          <h2>ProProcure</h2>
-          <p>
-            B2B supplier registration with PID + DATEV company credentials. Verify personal 
-            identity, company details, employee authorization, and configure e-invoice routing.
-          </p>
-          <div class="use-case-meta">
-            <span class="use-case-badge">PID + DATEV</span>
-            <span class="use-case-arrow">→</span>
-          </div>
-        </a>
+      <section class="use-case-group">
+        <h2>📜 EAA Issuance</h2>
+        <div class="use-case-grid">
+          <a href="/university-diploma/" data-use-case="university-diploma" class="use-case-card university">
+            <div class="use-case-icon">🎓</div>
+            <h2>European Technical University</h2>
+            <p>
+              Digital diploma issuance with authentication. Log in to the student 
+              portal and receive your verifiable academic credential.
+            </p>
+            <div class="use-case-meta">
+              <span class="use-case-badge">Auth Code Flow</span>
+              <span class="use-case-arrow">→</span>
+            </div>
+          </a>
+
+          <a href="/loyalty-card/" data-use-case="loyalty-card" class="use-case-card loyalty">
+            <div class="use-case-icon">💪</div>
+            <h2>FitLife Health Club</h2>
+            <p>
+              Instant membership card issuance. Sign up and receive your digital 
+              loyalty card immediately – no additional authentication needed.
+            </p>
+            <div class="use-case-meta">
+              <span class="use-case-badge">Pre-auth Code Flow</span>
+              <span class="use-case-arrow">→</span>
+            </div>
+          </a>
+
+          <a href="/event-access/" data-use-case="event-access" class="use-case-card event">
+              <div class="use-case-icon">🎫</div>
+              <h2>Tech Conference 2026</h2>
+              <p>
+                Present your PID and receive an event access attestation. Verify your identity 
+                once and get a reusable credential for event access and partner services.
+              </p>
+              <div class="use-case-meta">
+                <span class="use-case-badge">PID → Attestation</span>
+                <span class="use-case-arrow">→</span>
+              </div>
+            </a>
+
+          <a href="/honorary-engagement-card/" data-use-case="honorary-engagement-card" class="use-case-card honorary">
+            <div class="use-case-icon">🏅</div>
+            <h2>Civic Honors Office</h2>
+            <p>
+              Issue an Honorary Engagement Card with pre-authorized code flow.
+              The issuer uses the <strong>honorary</strong> credential configuration.
+            </p>
+            <div class="use-case-meta">
+              <span class="use-case-badge">Pre-auth: honorary</span>
+              <span class="use-case-arrow">→</span>
+            </div>
+          </a>
+
+          <a href="/first-aid-certificate/" data-use-case="first-aid-certificate" class="use-case-card first-aid">
+            <div class="use-case-icon">🩹</div>
+            <h2>DRH Bildungswerk</h2>
+            <p>
+              Receive a first aid certificate after your course. It is valid for two years
+              and can be used to register as a crisis helper.
+            </p>
+            <div class="use-case-meta">
+              <span class="use-case-badge">Pre-auth: first-aid</span>
+              <span class="use-case-arrow">→</span>
+            </div>
+          </a>
+
+          <a href="/mdl-issuance/" data-use-case="mdl-issuance" class="use-case-card mdl-issuance">
+            <div class="use-case-icon">🪪</div>
+            <h2>Driving Licence Authority</h2>
+            <p>
+              Issue an mDL credential (mso_mdoc) with default driver data and privileges.
+              Uses the pre-authorized code flow with config <strong>mdl</strong>.
+            </p>
+            <div class="use-case-meta">
+              <span class="use-case-badge">Pre-auth: mdl</span>
+              <span class="use-case-arrow">→</span>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <section class="use-case-group">
+        <h2>🎫 EAA Verification</h2>
+        <div class="use-case-grid">
+          <a href="/job-portal/" data-use-case="job-portal" class="use-case-card job">
+            <div class="use-case-icon">💼</div>
+            <h2>TechCorp Careers</h2>
+            <p>
+              Verify your identity and university diploma for job applications. 
+              Employers can instantly confirm who you are and your qualifications.
+            </p>
+            <div class="use-case-meta">
+              <span class="use-case-badge">PID + Diploma</span>
+              <span class="use-case-arrow">→</span>
+            </div>
+          </a>
+
+          <a href="/masters-application/" data-use-case="masters-application" class="use-case-card masters">
+            <div class="use-case-icon">🎓</div>
+            <h2>Graduate School Portal</h2>
+            <p>
+              Apply for a Master's program by verifying your Bachelor's degree 
+              and identity. Universities can confirm your qualifications instantly.
+            </p>
+            <div class="use-case-meta">
+              <span class="use-case-badge">PID + Diploma</span>
+              <span class="use-case-arrow">→</span>
+            </div>
+          </a>
+
+          <a href="/crisis-helper/" data-use-case="crisis-helper" class="use-case-card crisis-helper">
+            <div class="use-case-icon">🤝</div>
+            <h2>DRH Helfernetz</h2>
+            <p>
+              Register as a volunteer crisis helper with your PID and a first aid
+              certificate or Ehrenamtskarte, so the crisis team knows who is qualified.
+            </p>
+            <div class="use-case-meta">
+              <span class="use-case-badge">PID + First Aid / Ehrenamtskarte</span>
+              <span class="use-case-arrow">→</span>
+            </div>
+          </a>
+
+          <a href="/sports-shop/" data-use-case="sports-shop" class="use-case-card sports">
+            <div class="use-case-icon">🏃</div>
+            <h2>SportZone</h2>
+            <p>
+              Get 15% off by verifying your gym membership. Partner stores 
+              recognize your FitLife loyalty card.
+            </p>
+            <div class="use-case-meta">
+              <span class="use-case-badge">Loyalty Card</span>
+              <span class="use-case-arrow">→</span>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <section class="use-case-group">
+        <h2>🏢 B2B / Organizational</h2>
+        <div class="use-case-grid">
+          <a href="/supplier-onboarding/" data-use-case="supplier-onboarding" class="use-case-card supplier">
+            <div class="use-case-icon">📋</div>
+            <h2>ProProcure</h2>
+            <p>
+              B2B supplier registration with PID + DATEV company credentials. Verify personal 
+              identity, company details, employee authorization, and configure e-invoice routing.
+            </p>
+            <div class="use-case-meta">
+              <span class="use-case-badge">PID + DATEV</span>
+              <span class="use-case-arrow">→</span>
+            </div>
+          </a>
+        </div>
       </section>
 
       <footer>
@@ -589,7 +608,7 @@
             >API Reference</a
           >
         </div>
-        <a href="/eudimon/" class="secret-ball" aria-label="EUDIMON" title="A wild EUDIMON appeared!">
+        <a href="/eudimon/" data-use-case="eudimon" class="secret-ball" aria-label="EUDIMON" title="A wild EUDIMON appeared!">
           <svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true">
             <path fill="#FFFFFF" d="M7 6h2v1h-2zM6 7h4v1h-4zM6 8h4v1h-4zM1 9h4v1h-4zM7 9h2v1h-2zM11 9h3v1h-3zM1 10h5v1h-5zM10 10h4v1h-4zM1 11h12v1h-12zM2 12h10v1h-10zM3 13h8v1h-8z" />
             <path fill="#D0D0D0" d="M4 3h2v1h-2zM4 4h1v1h-1zM14 9h1v1h-1zM14 10h1v1h-1zM13 11h2v1h-2zM12 12h2v1h-2zM11 13h2v1h-2zM4 14h8v1h-8z" />
