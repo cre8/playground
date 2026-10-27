@@ -214,7 +214,7 @@ function displaySessionIdInQrSection(sessionId: string): void {
 function isRecipientMatch(_session: Session): boolean {
   // For demo purposes, we'll accept any name (in real app, strict match)
   // To test mismatch flow, you could extract claims and check:
-  // const claims = extractClaims(session.presentation || {});
+  // const claims = extractClaims(session.credentials);
   // const firstName = String(claims.given_name || claims.first_name || '').toLowerCase().trim();
   // const lastName = String(claims.family_name || claims.last_name || '').toLowerCase().trim();
   // return firstName === EXPECTED_RECIPIENT.firstName.toLowerCase() && 
@@ -224,7 +224,7 @@ function isRecipientMatch(_session: Session): boolean {
 
 // Get full name from session
 function getFullName(session: Session): string {
-  const claims = extractClaims(session.presentation || {});
+  const claims = extractClaims(session.credentials);
   return getFullNameFromClaims(claims);
 }
 
@@ -273,19 +273,28 @@ function handleError(error: unknown): void {
 // Show success state
 function showSuccess(session: Session): void {
   showSection(successSection);
-  const claims = extractClaims(session.presentation || {});
+  const claims = extractClaims(session.credentials);
   displaySuccessContent(claims, false, session.sessionId);
 }
 
 // Show success state from DC API
 function showSuccessFromDcApi(result: DcApiResult): void {
   showSection(successSection);
-  const claims = result.presentation ? extractClaims(result.presentation) : {};
+  const claims = extractClaims(result.credentials);
   displaySuccessContent(claims, true, result.sessionId);
 }
 
 // Display success content
 function displaySuccessContent(claims: Record<string, unknown>, isDcApi: boolean, sessionId?: string): void {
+  // Write the verified name on the parcel label
+  const parcelBox = document.getElementById('parcelBox');
+  const parcelRecipient = document.getElementById('parcelRecipient');
+  const fullName = getFullNameFromClaims(claims);
+  if (parcelBox && parcelRecipient) {
+    parcelRecipient.textContent = fullName;
+    parcelBox.classList.toggle('hidden', !fullName);
+  }
+
   const verifiedDataEl = document.getElementById('verifiedData');
   if (verifiedDataEl) {
     verifiedDataEl.innerHTML = '';
@@ -309,6 +318,17 @@ function displaySuccessContent(claims: Record<string, unknown>, isDcApi: boolean
       item.innerHTML = `
         <span class="label">Last Name</span>
         <span class="value">✓ ${lastName}</span>
+      `;
+      verifiedDataEl.appendChild(item);
+    }
+
+    // Issuer of the presented PID
+    if (claims.iss) {
+      const item = document.createElement('div');
+      item.className = 'verified-item';
+      item.innerHTML = `
+        <span class="label">Issued by</span>
+        <span class="value">${claims.iss}</span>
       `;
       verifiedDataEl.appendChild(item);
     }
@@ -356,24 +376,19 @@ function showMismatch(session: Session): void {
   }
 }
 
-// Extract claims from various presentation formats
-function extractClaims(presentation: Record<string, unknown>): Record<string, unknown> {
-  // Direct claims
-  if (presentation.given_name || presentation.family_name) {
-    return presentation;
+// Merge claim values from all presented credentials into one object
+function extractClaims(credentials?: Array<Record<string, unknown>>): Record<string, unknown> {
+  const claims: Record<string, unknown> = {};
+  if (!credentials) return claims;
+  for (const credential of credentials) {
+    const values = credential.values as Array<Record<string, unknown>> | undefined;
+    if (values) {
+      for (const valueSet of values) {
+        Object.assign(claims, valueSet);
+      }
+    }
   }
-  
-  // Nested in credentials array
-  if (Array.isArray(presentation.credentials) && presentation.credentials.length > 0) {
-    return presentation.credentials[0] as Record<string, unknown>;
-  }
-  
-  // Nested in credential object
-  if (presentation.credential && typeof presentation.credential === 'object') {
-    return presentation.credential as Record<string, unknown>;
-  }
-  
-  return presentation;
+  return claims;
 }
 
 // Handle code link
