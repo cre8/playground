@@ -1,7 +1,7 @@
 {
   "$schema": "https://eudiplo.dev/schemas/v1/IssuanceConfigFile.schema.json",
   "metadata": {
-    "generation": 6
+    "generation": 7
   },
   "spec": {
     "authorizationServers": [
@@ -44,6 +44,11 @@
     "batchSize": 10,
     "dPopRequired": false,
     "walletAttestationRequired": false,
+    "walletProviderTrustLists": [
+      {
+        "trustListId": "playground-wallet-providers"
+      }
+    ],
     "display": [
       {
         "locale": "en-US",

@@ -194,7 +194,18 @@
             "vct_values": [
               "organization_vct"
             ]
-          }
+          },
+          "trusted_authorities": [
+            {
+              "type": "etsi_tl",
+              "values": [
+                {
+                  "url": "https://bmi.usercontent.opencode.de/eudi-wallet/test-trust-lists/pid-provider.jwt",
+                  "verifierX509Der": "MIICDDCCAbGgAwIBAgIUNY57W5ZMQd54F96UP0jRWWnnHCkwCgYIKoZIzj0EAwIwWzELMAkGA1UEBhMCREUxDzANBgNVBAgMBkJlcmxpbjEPMA0GA1UEBwwGQmVybGluMRQwEgYDVQQKDAtUcnVzdCBMaXN0czEUMBIGA1UEAwwLTG9URSBTaWduZXIwHhcNMjYwMzIzMTA1NzE0WhcNMzYwMzIwMTA1NzE0WjBbMQswCQYDVQQGEwJERTEPMA0GA1UECAwGQmVybGluMQ8wDQYDVQQHDAZCZXJsaW4xFDASBgNVBAoMC1RydXN0IExpc3RzMRQwEgYDVQQDDAtMb1RFIFNpZ25lcjBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJI2t4NHAHvyUmWjFWWq1wRC7wWhoYsdKb//uMpdiAVeBTFlOaaC0DAppVcY94oWO2gRx4Pb5Ae6izprfTFhkSmjUzBRMB0GA1UdDgQWBBRB+dSpSYViEtAu6hNxoHPSbfcZyDAfBgNVHSMEGDAWgBRB+dSpSYViEtAu6hNxoHPSbfcZyDAPBgNVHRMBAf8EBTADAQH/MAoGCCqGSM49BAMCA0kAMEYCIQDNdv3YAVQqJvxkNHyar2TAfAgJkc83Nwni+jFyvjAjFwIhAOxJw3mCf1Mqq1lO41et3iViCUjdCbpdABXIi3JqzTN8"
+                }
+              ]
+            }
+          ]
         }
       ]
     },
