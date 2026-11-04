@@ -12,6 +12,7 @@ services:
       - PORT=8080
       # EUDIPLO_URL in .env is meant for `pnpm dev` on the host, so it is not used here
       - EUDIPLO_URL=${COMPOSE_EUDIPLO_URL:-http://eudiplo:3000}
+      - PUBLIC_URL=${PUBLIC_URL:-http://localhost:8080}
       - CLIENT_ID=${CLIENT_ID:-root}
       - CLIENT_SECRET=${CLIENT_SECRET:-root}
       - INDEX_USE_CASES=${INDEX_USE_CASES:-}

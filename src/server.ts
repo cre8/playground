@@ -30,6 +30,9 @@ const config = {
   mdlPreferredAuthServer: process.env.MDL_PREFERRED_AUTH_SERVER || 'name',
   mdlAttributeProviderId: process.env.MDL_ATTRIBUTE_PROVIDER_ID || 'claims-provider',
   chainedAuthServer: process.env.CHAINED_AUTH_SERVER || 'chained-auth',
+  // Origin the playground pages are served from. EUDIPLO binds DC API
+  // presentations to it, so it never comes from the request
+  publicOrigin: new URL(process.env.PUBLIC_URL || `http://localhost:${process.env.PORT || '8080'}`).origin,
   // Comma-separated use case IDs (page paths) to list on the index page, empty lists all
   indexUseCases: (process.env.INDEX_USE_CASES || '')
     .split(',')
@@ -312,18 +315,6 @@ async function createIssuanceOffer(options: {
   };
 }
 
-function toOrigin(value?: string): string | undefined {
-  if (!value) {
-    return undefined;
-  }
-
-  try {
-    return new URL(value).origin;
-  } catch {
-    return undefined;
-  }
-}
-
 function decodeJwtPayload<T = Record<string, unknown>>(jwt: string): T {
   const parts = jwt.split('.');
   if (parts.length !== 3) {
@@ -346,26 +337,6 @@ function extractResponseUriFromRequestObject(requestObject: string): string {
   return requestPayload.response_uri;
 }
 
-// Resolve the browser origin for server-side DC API audience binding.
-function resolveRequestOrigin(req: Request, bodyOrigin?: string): string | undefined {
-  const headerOrigin = req.get('origin');
-  const refererOrigin = toOrigin(req.get('referer'));
-  const forwardedProto = req.get('x-forwarded-proto');
-  const forwardedHost = req.get('x-forwarded-host');
-  const forwardedOrigin = forwardedProto && forwardedHost
-    ? toOrigin(`${forwardedProto}://${forwardedHost}`)
-    : undefined;
-  const hostOrigin = req.get('host') ? `${req.protocol}://${req.get('host')}` : undefined;
-
-  return (
-    toOrigin(bodyOrigin) ??
-    toOrigin(headerOrigin) ??
-    refererOrigin ??
-    forwardedOrigin ??
-    toOrigin(hostOrigin)
-  );
-}
-
 // API Routes
 
 // GET /api/use-cases - List available use cases
@@ -381,10 +352,9 @@ app.get('/api/use-cases', (_req: Request, res: Response) => {
 // POST /api/verify - Create a presentation request
 app.post('/api/verify', async (req: Request, res: Response) => {
   try {
-    const { useCase, redirectUri, origin: bodyOrigin } = req.body as {
+    const { useCase, redirectUri } = req.body as {
       useCase: string;
       redirectUri?: string;
-      origin?: string;
     };
     const useCaseConfig = USE_CASES[useCase];
 
@@ -398,7 +368,7 @@ app.post('/api/verify', async (req: Request, res: Response) => {
       getClient().createPresentationRequest({
         configId: useCaseConfig.presentationConfigId,
         redirectUri,
-        origin: resolveRequestOrigin(req, bodyOrigin),
+        origin: config.publicOrigin,
       })
     );
 
@@ -508,10 +478,32 @@ app.get('/api/session/:id', async (req: Request, res: Response) => {
 
 // DC API Routes (Digital Credentials API - browser-native verification)
 
+// Response URIs of the DC API sessions this server started, so /complete only
+// posts to EUDIPLO URIs it handed out and never to a URI chosen by the caller
+const DC_API_SESSION_TTL_MS = 10 * 60 * 1000;
+const dcApiSessions = new Map<string, { responseUri: string; expiresAt: number }>();
+
+function rememberDcApiSession(sessionId: string, responseUri: string): void {
+  const now = Date.now();
+  for (const [id, entry] of dcApiSessions) {
+    if (entry.expiresAt <= now) {
+      dcApiSessions.delete(id);
+    }
+  }
+  dcApiSessions.set(sessionId, { responseUri, expiresAt: now + DC_API_SESSION_TTL_MS });
+}
+
+// Hand out a session's response URI once, so a wallet response is submitted only once
+function takeDcApiResponseUri(sessionId: string): string | undefined {
+  const entry = dcApiSessions.get(sessionId);
+  dcApiSessions.delete(sessionId);
+  return entry && entry.expiresAt > Date.now() ? entry.responseUri : undefined;
+}
+
 // POST /api/dc-api/start - Create a DC API presentation request
 app.post('/api/dc-api/start', async (req: Request, res: Response) => {
   try {
-    const { useCase, origin: bodyOrigin } = req.body as { useCase: string; origin?: string };
+    const { useCase } = req.body as { useCase: string };
     const useCaseConfig = USE_CASES[useCase];
 
     if (!useCaseConfig) {
@@ -522,18 +514,19 @@ app.post('/api/dc-api/start', async (req: Request, res: Response) => {
     // Create DC API request using the class API (credentials stay on server)
     const session = await getClient().createDcApiPresentationRequest({
       configId: useCaseConfig.presentationConfigId,
-      origin: resolveRequestOrigin(req, bodyOrigin),
+      origin: config.publicOrigin,
     });
 
     if (!session.requestObject) {
       throw new Error('Session does not contain a requestObject');
     }
 
+    rememberDcApiSession(session.id, extractResponseUriFromRequestObject(session.requestObject));
+
     // Return safe data to browser (no credentials exposed)
     res.json({
       requestObject: session.requestObject,
       sessionId: session.id,
-      responseUri: extractResponseUriFromRequestObject(session.requestObject),
     });
   } catch (error: any) {
     console.error('API Error (dc-api/start):', error);
@@ -544,13 +537,19 @@ app.post('/api/dc-api/start', async (req: Request, res: Response) => {
 // POST /api/dc-api/complete - Complete DC API verification with wallet response
 app.post('/api/dc-api/complete', async (req: Request, res: Response) => {
   try {
-    const { responseUri, walletResponse } = req.body as {
-      responseUri: string;
+    const { sessionId, walletResponse } = req.body as {
+      sessionId: string;
       walletResponse: { response?: string; error?: string; error_description?: string } | string;
     };
 
-    if (!responseUri || !walletResponse) {
-      res.status(400).json({ error: 'Missing responseUri or walletResponse' });
+    if (typeof sessionId !== 'string' || !walletResponse) {
+      res.status(400).json({ error: 'Missing sessionId or walletResponse' });
+      return;
+    }
+
+    const responseUri = takeDcApiResponseUri(sessionId);
+    if (!responseUri) {
+      res.status(400).json({ error: 'Unknown or expired DC API session' });
       return;
     }
 
@@ -667,4 +666,5 @@ app.get('/{*any}', (req: Request, res: Response) => {
 app.listen(config.port, () => {
   console.log(`🎮 EUDIPLO Playground running at http://localhost:${config.port}`);
   console.log(`📡 EUDIPLO Backend: ${config.eudiploUrl}`);
+  console.log(`🔒 DC API expected origin: ${config.publicOrigin}`);
 });

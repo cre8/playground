@@ -64,6 +64,7 @@ Configure the playground using environment variables:
 | --------------------------- | ----------------------- | ------------------------------------------------------ |
 | `PORT`                      | `8080`                  | Port for the playground server                         |
 | `EUDIPLO_URL`               | `http://localhost:3000` | URL of the EUDIPLO backend                             |
+| `PUBLIC_URL`                | `http://localhost:PORT` | Public URL the playground is served from (see below)   |
 | `CLIENT_ID`                 | `root`                  | Client ID for EUDIPLO API authentication               |
 | `CLIENT_SECRET`             | `root`                  | Client secret for EUDIPLO API authentication           |
 | `MDL_PREFERRED_AUTH_SERVER` | `name`                  | Preferred authorization server for mDL issuance offers |
@@ -74,6 +75,12 @@ Configure the playground using environment variables:
 `INDEX_USE_CASES=alcohol-shop,bank-onboarding,drive-orange`. Groups without a
 listed use case are hidden, and `eudimon` shows the EUDIMON easter egg. Pages
 that are not listed stay reachable by their URL.
+
+`PUBLIC_URL` sets the origin that EUDIPLO expects in DC API presentations. The
+server always sends this configured origin and never one taken from the request,
+so a third-party site cannot get a request bound to its own origin and relay a
+wallet response into a playground session. Set it to the URL users open, for
+example `PUBLIC_URL=https://playground.example.com`.
 
 For local development, create a `.env` file:
 

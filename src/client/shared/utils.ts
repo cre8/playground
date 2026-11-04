@@ -87,7 +87,6 @@ export interface DcApiWalletResponse {
 
 export interface DcApiRequestData {
   requestObject: string;
-  responseUri: string;
   sessionId: string;
 }
 
@@ -442,13 +441,13 @@ export async function callDcApi(requestObject: string): Promise<DcApiWalletRespo
  * Complete the DC API verification by sending the wallet response to the server
  */
 export async function completeDcApiVerification(
-  responseUri: string,
+  sessionId: string,
   walletResponse: DcApiWalletResponse
 ): Promise<DcApiResult> {
   const response = await fetch('/api/dc-api/complete', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ responseUri, walletResponse }),
+    body: JSON.stringify({ sessionId, walletResponse }),
   });
 
   if (!response.ok) {
@@ -483,7 +482,7 @@ export async function verifyWithDcApi(
   onStatus?.('Processing verification...');
 
   // 3. Send the wallet response back to server for verification
-  const result = await completeDcApiVerification(requestData.responseUri, walletResponse);
+  const result = await completeDcApiVerification(requestData.sessionId, walletResponse);
 
   // Include sessionId in the result for debugging/logging
   return { ...result, sessionId: requestData.sessionId };
