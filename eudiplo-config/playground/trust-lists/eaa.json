@@ -1,7 +1,7 @@
 {
-  "$schema": "https://eudiplo.dev/schemas/v1/TrustListConfigFile.schema.json",
+  "$schema": "https://eudiplo.dev/schemas/v2/TrustListConfigFile.schema.json",
   "metadata": {
-    "generation": 1
+    "generation": 2
   },
   "spec": {
     "id": "playground-eaa",
@@ -14,7 +14,9 @@
         "revocationKeyChainId": "dbb65456-c358-46c1-bb5b-c777ef72c1d4",
         "info": {
           "name": "EUDI Wallet Playground EAA Provider",
-          "lang": "en"
+          "lang": "en",
+          "contactUri": "no-reply@eudiplo.dev",
+          "website": "https://github.com/cre8/playground/issues"
         }
       }
     ]
